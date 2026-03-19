@@ -2,15 +2,56 @@
 
 <% content_for :title, "Issues" %>
 
-<h1>Issues</h1>
+<div class="taiga-container">
+  <header class="issues-header">
+    <h1>Issues</h1>
+    <%= link_to "+ NEW ISSUE", new_issue_path, class: "btn-new-issue" %>
+  </header>
 
-<div id="issues">
-  <% @issues.each do |issue| %>
-    <%= render issue %>
-    <p>
-      <%= link_to "Show this issue", issue %>
-    </p>
-  <% end %>
+  <div class="issues-table">
+    <div class="table-header">
+      <div class="col-icon">TYPE</div>
+      <div class="col-icon">SEVERITY</div>
+      <div class="col-icon">PRIORITY</div>
+      <div class="col-main">ISSUE</div>
+      <div class="col-status">STATUS</div>
+      <div class="col-date">MODIFIED</div>
+      <div class="col-user">ASSIGN TO</div>
+    </div>
+
+    <div id="issues">
+      <% @issues.each do |issue| %>
+        <div class="issue-row">
+          <div class="col-icon">
+            <span class="dot red"></span>
+          </div>
+          <div class="col-icon">
+            <span class="dot green"></span>
+          </div>
+          <div class="col-icon">
+            <span class="dot yellow"></span>
+          </div>
+          
+          <div class="col-main">
+            <span class="issue-number">#<%= issue.id %></span>
+            <%= link_to issue.subject, issue, class: "issue-link" %>
+          </div>
+
+          <div class="col-status">
+            <%= issue.status.presence || "New" %> <span class="arrow">▾</span>
+          </div>
+
+          <div class="col-date">
+            <%= issue.updated_at.strftime("%d %b %Y") %>
+          </div>
+
+          <div class="col-user">
+             <div class="avatar" title="<%= issue.user&.name %>">
+               <%= issue.user&.name&.first&.upcase %>
+             </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>
-
-<%= link_to "New issue", new_issue_path %>
