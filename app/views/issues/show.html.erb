@@ -1,10 +1,66 @@
 <p style="color: green"><%= notice %></p>
 
-<%= render @issue %>
+<div class="taiga-show-container">
+  <div class="issue-main-content">
+    <div class="issue-header-show">
+      <span class="issue-number-big">#<%= @issue.id %></span>
+      <h1><%= @issue.subject %></h1>
+    </div>
 
-<div>
-  <%= link_to "Edit this issue", edit_issue_path(@issue) %> |
-  <%= link_to "Back to issues", issues_path %>
+    <div class="issue-description-box">
+      <h3>Description</h3>
+      <div class="description-text">
+        <%= @issue.description.presence || "No description provided." %>
+      </div>
+    </div>
 
-  <%= button_to "Destroy this issue", @issue, method: :delete %>
+    <div class="show-actions">
+      <%= link_to "Edit this issue", edit_issue_path(@issue), class: "btn-edit" %>
+      <%= link_to "Back to issues", issues_path, class: "btn-back" %>
+      <%= button_to "Delete", @issue, method: :delete, class: "btn-delete", data: { confirm: "Are you sure?" } %>
+    </div>
+  </div>
+
+  <aside class="issue-sidebar">
+    <div class="sidebar-item">
+      <label>STATUS</label>
+      <div class="status-badge"><%= @issue.status.presence || "New" %></div>
+    </div>
+
+    <div class="sidebar-item">
+      <label>TYPE</label>
+      <div class="meta-value">
+        <span class="dot red"></span> Bug
+      </div>
+    </div>
+
+    <div class="sidebar-item">
+      <label>SEVERITY</label>
+      <div class="meta-value">
+        <span class="dot green"></span> <%= @issue.severity.presence || "Normal" %>
+      </div>
+    </div>
+
+    <div class="sidebar-item">
+      <label>PRIORITY</label>
+      <div class="meta-value">
+        <span class="dot yellow"></span> <%= @issue.priority.presence || "Normal" %>
+      </div>
+    </div>
+
+    <div class="sidebar-item divider"></div>
+
+    <div class="sidebar-item">
+      <label>CREATED BY</label>
+      <div class="user-info">
+        <div class="avatar"><%= @issue.user&.name&.first&.upcase %></div>
+        <span><%= @issue.user&.name %></span>
+      </div>
+    </div>
+
+    <div class="sidebar-item">
+      <label>MODIFIED</label>
+      <div class="meta-value small"><%= @issue.updated_at.strftime("%d %b %Y, %H:%M") %></div>
+    </div>
+  </aside>
 </div>
