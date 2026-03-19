@@ -23,6 +23,10 @@ class IssuesController < ApplicationController
   def create
     @issue = Issue.new(issue_params)
 
+    loged_user = User.find_by(name: "roger")
+
+    @issue.user = loged_user
+
     respond_to do |format|
       if @issue.save
         format.html { redirect_to @issue, notice: "Issue was successfully created." }
