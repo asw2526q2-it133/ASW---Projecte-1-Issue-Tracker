@@ -27,6 +27,6 @@ production:
   adapter: postgresql
   encoding: unicode
   # Esta línea es la más importante: lee la URL de Render
-  url: <%= ENV['DATABASE_URL'] %>
+  url: <%= ENV['postgresql://admin:LxWLr1Icjpfu1aY3SV1sHP9GGg2NBouT@dpg-d6u811euk2gs73983gfg-a/issuetracker_db'] %>
   # El pool ayuda a que la web no se bloquee con muchas visitas
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
