@@ -12,9 +12,21 @@ test:
   database: storage/test.sqlite3
 
 production:
-  production:
-  <<: *default
-  adapter: postgresql
-  url: <%= ENV["DATABASE_URL"] %>
+  primary:
+    <<: *default
+    adapter: postgresql
+    url: <%= ENV["DATABASE_URL"] %>
+  queue:
+    <<: *default
+    adapter: postgresql
+    url: <%= ENV["DATABASE_URL"] %>
+  cache:
+    <<: *default
+    adapter: postgresql
+    url: <%= ENV["DATABASE_URL"] %>
+  cable:
+    <<: *default
+    adapter: postgresql
+    url: <%= ENV["DATABASE_URL"] %>
 
   
