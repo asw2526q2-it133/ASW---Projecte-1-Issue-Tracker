@@ -17,7 +17,17 @@ class IssuesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create issue" do
     assert_difference("Issue.count") do
-      post issues_url, params: { issue: { description: @issue.description, issue_type: @issue.issue_type, priority: @issue.priority, severity: @issue.severity, status: @issue.status, subject: @issue.subject, user_id: @issue.user_id } }
+      post issues_url, params: {
+        issue: {
+          description: @issue.description,
+          issue_type: @issue.issue_type,
+          priority: @issue.priority,
+          severity: @issue.severity,
+          status: @issue.status,
+          subject: "Un titulo para el test create",
+          user_id: @issue.user_id
+        }
+      }
     end
 
     assert_redirected_to issue_url(Issue.last)
