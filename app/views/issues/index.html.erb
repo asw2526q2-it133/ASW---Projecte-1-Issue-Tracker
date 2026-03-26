@@ -1,57 +1,133 @@
-<p style="color: green"><%= notice %></p>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+  /* Estilo para que los enlaces de las columnas se vean limpios y centrados */
+  .sort-link {
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 5px;
+  }
+  .sort-link:hover { color: #008aa8; }
+</style>
 
-<% content_for :title, "Issues" %>
+<p style="color: green; position: absolute; top: 10px; right: 10px; z-index: 1000;"><%= notice %></p>
 
-<div class="taiga-container">
-  <header class="issues-header">
-    <h1>Issues</h1>
-    <%= link_to "+ NEW ISSUE", new_issue_path, class: "btn-new-issue" %>
+<div class="taiga-container" style="display: flex; flex-direction: column; height: 100vh; width: 100%; font-family: sans-serif; background-color: #f6f8f9;">
+  
+  <header class="issues-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: #fff; border-bottom: 1px solid #e0e6ed; flex-shrink: 0;">
+    <h1 style="color: #008aa8; font-size: 24px; font-weight: 300; margin: 0;">Issues</h1>
+    <%= link_to "+ NEW ISSUE", new_issue_path, style: "background: #5adad1; color: #fff; padding: 8px 18px; border-radius: 3px; text-decoration: none; font-weight: bold; font-size: 13px;" %>
   </header>
 
-  <div class="issues-table">
-    <div class="table-header">
-      <div class="col-icon">TYPE</div>
-      <div class="col-icon">SEVERITY</div>
-      <div class="col-icon">PRIORITY</div>
-      <div class="col-main">ISSUE</div>
-      <div class="col-status">STATUS</div>
-      <div class="col-date">MODIFIED</div>
-      <div class="col-user">ASSIGN TO</div>
-    </div>
+  <%# --- BARRA DE BÚSQUEDA: ESTIRADA AL 100% --- %>
+  <%# --- BARRA DE BÚSQUEDA: CORRECCIÓN DEFINITIVA DE GROSOR Y ANCHO --- %>
+  <div class="search-bar-wrapper" style="padding: 10px 30px; background: #fff; border-bottom: 1px solid #e0e6ed; flex-shrink: 0; width: 100%; box-sizing: border-box;">
+    <%# if current_user %>
+      <%= form_with url: issues_path, method: :get, local: true, style: "display: flex; width: 100%; margin: 0; padding: 0;" do |form| %>
+        <%# Mantenemos parámetros anteriores %>
+        <% request.query_parameters.except(:search).each do |key, value| %>
+          <% if value.is_a?(Array) %>
+            <% value.each do |val| %> <%= hidden_field_tag "#{key}[]", val %> <% end %>
+          <% else %>
+            <%= hidden_field_tag key, value %>
+          <% end %>
+        <% end %>
 
-    <div id="issues">
-      <% @issues.each do |issue| %>
-        <div class="issue-row">
-          <div class="col-icon">
-            <span class="dot red"></span>
-          </div>
-          <div class="col-icon">
-            <span class="dot green"></span>
-          </div>
-          <div class="col-icon">
-            <span class="dot yellow"></span>
-          </div>
+        <div style="display: flex; width: 100%; border: 1px solid #c2cfd6; border-radius: 4px; overflow: hidden; background: #fff;">
+          <%= form.text_field :search, value: params[:search], 
+              placeholder: "Filtrar / Ordenar / Cercar Issues...", 
+              style: "flex: 1; padding: 12px 15px; border: none; outline: none; font-size: 14px; background: transparent;" %>
           
-          <div class="col-main">
-            <span class="issue-number">#<%= issue.id %></span>
-            <%= link_to issue.subject, issue, class: "issue-link" %>
-          </div>
-
-          <div class="col-status">
-            <%= issue.status.presence || "New" %> <span class="arrow">▾</span>
-          </div>
-
-          <div class="col-date">
-            <%= issue.updated_at.strftime("%d %b %Y") %>
-          </div>
-
-          <div class="col-user">
-             <div class="avatar" title="<%= issue.user&.name %>">
-               <%= issue.user&.name&.first&.upcase %>
-             </div>
-          </div>
+          <button type="submit" style="background: #f8f9fa; border: none; border-left: 1px solid #c2cfd6; padding: 0 20px; cursor: pointer; color: #73818f; transition: background 0.2s;">
+            🔍
+          </button>
         </div>
       <% end %>
+    <%# end %>
+  </div>
+
+  <div class="main-content-wrapper" style="display: flex; flex: 1; overflow: hidden; padding: 20px 30px; gap: 20px;">
+    
+    <aside class="filters-sidebar" style="width: 220px; flex-shrink: 0; background: #fff; border: 1px solid #e0e6ed; padding: 20px; border-radius: 4px; overflow-y: auto;">
+      <%# if current_user %>
+        <%= form_with url: issues_path, method: :get, local: true do |form| %>
+          <%= form.hidden_field :search, value: params[:search] if params[:search].present? %>
+          <%= form.hidden_field :sort, value: params[:sort] if params[:sort].present? %>
+          <%= form.hidden_field :direction, value: params[:direction] if params[:direction].present? %>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+            <span style="font-weight: bold; font-size: 12px; color: #3c4b5f;">FILTERS</span>
+            <%= link_to "Clear", issues_path, style: "font-size: 11px; color: #e74c3c; text-decoration: none; font-weight: bold;" %>
+          </div>
+
+          <% ["status", "priority", "severity"].each do |filter| %>
+            <div style="margin-bottom: 20px;">
+              <p style="font-size: 11px; font-weight: bold; color: #8a9ab0; text-transform: uppercase; margin-bottom: 10px;"><%= filter %></p>
+              <% (filter == "status" ? ["New", "Ready", "In progress", "Closed"] : (filter == "priority" ? ["Low", "Normal", "High"] : ["Wishlist", "Minor", "Normal", "Critical"])).each do |val| %>
+                <label style="display: flex; align-items: center; font-size: 13px; margin-bottom: 8px; cursor: pointer; color: #3c4b5f;">
+                  <%= check_box_tag "#{filter}es[]", val, params["#{filter}es"]&.include?(val), onchange: "this.form.submit();", style: "margin-right: 10px;" %> <%= val %>
+                </label>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      <%# end %>
+    </aside>
+
+    <div class="table-container" style="flex: 1; background: #fff; border: 1px solid #e0e6ed; border-radius: 4px; display: flex; flex-direction: column; overflow: hidden;">
+      
+      <%# --- CABECERA DE TABLA CENTRADA --- %>
+      <div class="table-header" style="display: flex; background: #fdfdfd; border-bottom: 1px solid #e0e6ed; padding: 15px 0; font-size: 11px; font-weight: bold; color: #8a9ab0; flex-shrink: 0;">
+        <div style="width: 60px; text-align: center;">TYPE</div>
+        <div style="width: 100px; text-align: center;"><%= sortable "severity", "SEVERITY" %></div>
+        <div style="width: 100px; text-align: center;"><%= sortable "priority", "PRIORITY" %></div>
+        <div style="flex: 1; padding-left: 20px; text-align: left;"><%= sortable "subject", "ISSUE" %></div>
+        <div style="width: 120px; text-align: center;"><%= sortable "status", "STATUS" %></div>
+        <div style="width: 120px; text-align: center;"><%= sortable "updated_at", "MODIFIED" %></div>
+        <div style="width: 80px; text-align: center;">ASSIGN</div>
+      </div>
+
+      <div class="table-body" style="flex: 1; overflow-y: auto;">
+        <% if @issues.any? %>
+          <% @issues.each do |issue| %>
+            <div class="issue-row" style="display: flex; align-items: center; padding: 15px 0; border-bottom: 1px solid #f0f3f5; font-size: 14px;">
+              <div style="width: 60px; display: flex; justify-content: center;"><span style="height: 10px; width: 10px; background: #e74c3c; border-radius: 50%;"></span></div>
+              <div style="width: 100px; display: flex; justify-content: center;"><span style="height: 10px; width: 10px; background: #2ecc71; border-radius: 50%;"></span></div>
+              <div style="width: 100px; display: flex; justify-content: center;"><span style="height: 10px; width: 10px; background: #f1c40f; border-radius: 50%;"></span></div>
+              
+              <div style="flex: 1; padding-left: 20px;">
+                <span style="color: #008aa8; font-weight: bold; margin-right: 8px;">#<%= issue.id %></span>
+                <%= link_to issue.subject, issue, style: "text-decoration: none; color: #20242a; font-weight: 500;" %>
+              </div>
+
+              <div style="width: 120px; display: flex; justify-content: center;">
+                <span style="background: #e1f5fe; color: #0277bd; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
+                  <%= issue.status.presence || "New" %>
+                </span>
+              </div>
+
+              <div style="width: 120px; text-align: center; color: #73818f; font-size: 13px;">
+                <%= issue.updated_at.strftime("%d %b %Y") %>
+              </div>
+
+              <div style="width: 80px; display: flex; justify-content: center;">
+                <div style="width: 30px; height: 30px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                  <%= issue.user&.name&.first || "?" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div style="padding: 100px; text-align: center; color: #8a9ab0;">No hay resultados.</div>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>

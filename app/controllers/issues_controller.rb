@@ -4,6 +4,17 @@ class IssuesController < ApplicationController
   # GET /issues or /issues.json
   def index
     @issues = Issue.order(created_at: :desc)
+
+    if params[:search].present?
+      termino_busqueda = "%#{params[:search].downcase}%"
+      @issues = @issues.where("LOWER(subject) LIKE :query OR LOWER(description) LIKE :query", query: termino_busqueda)
+    end
+
+    @issues = @issues.where(status: params[:statuses]) if params[:statuses].present?
+    @issues = @issues.where(priority: params[:priorities]) if params[:priorities].present?
+    @issues = @issues.where(severity: params[:severities]) if params[:severities].present?
+
+    @issues = @issues.reorder("#{sort_column} #{sort_direction}")
   end
 
   # GET /issues/1 or /issues/1.json
@@ -70,5 +81,13 @@ class IssuesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def issue_params
       params.expect(issue: [ :subject, :description, :issue_type, :severity, :priority, :status, :user_id ])
+    end
+
+    def sort_column
+      %w[issue_type severity priority subject status updated_at user_id].include?(params[:sort]) ? params[:sort] : "updated_at"
+    end
+
+    def sort_direction
+      %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
     end
 end
