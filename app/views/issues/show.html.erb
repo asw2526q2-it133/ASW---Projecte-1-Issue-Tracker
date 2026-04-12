@@ -53,8 +53,9 @@
     <div class="sidebar-item">
       <label>CREATED BY</label>
       <div class="user-info">
-        <div class="avatar"><%= @issue.user&.name&.first&.upcase %></div>
-        <span><%= @issue.user&.name %></span>
+      <%# Parche temporal: Comprueba si existe el método y el usuario antes de pintar %>
+      <div class="avatar"><%= respond_to?(:user) && @issue.user ? @issue.user.name.first.upcase : '?' %></div>
+      <span><%= respond_to?(:user) && @issue.user ? @issue.user.name : 'Sin asignar' %></span>
       </div>
     </div>
 

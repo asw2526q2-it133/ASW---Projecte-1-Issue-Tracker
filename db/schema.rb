@@ -10,10 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_19_174513) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_12_122344) do
+  create_table "issue_tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "issue_id", null: false
+    t.integer "tag_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["issue_id"], name: "index_issue_tags_on_issue_id"
+    t.index ["tag_id"], name: "index_issue_tags_on_tag_id"
+  end
+
+  create_table "issue_types", force: :cascade do |t|
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+  end
+
   create_table "issues", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
+    t.date "due_date"
     t.string "issue_type"
     t.string "priority"
     t.string "severity"
@@ -24,6 +41,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_19_174513) do
     t.index ["user_id"], name: "index_issues_on_user_id"
   end
 
+  create_table "priorities", force: :cascade do |t|
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "severities", force: :cascade do |t|
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "statuses", force: :cascade do |t|
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email"
@@ -32,5 +77,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_19_174513) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "issue_tags", "issues"
+  add_foreign_key "issue_tags", "tags"
   add_foreign_key "issues", "users"
 end

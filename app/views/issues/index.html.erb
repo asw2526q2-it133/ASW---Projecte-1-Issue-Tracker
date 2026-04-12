@@ -46,8 +46,9 @@
           </div>
 
           <div class="col-user">
-             <div class="avatar" title="<%= issue.user&.name %>">
-               <%= issue.user&.name&.first&.upcase %>
+             <%# Parche temporal: Si hay usuario lo pinta, si no, pinta una interrogación %>
+             <div class="avatar" title="<%= respond_to?(:user) && issue.user ? issue.user.name : 'Sin asignar' %>">
+               <%= respond_to?(:user) && issue.user ? issue.user.name.first.upcase : '?' %>
              </div>
           </div>
         </div>
