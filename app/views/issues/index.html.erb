@@ -26,12 +26,9 @@
     <%= link_to "+ NEW ISSUE", new_issue_path, style: "background: #5adad1; color: #fff; padding: 8px 18px; border-radius: 3px; text-decoration: none; font-weight: bold; font-size: 13px;" %>
   </header>
 
-  <%# --- BARRA DE BÚSQUEDA: ESTIRADA AL 100% --- %>
-  <%# --- BARRA DE BÚSQUEDA: CORRECCIÓN DEFINITIVA DE GROSOR Y ANCHO --- %>
   <div class="search-bar-wrapper" style="padding: 10px 30px; background: #fff; border-bottom: 1px solid #e0e6ed; flex-shrink: 0; width: 100%; box-sizing: border-box;">
     <%# if current_user %>
       <%= form_with url: issues_path, method: :get, local: true, style: "display: flex; width: 100%; margin: 0; padding: 0;" do |form| %>
-        <%# Mantenemos parámetros anteriores %>
         <% request.query_parameters.except(:search).each do |key, value| %>
           <% if value.is_a?(Array) %>
             <% value.each do |val| %> <%= hidden_field_tag "#{key}[]", val %> <% end %>
@@ -83,10 +80,9 @@
 
     <div class="table-container" style="flex: 1; background: #fff; border: 1px solid #e0e6ed; border-radius: 4px; display: flex; flex-direction: column; overflow: hidden;">
       
-      <%# --- CABECERA DE TABLA CENTRADA --- %>
       <div class="table-header" style="display: flex; background: #fdfdfd; border-bottom: 1px solid #e0e6ed; padding: 15px 0; font-size: 11px; font-weight: bold; color: #8a9ab0; flex-shrink: 0;">
-      <div style="width: 60px; text-align: center;"><%= sortable "issue_type", "TYPE" %></div>        
-      <div style="width: 100px; text-align: center;"><%= sortable "severity", "SEVERITY" %></div>
+        <div style="width: 60px; text-align: center;"><%= sortable "issue_type", "TYPE" %></div>        
+        <div style="width: 100px; text-align: center;"><%= sortable "severity", "SEVERITY" %></div>
         <div style="width: 100px; text-align: center;"><%= sortable "priority", "PRIORITY" %></div>
         <div style="flex: 1; padding-left: 20px; text-align: left;"><%= sortable "subject", "ISSUE" %></div>
         <div style="width: 120px; text-align: center;"><%= sortable "status", "STATUS" %></div>
@@ -118,8 +114,8 @@
               </div>
 
               <div style="width: 80px; display: flex; justify-content: center;">
-                <div style="width: 30px; height: 30px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
-                  <%= issue.user&.name&.first || "?" %>
+                <div style="width: 30px; height: 30px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;" title="<%= respond_to?(:user) && issue.user ? issue.user.name : 'Sin asignar' %>">
+                  <%= respond_to?(:user) && issue.user ? issue.user.name.first.upcase : '?' %>
                 </div>
               </div>
             </div>

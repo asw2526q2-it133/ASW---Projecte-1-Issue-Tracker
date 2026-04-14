@@ -2,7 +2,6 @@
   <% if issue.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(issue.errors.count, "error") %> prohibited this issue from being saved:</h2>
-
       <ul>
         <% issue.errors.each do |error| %>
           <li><%= error.full_message %></li>
@@ -18,27 +17,44 @@
 
   <div>
     <%= form.label :description, style: "display: block" %>
-    <%= form.textarea :description %>
+    <%= form.text_area :description %>
   </div>
 
-  <div>
-    <%= form.label :issue_type, style: "display: block" %>
-    <%= form.text_field :issue_type %>
+  <div style="margin-bottom: 15px;">
+    <%= form.label :issue_type, "Type", style: "display: block; font-weight: bold;" %>
+    <%= form.collection_select :issue_type, IssueType.all, :name, :name, prompt: "Selecciona un tipo..." %>
   </div>
 
-  <div>
-    <%= form.label :severity, style: "display: block" %>
-    <%= form.text_field :severity %>
+  <div style="margin-bottom: 15px;">
+    <%= form.label :severity, "Severity", style: "display: block; font-weight: bold;" %>
+    <%= form.collection_select :severity, Severity.all, :name, :name, prompt: "Selecciona una severidad..." %>
   </div>
 
-  <div>
-    <%= form.label :priority, style: "display: block" %>
-    <%= form.text_field :priority %>
+  <div style="margin-bottom: 15px;">
+    <%= form.label :priority, "Priority", style: "display: block; font-weight: bold;" %>
+    <%= form.collection_select :priority, Priority.all, :name, :name, prompt: "Selecciona una prioridad..." %>
   </div>
 
-  <div>
-    <%= form.label :status, style: "display: block" %>
-    <%= form.text_field :status %>
+  <div style="margin-bottom: 15px;">
+    <%= form.label :status, style: "display: block; font-weight: bold;" %>
+    <%= form.collection_select :status, Status.all, :name, :name, prompt: "Selecciona un estado..." %>
+  </div>
+
+  <div style="margin-bottom: 15px;">
+    <%= form.label :due_date, "Fecha Límite (Due Date)", style: "display: block; font-weight: bold;" %>
+    <%= form.date_field :due_date, style: "padding: 8px; border: 1px solid #ccc; border-radius: 4px;" %>
+  </div>
+
+  <div style="margin-bottom: 15px;">
+    <%= form.label :tags, "Etiquetas (Tags)", style: "display: block; font-weight: bold; margin-bottom: 5px;" %>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <%= form.collection_check_boxes :tag_ids, Tag.all, :id, :name do |b| %>
+        <label style="display: flex; align-items: center; gap: 5px; background: #f0f3f5; padding: 4px 8px; border-radius: 4px; font-size: 13px;">
+          <%= b.check_box %>
+          <%= b.text %>
+        </label>
+      <% end %>
+    </div>
   </div>
 
   <div>

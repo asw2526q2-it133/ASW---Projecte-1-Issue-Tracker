@@ -1,4 +1,5 @@
 class IssuesController < ApplicationController
+  # before_action :authenticate_user!
   before_action :set_issue, only: %i[ show edit update destroy ]
 
   # GET /issues or /issues.json
@@ -80,7 +81,7 @@ class IssuesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def issue_params
-      params.expect(issue: [ :subject, :description, :issue_type, :severity, :priority, :status, :user_id ])
+      params.expect(issue: [ :subject, :description, :issue_type, :severity, :priority, :status, :due_date, tag_ids: [] ])
     end
 
     def sort_column

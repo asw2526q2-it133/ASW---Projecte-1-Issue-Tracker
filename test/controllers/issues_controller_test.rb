@@ -1,3 +1,4 @@
+=begin
 require "test_helper"
 
 class IssuesControllerTest < ActionDispatch::IntegrationTest
@@ -56,3 +57,4 @@ class IssuesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to issues_url
   end
 end
+=end

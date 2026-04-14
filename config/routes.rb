@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  resources :tags
+  resources :severities
+  resources :issue_types
+  resources :priorities
+  resources :statuses
   resources :issues
   resources :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
