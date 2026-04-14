@@ -85,8 +85,8 @@
       
       <%# --- CABECERA DE TABLA CENTRADA --- %>
       <div class="table-header" style="display: flex; background: #fdfdfd; border-bottom: 1px solid #e0e6ed; padding: 15px 0; font-size: 11px; font-weight: bold; color: #8a9ab0; flex-shrink: 0;">
-        <div style="width: 60px; text-align: center;">TYPE</div>
-        <div style="width: 100px; text-align: center;"><%= sortable "severity", "SEVERITY" %></div>
+      <div style="width: 60px; text-align: center;"><%= sortable "issue_type", "TYPE" %></div>        
+      <div style="width: 100px; text-align: center;"><%= sortable "severity", "SEVERITY" %></div>
         <div style="width: 100px; text-align: center;"><%= sortable "priority", "PRIORITY" %></div>
         <div style="flex: 1; padding-left: 20px; text-align: left;"><%= sortable "subject", "ISSUE" %></div>
         <div style="width: 120px; text-align: center;"><%= sortable "status", "STATUS" %></div>
