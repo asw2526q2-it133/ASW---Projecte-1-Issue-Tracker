@@ -50,7 +50,7 @@ class SeveritiesController < ApplicationController
 
   # DELETE /severities/1 or /severities/1.json
   def destroy
-    @severity.destroy!
+    @severity.destroy
 
     respond_to do |format|
       format.html { redirect_to severities_path, notice: "Severity was successfully destroyed.", status: :see_other }

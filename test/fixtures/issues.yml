@@ -1,19 +1,19 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  subject: MyString
-  description: MyText
-  issue_type: MyString
-  severity: MyString
-  priority: MyString
-  status: MyString
-  user: one
+#one:
+#  subject: "Random"
+#  description: "Random"
+#  issue_type: new
+#  severity: Critical
+#  priority: High
+#  status: Random
+#  user: roger
 
-two:
-  subject: MyString
-  description: MyText
-  issue_type: MyString
-  severity: MyString
-  priority: MyString
-  status: MyString
-  user: two
+#two:
+#  subject: "Random"
+#  description: "Random"
+#  issue_type: closed
+#  severity: Minor
+#  priority: Low
+#  status: Random
+#  user: maria

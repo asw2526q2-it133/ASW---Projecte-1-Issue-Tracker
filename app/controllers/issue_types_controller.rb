@@ -50,7 +50,7 @@ class IssueTypesController < ApplicationController
 
   # DELETE /issue_types/1 or /issue_types/1.json
   def destroy
-    @issue_type.destroy!
+    @issue_type.destroy
 
     respond_to do |format|
       format.html { redirect_to issue_types_path, notice: "Issue type was successfully destroyed.", status: :see_other }
