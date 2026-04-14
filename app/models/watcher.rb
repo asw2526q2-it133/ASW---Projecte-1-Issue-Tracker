@@ -1,0 +1,2 @@
+class Watcher < ApplicationRecord
+end
