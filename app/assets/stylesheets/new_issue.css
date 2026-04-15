@@ -1,0 +1,230 @@
+/* Contenedor y Título */
+.issue-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #444;
+}
+
+.form-title {
+  text-align: center;
+  font-weight: 300;
+  font-size: 2.2rem;
+  margin-bottom: 40px;
+  color: #40d3b8;
+  font-weight: bolder;
+}
+
+/* Layout de dos columnas */
+.form-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 50px;
+}
+
+/* Estilos Columna Izquierda */
+.input-subject {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  padding: 12px 0;
+  font-size: 1.2rem;
+  outline: none;
+  margin-bottom: 15px;
+  transition: border-color 0.3s;
+}
+
+.input-subject:focus { border-bottom-color: #40d3b8; }
+
+.btn-add-tag {
+  background: none;
+  border: none;
+  color: #40d3b8;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 0;
+  margin-bottom: 20px;
+}
+
+.input-description {
+  width: 100%;
+  min-height: 350px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 20px;
+  font-size: 1rem;
+  line-height: 1.5;
+  resize: vertical;
+  color: #555;
+  outline: none;
+}
+
+/* Adjuntos */
+.attachments-section {
+  margin-top: 25px;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.attachments-header {
+  background: #f8f9fa;
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+}
+
+.btn-plus {
+  background: #80ecd4;
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+
+/* Estilos Barra Lateral (Derecha) */
+.select-status-main {
+  width: 100%;
+  background-color: #7a92a5;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-bottom: 25px;
+}
+
+.assignee-box {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.sep { color: #aaa; font-size: 0.8rem; }
+
+/* Meta List (Desplegables integrados) */
+.meta-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 8px;
+  background: #fafafa;
+  border-bottom: 2px solid white;
+}
+
+.label { color: #888; font-size: 0.9rem; text-transform: uppercase;}
+
+.value { display: flex; align-items: center; gap: 10px; }
+
+.meta-select {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #444;
+  text-align: right;
+  cursor: pointer;
+  outline: none;
+  padding-right: 5px;
+}
+
+/* Puntos de color */
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+.action-icons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.btn-icon {
+  flex: 1;
+  padding: 12px;
+  background: #f0f4f8;
+  border: none;
+  color: #7a92a5;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+/* Botón Submit */
+.btn-submit {
+  width: 100%;
+  background-color: #80ecd4;
+  color: #4a4a4a;
+  border: none;
+  padding: 18px;
+  margin-top: 40px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-submit:hover {
+  background-color: #6edec5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.calendar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* El icono se queda debajo, visible */
+.calendar-wrapper span {
+  font-size: 1.1rem;
+  z-index: 1;
+}
+
+/* El input de fecha se expande y se vuelve invisible */
+.input-fecha-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0; /* Lo hace invisible al ojo, pero clicable */
+  cursor: pointer;
+  z-index: 2;
+  border: none;
+}
+
+/* Para que en móviles y algunos navegadores se active bien */
+.input-fecha-overlay::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.select-assignee {
+  width: 100%;
+  background-color: #b0b0b0;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-bottom: 25px;
+}

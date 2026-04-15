@@ -25,15 +25,34 @@ class IssuesController < ApplicationController
   # GET /issues/new
   def new
     @issue = Issue.new
+    @types = IssueType.all
+    @priorities = Priority.all
+    @severities = Severity.all
+    @statuses = Status.all
+    @assignable_users = User.all
+    @tags = Tag.all
   end
 
   # GET /issues/1/edit
   def edit
+    @issue = Issue.new
+    @types = IssueType.all
+    @priorities = Priority.all
+    @severities = Severity.all
+    @statuses = Status.all
+    @assignable_users = User.all
+    @tags = Tag.all
   end
 
   # POST /issues or /issues.json
   def create
     @issue = Issue.new(issue_params)
+    @types = IssueType.all
+    @priorities = Priority.all
+    @severities = Severity.all
+    @statuses = Status.all
+    @assignable_users = User.all
+    @tags = Tag.all
 
     loged_user = User.find_by(name: "roger")
 
