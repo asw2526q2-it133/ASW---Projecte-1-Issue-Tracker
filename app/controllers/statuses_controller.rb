@@ -53,17 +53,21 @@ class StatusesController < ApplicationController
 
   # DELETE /statuses/1 or /statuses/1.json
   def destroy
-    # CAMBIO: Quitamos la exclamación (!) para poder capturar nuestro bloqueo de seguridad
-    if @status.destroy
+    # Parche temporal: Buscamos en la base de datos los issues que tengan este texto exacto
+    issues_usando_estado = Issue.where(status: @status.name)
+
+    if issues_usando_estado.any?
+      # Si hay, bloqueamos y mostramos el mensaje de error pidiendo reasignación
       respond_to do |format|
-        format.html { redirect_to statuses_url, notice: "El estado fue eliminado.", status: :see_other }
-        format.json { head :no_content }
+        format.html { redirect_to statuses_url, alert: "No se puede borrar '#{@status.name}' porque está siendo usado por #{issues_usando_estado.count} issue(s). Por favor, reasígnalos a otro estado antes de borrar." }
+        format.json { render json: { error: "En uso" }, status: :unprocessable_entity }
       end
     else
+      # Si no hay ninguno, lo borramos con total seguridad
+      @status.destroy
       respond_to do |format|
-        # Si el modelo cancela el borrado, mostramos el mensaje de error (alert)
-        format.html { redirect_to statuses_url, alert: @status.errors.full_messages.to_sentence, status: :see_other }
-        format.json { render json: @status.errors, status: :unprocessable_entity }
+        format.html { redirect_to statuses_url, notice: "Estado borrado correctamente." }
+        format.json { head :no_content }
       end
     end
   end

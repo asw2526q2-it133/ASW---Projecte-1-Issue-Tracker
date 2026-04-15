@@ -21,9 +21,52 @@
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <style>
+      /* Quitamos los márgenes por defecto para que la barra toque los bordes */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        background-color: #f6f8f9;
+      }
+    </style>
   </head>
 
   <body>
+    <%# --- BARRA DE NAVEGACIÓN SUPERIOR (Se verá en toda la app) --- %>
+    <nav style="background: #20242a; padding: 0 30px; display: flex; justify-content: space-between; align-items: center; height: 60px;">
+      
+      <div style="display: flex; align-items: center; gap: 30px;">
+        <%# Logo falso de Taiga %>
+        <span style="color: #5adad1; font-weight: 900; font-size: 20px; letter-spacing: 1px;">TAIGA</span>
+        
+        <%# Enlace para volver siempre a los Issues %>
+        <%= link_to "Issues", issues_path, style: "color: #fff; text-decoration: none; font-weight: 500; font-size: 15px;" %>
+      </div>
+      
+      <%# Enlace a los Ajustes (Apunta directamente a Statuses) %>
+      <%= link_to statuses_path, style: "color: #8a9ab0; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold;" do %>
+        <span style="font-size: 16px;">⚙️</span> SETTINGS
+      <% end %>
+
+    </nav>
+
+    <%# Aquí es donde Rails inyecta el contenido de cada pantalla %>
+    <%# --- ZONA DE AVISOS Y ERRORES --- %>
+    <% if notice %>
+      <div style="background-color: #2ecc71; color: white; padding: 12px 30px; text-align: center; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <%= notice %>
+      </div>
+    <% end %>
+    <% if alert %>
+      <div style="background-color: #e74c3c; color: white; padding: 12px 30px; text-align: center; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <%= alert %>
+      </div>
+    <% end %>
+
+    <%# Aquí es donde Rails inyecta el contenido de cada pantalla %>
     <%= yield %>
+    
   </body>
 </html>

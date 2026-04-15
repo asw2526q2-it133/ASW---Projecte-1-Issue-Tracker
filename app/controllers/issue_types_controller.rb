@@ -58,6 +58,29 @@ class IssueTypesController < ApplicationController
     end
   end
 
+  def destroy
+    # 1. Buscamos issues que usen el nombre de este tipo (parche temporal por ser Strings)
+    issues_en_uso = Issue.where(issue_type: @issue_type.name)
+
+    if issues_en_uso.any?
+      # 2. Si hay issues, BLOQUEAMOS y mandamos un ALERT (mensaje de error)
+      respond_to do |format|
+        format.html {
+          redirect_to issue_types_url,
+          alert: "¡Error! No se puede borrar el tipo '#{@issue_type.name}' porque está asignado a #{issues_en_uso.count} issue(s)."
+        }
+        format.json { head :unprocessable_entity }
+      end
+    else
+      # 3. Si no hay issues, procedemos al borrado real
+      @issue_type.destroy
+      respond_to do |format|
+        format.html { redirect_to issue_types_url, notice: "Tipo eliminado correctamente." }
+        format.json { head :no_content }
+      end
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_issue_type
