@@ -1,7 +1,7 @@
 class Priority < ApplicationRecord
   # 1. Validación: No vacío, no duplicado (ignorando mayúsculas/minúsculas)
   validates :name, presence: true, uniqueness: { case_sensitive: false }
-
+  has_many :issues
   # 2. Protección: Evitar borrado si está en uso
   before_destroy :check_for_associated_issues
 
