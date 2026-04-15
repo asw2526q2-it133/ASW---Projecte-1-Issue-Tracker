@@ -1,6 +1,5 @@
 <div class="issue-container">
   <%= form_with(model: @issue, local: true, class: "issue-form") do |f| %>
-    <h1 class="form-title">New issue</h1>
 
     <div class="form-layout">
       <div class="main-column">
@@ -68,11 +67,18 @@
             <%= f.date_field :due_date, class: "input-fecha-overlay" %>
           </div>
         </div>
+
+        <div  class="status-dropdown">
+          <%= f.collection_select :assignee_id, @assignable_users, :id, :name, 
+              { prompt: "Add Watcher" }, { class: "select-assignee" } %>
+        </div>
       </aside>
     </div>
 
+    
+
     <div class="submit-container">
-      <%= f.submit "CREATE", class: "btn-submit" %>
+      <%= f.submit "CONFIRM", class: "btn-submit" %>
     </div>
   <% end %>
 </div>

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "activities/index"
   resources :tags
   resources :severities
   resources :issue_types

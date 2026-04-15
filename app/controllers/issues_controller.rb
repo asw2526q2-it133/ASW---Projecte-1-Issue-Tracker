@@ -35,7 +35,7 @@ class IssuesController < ApplicationController
 
   # GET /issues/1/edit
   def edit
-    @issue = Issue.new
+    @issue = Issue.find(params[:id])
     @types = IssueType.all
     @priorities = Priority.all
     @severities = Severity.all
@@ -110,4 +110,18 @@ class IssuesController < ApplicationController
     def sort_direction
       %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
     end
+
+    private
+    def issue_params
+  params.require(:issue).permit(
+    :subject, 
+    :description, 
+    :due_date, 
+    :issue_type_id,  
+    :priority_id, 
+    :severity_id, 
+    :status_id, 
+    :assigned_to_id,
+  )
+end
 end
