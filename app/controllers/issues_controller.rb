@@ -25,15 +25,34 @@ class IssuesController < ApplicationController
   # GET /issues/new
   def new
     @issue = Issue.new
+    @types = IssueType.all
+    @priorities = Priority.all
+    @severities = Severity.all
+    @statuses = Status.all
+    @assignable_users = User.all
+    @tags = Tag.all
   end
 
   # GET /issues/1/edit
   def edit
+    @issue = Issue.find(params[:id])
+    @types = IssueType.all
+    @priorities = Priority.all
+    @severities = Severity.all
+    @statuses = Status.all
+    @assignable_users = User.all
+    @tags = Tag.all
   end
 
   # POST /issues or /issues.json
   def create
     @issue = Issue.new(issue_params)
+    @types = IssueType.all
+    @priorities = Priority.all
+    @severities = Severity.all
+    @statuses = Status.all
+    @assignable_users = User.all
+    @tags = Tag.all
 
     loged_user = User.find_by(name: "roger")
 
@@ -91,4 +110,18 @@ class IssuesController < ApplicationController
     def sort_direction
       %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
     end
+
+    private
+    def issue_params
+  params.require(:issue).permit(
+    :subject, 
+    :description, 
+    :due_date, 
+    :issue_type_id,  
+    :priority_id, 
+    :severity_id, 
+    :status_id, 
+    :assigned_to_id,
+  )
+end
 end

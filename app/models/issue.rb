@@ -7,4 +7,8 @@ class Issue < ApplicationRecord
   belongs_to :user, optional: true
   has_many :issue_tags, dependent: :destroy
   has_many :tags, through: :issue_tags
+  belongs_to :priority
+  belongs_to :issue_type
+  belongs_to :severity
+  belongs_to :status
 end
