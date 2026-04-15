@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_12_122344) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_15_121105) do
   create_table "issue_tags", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "issue_id", null: false
@@ -70,10 +70,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_122344) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.text "bio"
     t.datetime "created_at", null: false
     t.string "email"
+    t.string "encrypted_password", default: "", null: false
+    t.string "full_name"
     t.string "name"
-    t.string "password_digest"
+    t.string "provider"
+    t.string "uid"
     t.datetime "updated_at", null: false
   end
 
