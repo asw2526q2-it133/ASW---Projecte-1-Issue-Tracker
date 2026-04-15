@@ -50,12 +50,26 @@ class SeveritiesController < ApplicationController
 
   # DELETE /severities/1 or /severities/1.json
   def destroy
-    @severity.destroy
+  # 1. Buscamos issues que usen el nombre de esta severidad (parche temporal por ser Strings)
+  issues_en_uso = Issue.where(severity: @severity.name)
 
+  if issues_en_uso.any?
+    # 2. Si hay issues, BLOQUEAMOS y mandamos un ALERT (mensaje de error)
     respond_to do |format|
-      format.html { redirect_to severities_path, notice: "Severity was successfully destroyed.", status: :see_other }
-      format.json { head :no_content }
+      format.html {
+        redirect_to severities_url,
+        alert: "¡Error! No se puede borrar la severidad '#{@severity.name}' porque está asignada a #{issues_en_uso.count} issue(s)."
+      }
+      format.json { head :unprocessable_entity }
     end
+  else
+    # 3. Si no hay issues, procedemos al borrado real
+    @severity.destroy
+    respond_to do |format|
+      format.html { redirect_to severities_url, notice: "Severidad eliminada correctamente." }
+      format.json { head :no_content }
+      end
+  end
   end
 
   private
