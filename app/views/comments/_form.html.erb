@@ -1,0 +1,7 @@
+<%= form_with(model: [ issue, comment ]) do |f| %>
+  <div class="comment-form-group">
+    <%= f.text_area :content, placeholder: "Type your comment here...", class: "comment-textarea" %>
+  </div>
+  <div class="comment-submit">
+    <%= f.submit "Post Comment", class: "btn-save" %> </div>
+<% end %>

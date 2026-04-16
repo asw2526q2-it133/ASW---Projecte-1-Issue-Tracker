@@ -15,4 +15,5 @@ class Issue < ApplicationRecord
   belongs_to :issue_type
   belongs_to :severity
   belongs_to :status
+  has_many :comments, dependent: :destroy
 end

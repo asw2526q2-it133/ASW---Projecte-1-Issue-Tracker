@@ -10,7 +10,9 @@ Rails.application.routes.draw do
   resources :issue_types
   resources :priorities
   resources :statuses
-  resources :issues
+  resources :issues do
+    resources :comments, only: [:create, :edit, :update, :destroy]
+  end
   resources :users
   resources :profiles, only: [ :show, :edit, :update ]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
