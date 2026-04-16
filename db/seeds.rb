@@ -52,7 +52,7 @@ type_data = [
 type_data.each { |data| IssueType.create!(data) }
 
 puts "Creating tags"
-["Frontend", "Backend", "Urgente", "Refactor"].each do |tag_name|
+[ "Frontend", "Backend", "Urgente", "Refactor" ].each do |tag_name|
   Tag.create!(name: tag_name, color: "#" + SecureRandom.hex(3))
 end
 
