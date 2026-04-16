@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_15_213732) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_16_123148) do
   create_table "activities", force: :cascade do |t|
     t.string "action"
     t.json "changes_log"
@@ -20,6 +20,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_15_213732) do
     t.integer "user_id", null: false
     t.index ["issue_id"], name: "index_activities_on_issue_id"
     t.index ["user_id"], name: "index_activities_on_user_id"
+  end
+
+  create_table "comments", force: :cascade do |t|
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.integer "issue_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["issue_id"], name: "index_comments_on_issue_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
   create_table "issue_tags", force: :cascade do |t|
@@ -38,7 +48,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_15_213732) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "issue_watchers", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "issue_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["issue_id"], name: "index_issue_watchers_on_issue_id"
+    t.index ["user_id"], name: "index_issue_watchers_on_user_id"
+  end
+
   create_table "issues", force: :cascade do |t|
+    t.integer "assignee_id"
     t.datetime "created_at", null: false
     t.text "description"
     t.date "due_date"
@@ -94,8 +114,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_15_213732) do
 
   add_foreign_key "activities", "issues"
   add_foreign_key "activities", "users"
+  add_foreign_key "comments", "issues"
+  add_foreign_key "comments", "users"
   add_foreign_key "issue_tags", "issues"
   add_foreign_key "issue_tags", "tags"
+  add_foreign_key "issue_watchers", "issues"
+  add_foreign_key "issue_watchers", "users"
   add_foreign_key "issues", "issue_types"
   add_foreign_key "issues", "priorities"
   add_foreign_key "issues", "severities"
