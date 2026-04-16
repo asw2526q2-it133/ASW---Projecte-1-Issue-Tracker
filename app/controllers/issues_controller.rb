@@ -97,16 +97,25 @@ class IssuesController < ApplicationController
       @issue = Issue.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
-   def issue_params
-      params.expect(issue: [:subject, :description, :issue_type_id, :severity_id, :priority_id, :status_id, :due_date, tag_ids: [], attachments: [] ])
-    end
-
     def sort_column
       %w[issue_type severity priority subject status updated_at user_id].include?(params[:sort]) ? params[:sort] : "updated_at"
     end
 
     def sort_direction
       %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
+    end
+
+    # Only allow a list of trusted parameters through.
+    def issue_params
+      params.expect(issue: [
+        :subject, 
+        :description, 
+        :issue_type_id, 
+        :severity_id, 
+        :priority_id, 
+        :status_id, 
+        :due_date, tag_ids: [], 
+        attachments: [] 
+      ])
     end
 end
