@@ -4,6 +4,7 @@ class User < ApplicationRecord
          :omniauthable, omniauth_providers: [ :github ]
 
   has_many :issues, dependent: :destroy
+  has_many :comments, dependent: :destroy
 
   has_one_attached :avatar
 

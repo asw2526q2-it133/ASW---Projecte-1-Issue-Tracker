@@ -1,0 +1,20 @@
+<div class="comment-card" id="<%= dom_id comment %>">
+  <div class="comment-header">
+    <div class="user-info">
+      <div class="avatar small"><%= comment.user.name.first.upcase %></div>
+      <span class="user-name"><%= comment.user.name %></span>
+    </div>
+    <span class="comment-date"><%= time_ago_in_words(comment.created_at) %> ago</span>
+  </div>
+  
+  <div class="comment-body">
+    <%= comment.content %>
+  </div>
+
+  <% if comment.user == current_user %>
+    <div class="comment-actions">
+      <%= link_to "Edit", edit_issue_comment_path(@issue, comment), class: "link-action" %>
+      <%= button_to "Delete", [@issue, comment], method: :delete, class: "link-action delete", data: { confirm: "Delete this comment?" } %>
+    </div>
+  <% end %>
+</div>

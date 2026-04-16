@@ -4,7 +4,6 @@
     margin: 0;
     overflow: hidden;
   }
-  /* Estilo para que los enlaces de las columnas se vean limpios y centrados */
   .sort-link {
     color: inherit;
     text-decoration: none;
@@ -23,69 +22,77 @@
   
   <header class="issues-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: #fff; border-bottom: 1px solid #e0e6ed; flex-shrink: 0;">
     <h1 style="color: #008aa8; font-size: 24px; font-weight: 300; margin: 0;">Issues</h1>
+    <%= link_to "+ ADD BULK ISSUES", bulk_issues_path, style: "background: #5adad1; color: #fff; padding: 8px 18px; border-radius: 3px; text-decoration: none; font-weight: bold; font-size: 13px;" %>
     <%= link_to "+ NEW ISSUE", new_issue_path, style: "background: #5adad1; color: #fff; padding: 8px 18px; border-radius: 3px; text-decoration: none; font-weight: bold; font-size: 13px;" %>
   </header>
 
+  <%# --- BARRA DE BÚSQUEDA --- %>
   <div class="search-bar-wrapper" style="padding: 10px 30px; background: #fff; border-bottom: 1px solid #e0e6ed; flex-shrink: 0; width: 100%; box-sizing: border-box;">
-    <%# if current_user %>
-      <%= form_with url: issues_path, method: :get, local: true, style: "display: flex; width: 100%; margin: 0; padding: 0;" do |form| %>
-        <% request.query_parameters.except(:search).each do |key, value| %>
-          <% if value.is_a?(Array) %>
-            <% value.each do |val| %> <%= hidden_field_tag "#{key}[]", val %> <% end %>
-          <% else %>
-            <%= hidden_field_tag key, value %>
+    <%= form_with url: issues_path, method: :get, local: true, style: "display: flex; width: 100%; margin: 0; padding: 0;" do |form| %>
+      <% ["types", "statuses", "priorities", "severities"].each do |param_name| %>
+        <% if params[param_name].is_a?(Array) %>
+          <% params[param_name].each do |val| %>
+            <%= hidden_field_tag "#{param_name}[]", val %>
           <% end %>
         <% end %>
-
-        <div style="display: flex; width: 100%; border: 1px solid #c2cfd6; border-radius: 4px; overflow: hidden; background: #fff;">
-          <%= form.text_field :search, value: params[:search], 
-              placeholder: "Filtrar / Ordenar / Cercar Issues...", 
-              style: "flex: 1; padding: 12px 15px; border: none; outline: none; font-size: 14px; background: transparent;" %>
-          
-          <button type="submit" style="background: #f8f9fa; border: none; border-left: 1px solid #c2cfd6; padding: 0 20px; cursor: pointer; color: #73818f; transition: background 0.2s;">
-            🔍
-          </button>
-        </div>
       <% end %>
-    <%# end %>
+
+      <div style="display: flex; width: 100%; border: 1px solid #c2cfd6; border-radius: 4px; overflow: hidden; background: #fff;">
+        <%= form.text_field :search, value: params[:search], 
+            placeholder: "Filter / Sort / Search Issues...", 
+            style: "flex: 1; padding: 12px 15px; border: none; outline: none; font-size: 14px; background: transparent;" %>
+        <button type="submit" style="background: #f8f9fa; border: none; border-left: 1px solid #c2cfd6; padding: 0 20px; cursor: pointer; color: #73818f;">🔍</button>
+      </div>
+    <% end %>
   </div>
 
   <div class="main-content-wrapper" style="display: flex; flex: 1; overflow: hidden; padding: 20px 30px; gap: 20px;">
     
+    <%# --- SIDEBAR DE FILTROS DINÁMICA --- %>
     <aside class="filters-sidebar" style="width: 220px; flex-shrink: 0; background: #fff; border: 1px solid #e0e6ed; padding: 20px; border-radius: 4px; overflow-y: auto;">
-      <%# if current_user %>
-        <%= form_with url: issues_path, method: :get, local: true do |form| %>
-          <%= form.hidden_field :search, value: params[:search] if params[:search].present? %>
-          <%= form.hidden_field :sort, value: params[:sort] if params[:sort].present? %>
-          <%= form.hidden_field :direction, value: params[:direction] if params[:direction].present? %>
+      <%= form_with url: issues_path, method: :get, local: true do |form| %>
+        <%= form.hidden_field :search, value: params[:search] if params[:search].present? %>
+        <%= form.hidden_field :sort, value: params[:sort] if params[:sort].present? %>
+        <%= form.hidden_field :direction, value: params[:direction] if params[:direction].present? %>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-            <span style="font-weight: bold; font-size: 12px; color: #3c4b5f;">FILTERS</span>
-            <%= link_to "Clear", issues_path, style: "font-size: 11px; color: #e74c3c; text-decoration: none; font-weight: bold;" %>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+          <span style="font-weight: bold; font-size: 12px; color: #3c4b5f;">FILTERS</span>
+          <%= link_to "Clear", issues_path, style: "font-size: 11px; color: #e74c3c; text-decoration: none; font-weight: bold;" %>
+        </div>
+
+        <% 
+          filters_config = [
+            { label: "TYPE",     param: "types",      options: IssueType.pluck(:name) },
+            { label: "STATUS",   param: "statuses",   options: Status.pluck(:name) },
+            { label: "PRIORITY", param: "priorities", options: Priority.pluck(:name) },
+            { label: "SEVERITY", param: "severities", options: Severity.pluck(:name) }
+          ]
+        %>
+
+        <% filters_config.each do |config| %>
+          <div style="margin-bottom: 20px;">
+            <p style="font-size: 11px; font-weight: bold; color: #8a9ab0; text-transform: uppercase; margin-bottom: 10px;"><%= config[:label] %></p>
+            <% config[:options].each do |opt| %>
+              <label style="display: flex; align-items: center; font-size: 13px; margin-bottom: 8px; cursor: pointer; color: #3c4b5f;">
+                <%= check_box_tag "#{config[:param]}[]", opt, params[config[:param]]&.include?(opt), onchange: "this.form.submit();", style: "margin-right: 10px;" %> 
+                <%= opt %>
+              </label>
+            <% end %>
           </div>
-
-          <% ["status", "priority", "severity"].each do |filter| %>
-            <div style="margin-bottom: 20px;">
-              <p style="font-size: 11px; font-weight: bold; color: #8a9ab0; text-transform: uppercase; margin-bottom: 10px;"><%= filter %></p>
-              <% (filter == "status" ? ["New", "Ready", "In progress", "Closed"] : (filter == "priority" ? ["Low", "Normal", "High"] : ["Wishlist", "Minor", "Normal", "Critical"])).each do |val| %>
-                <label style="display: flex; align-items: center; font-size: 13px; margin-bottom: 8px; cursor: pointer; color: #3c4b5f;">
-                  <%= check_box_tag "#{filter}es[]", val, params["#{filter}es"]&.include?(val), onchange: "this.form.submit();", style: "margin-right: 10px;" %> <%= val %>
-                </label>
-              <% end %>
-            </div>
-          <% end %>
         <% end %>
-      <%# end %>
+      <% end %>
     </aside>
 
+    <%# --- TABLA DE RESULTADOS --- %>
     <div class="table-container" style="flex: 1; background: #fff; border: 1px solid #e0e6ed; border-radius: 4px; display: flex; flex-direction: column; overflow: hidden;">
       
       <div class="table-header" style="display: flex; background: #fdfdfd; border-bottom: 1px solid #e0e6ed; padding: 15px 0; font-size: 11px; font-weight: bold; color: #8a9ab0; flex-shrink: 0;">
-        <div style="width: 60px; text-align: center;"><%= sortable "issue_type", "TYPE" %></div>        
-        <div style="width: 100px; text-align: center;"><%= sortable "severity", "SEVERITY" %></div>
-        <div style="width: 100px; text-align: center;"><%= sortable "priority", "PRIORITY" %></div>
+        <%# CAMBIAMOS LOS NOMBRES PARA QUE TENGAN EL _ID %>
+        <div style="width: 60px; text-align: center;"><%= sortable "issue_type_id", "TYPE" %></div>        
+        <div style="width: 100px; text-align: center;"><%= sortable "severity_id", "SEVERITY" %></div>
+        <div style="width: 100px; text-align: center;"><%= sortable "priority_id", "PRIORITY" %></div>
         <div style="flex: 1; padding-left: 20px; text-align: left;"><%= sortable "subject", "ISSUE" %></div>
-        <div style="width: 120px; text-align: center;"><%= sortable "status", "STATUS" %></div>
+        <div style="width: 120px; text-align: center;"><%= sortable "status_id", "STATUS" %></div>
         <div style="width: 120px; text-align: center;"><%= sortable "updated_at", "MODIFIED" %></div>
         <div style="width: 100px; text-align: center;"><%= sortable "due_date", "DUE DATE" %></div>
         <div style="width: 80px; text-align: center;">ASSIGN</div>
@@ -96,25 +103,14 @@
           <% @issues.each do |issue| %>
             <div class="issue-row" style="display: flex; align-items: center; padding: 15px 0; border-bottom: 1px solid #f0f3f5; font-size: 14px;">
               
-              <%# --- VARIABLES SEGURAS PARA EVITAR CONFLICTOS STRING vs OBJETO --- %>
-              <% t_obj = issue.issue_type.is_a?(String) ? nil : issue.issue_type %>
-              <% s_obj = issue.severity.is_a?(String) ? nil : issue.severity %>
-              <% p_obj = issue.priority.is_a?(String) ? nil : issue.priority %>
-              <% st_obj = issue.status.is_a?(String) ? nil : issue.status %>
-
-              <%# PUNTITO DEL TIPO %>
-              <div style="width: 60px; display: flex; justify-content: center;" title="<%= t_obj ? t_obj.name : (issue.issue_type || 'Sin tipo') %>">
-                <span style="height: 10px; width: 10px; background-color: <%= t_obj&.color.presence || '#ccc' %>; border-radius: 50%;"></span>
+              <div style="width: 60px; display: flex; justify-content: center;">
+                <span style="height: 10px; width: 10px; background-color: <%= issue.issue_type&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.issue_type&.name %>"></span>
               </div>
-
-              <%# PUNTITO DE SEVERIDAD %>
-              <div style="width: 100px; display: flex; justify-content: center;" title="<%= s_obj ? s_obj.name : (issue.severity || 'Sin severidad') %>">
-                <span style="height: 10px; width: 10px; background-color: <%= s_obj&.color.presence || '#ccc' %>; border-radius: 50%;"></span>
+              <div style="width: 100px; display: flex; justify-content: center;">
+                <span style="height: 10px; width: 10px; background-color: <%= issue.severity&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.severity&.name %>"></span>
               </div>
-
-              <%# PUNTITO DE PRIORIDAD %>
-              <div style="width: 100px; display: flex; justify-content: center;" title="<%= p_obj ? p_obj.name : (issue.priority || 'Sin prioridad') %>">
-                <span style="height: 10px; width: 10px; background-color: <%= p_obj&.color.presence || '#ccc' %>; border-radius: 50%;"></span>
+              <div style="width: 100px; display: flex; justify-content: center;">
+                <span style="height: 10px; width: 10px; background-color: <%= issue.priority&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.priority&.name %>"></span>
               </div>
               
               <div style="flex: 1; padding-left: 20px;">
@@ -122,10 +118,9 @@
                 <%= link_to issue.subject, issue, style: "text-decoration: none; color: #20242a; font-weight: 500;" %>
               </div>
 
-              <%# PASTILLA DE ESTADO %>
               <div style="width: 120px; display: flex; justify-content: center;">
-                <span style="background-color: <%= st_obj&.color.presence || '#e1f5fe' %>; color: <%= st_obj ? '#fff' : '#0277bd' %>; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; text-shadow: <%= st_obj ? '0px 1px 2px rgba(0,0,0,0.3)' : 'none' %>;">
-                  <%= st_obj ? st_obj.name : (issue.status || "New") %>
+                <span style="background-color: <%= issue.status&.color || '#e1f5fe' %>; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
+                  <%= issue.status&.name || "New" %>
                 </span>
               </div>
 
@@ -133,20 +128,19 @@
                 <%= issue.updated_at.strftime("%d %b %Y") %>
               </div>
 
-              <%# DATO DUE DATE %>
-              <div style="width: 100px; text-align: center; font-size: 13px; color: <%= issue.respond_to?(:due_date) && issue.due_date && issue.due_date < Date.today ? '#e74c3c' : '#73818f' %>; font-weight: <%= issue.respond_to?(:due_date) && issue.due_date && issue.due_date < Date.today ? 'bold' : 'normal' %>;">
-                <%= issue.respond_to?(:due_date) && issue.due_date ? issue.due_date.strftime("%d %b %Y") : "-" %>
+              <div style="width: 100px; text-align: center; font-size: 13px; color: #73818f;">
+                <%= issue.due_date&.strftime("%d %b %Y") || "-" %>
               </div>
 
               <div style="width: 80px; display: flex; justify-content: center;">
-                <div style="width: 30px; height: 30px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;" title="<%= respond_to?(:user) && issue.user ? issue.user.name : 'Sin asignar' %>">
-                  <%= respond_to?(:user) && issue.user ? issue.user.name.first.upcase : '?' %>
+                <div style="width: 30px; height: 30px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                  <%= issue.user&.name&.first&.upcase || "?" %>
                 </div>
               </div>
             </div>
           <% end %>
         <% else %>
-          <div style="padding: 100px; text-align: center; color: #8a9ab0;">No hay resultados.</div>
+          <div style="padding: 100px; text-align: center; color: #8a9ab0;">No hay resultados con los filtros aplicados.</div>
         <% end %>
       </div>
     </div>

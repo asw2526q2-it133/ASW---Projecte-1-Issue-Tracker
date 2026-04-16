@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_16_130212) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_16_133313) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -48,6 +48,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_130212) do
     t.integer "user_id", null: false
     t.index ["issue_id"], name: "index_activities_on_issue_id"
     t.index ["user_id"], name: "index_activities_on_user_id"
+  end
+
+  create_table "comments", force: :cascade do |t|
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.integer "issue_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["issue_id"], name: "index_comments_on_issue_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
   create_table "issue_tags", force: :cascade do |t|
