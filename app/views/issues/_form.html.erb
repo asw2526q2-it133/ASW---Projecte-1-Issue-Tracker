@@ -1,5 +1,7 @@
 <div class="issue-container">
-  <%= form_with(model: @issue, local: true, class: "issue-form") do |f| %>
+  <%= form_with(model: @issue, local: true, class: "issue-form", multipart: true) do |f| %>
+    
+    <%# Manejo de errores %>
     <% if @issue.errors.any? %>
       <div style="background: #fee; color: #900; border: 1px solid #900; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
         <strong>Error! Could not save:</strong>
@@ -12,12 +14,14 @@
     <% end %>
 
     <div class="form-layout">
+      
+      <%# Columna Principal %>
       <div class="main-column">
         <div class="field">
           <%= f.text_field :subject, placeholder: "Subject", class: "input-subject" %>
         </div>
 
-        <div  class="status-dropdown">
+        <div class="status-dropdown">
           <%= f.collection_select :tag_ids, @tags, :id, :name, 
               { prompt: "+ Add tag" }, { class: "btn-add-tag" } %>
         </div>
@@ -28,102 +32,24 @@
               class: "input-description" %>
         </div>
 
+        <%# Caja de Adjuntos (100% HTML/CSS) %>
         <div class="attachments-box">
-          <%# Cabecera dinámica %>
-          <div class="attachments-header" style="display: flex; justify-content: space-between; align-items: center; background: #ebf1f3; padding: 10px 15px; border-radius: 4px 4px 0 0;">
-            <span id="attachment-count-text"><strong><%= @issue.attachments.count %> Attachments</strong></span>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <span style="color: #666;">🔳 📝</span> <%# Iconos decorativos %>
-              <label class="btn-plus-taiga" style="cursor: pointer; background: #69ebd0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-weight: bold; font-size: 20px;">
-                + <%= f.file_field :attachments, multiple: true, direct_upload: true, style: "display:none;", onchange: "handleFiles(this.files)" %>
-              </label>
-            </div>
+          <div class="att-header" style="background:#ebf1f3;padding:8px 14px;border-radius:4px 4px 0 0;border-bottom:1px solid #dde6ea;">
+            <span style="font-size:13px;font-weight:500;">Attachments</span>
           </div>
 
-          <%# Zona de Drop y Lista de archivos %>
-          <div id="drop-zone" class="drop-zone" style="border: 2px dashed #ccc; border-top: none; padding: 20px; text-align: center; background: #fff; transition: background 0.3s;">
+          <div style="padding: 20px; border:2px dashed #ccc; border-top:none; border-radius:0 0 4px 4px; background:#fff; text-align:center;">
+            <div style="color:#7c8b9a; font-size:13px; margin-bottom: 15px;">
+              Haz clic abajo para seleccionar tus archivos:
+            </div>
             
-            <%# Mensaje cuando está vacío %>
-            <div id="drop-message" style="<%= @issue.attachments.attached? ? 'display:none;' : '' %> color: #7c8b9a; margin: 20px 0;">
-              Drop attachments here!
-            </div>
-
-            <%# Lista de archivos (Existentes + Nuevos) %>
-            <div id="files-list-container" style="text-align: left;">
-              <% if @issue.attachments.attached? %>
-                <% @issue.attachments.each do |file| %>
-                  <div class="attachment-row-taiga" style="display: flex; align-items: center; gap: 15px; padding: 10px 0; border-bottom: 1px solid #eee;">
-                    <span style="color: #7c8b9a;">📎</span>
-                    <span style="flex-grow: 1; color: #008aa8; font-weight: 500;"><%= file.filename %></span>
-                    <span style="color: #666; font-size: 0.9em;"><%= number_to_human_size(file.byte_size) %></span>
-                    <input type="text" placeholder="Type a short description" style="border: 1px solid #ddd; padding: 4px 8px; border-radius: 3px; width: 250px;">
-                    <label style="font-size: 0.85em; color: #333;"><input type="checkbox"> Deprecated?</label>
-                    <span style="cursor: pointer; color: #999;">💾</span>
-                    <label style="cursor: pointer; color: #999; margin-left: 10px;">
-                      <%= check_box_tag "remove_attachments[]", file.id, false, style: "display:none;" %> ✕
-                    </label>
-                  </div>
-                <% end %>
-              <% end %>
-              <div id="new-files-preview"></div>
-            </div>
+            <%# Input nativo de archivos: visible para que el navegador muestre qué se ha seleccionado %>
+            <%= f.file_field :attachments, multiple: true, style: "display: block; margin: 0 auto; max-width: 100%; color: #333;" %>
           </div>
         </div>
-
-        <script>
-          let accumulatedFiles = new DataTransfer(); 
-
-          function handleFiles(files) {
-            const preview = document.getElementById('new-files-preview');
-            const dropMessage = document.getElementById('drop-message');
-            const fileInput = document.querySelector('input[type="file"]');
-
-            Array.from(files).forEach(file => {
-              // 2. Comprobamos duplicados (por nombre y tamaño)
-              const isDuplicate = Array.from(accumulatedFiles.files).some(
-                f => f.name === file.name && f.size === file.size
-              );
-
-              if (isDuplicate) {
-                alert(`El archivo "${file.name}" ya está en la lista.`);
-                return;
-              }
-
-              // 3. Si no es duplicado, lo añadimos al almacén
-              accumulatedFiles.items.add(file);
-
-              // 4. Creamos la fila visual (Estilo Taiga)
-              const row = document.createElement('div');
-              row.className = "attachment-row-taiga";
-              row.style = "display: flex; align-items: center; gap: 15px; padding: 10px 0; border-bottom: 1px solid #eee; background: #fffcf0;";
-              row.innerHTML = `
-                <span style="color: #7c8b9a;">📎</span>
-                <span style="flex-grow: 1; color: #008aa8; font-weight: 500;">${file.name}</span>
-                <span style="color: #666; font-size: 0.9em;">${(file.size / 1024).toFixed(1)} KB</span>
-                <input type="text" placeholder="Type a short description" style="border: 1px solid #ddd; padding: 4px 8px; border-radius: 3px; width: 250px;">
-                <span style="color: #999; margin-left: 20px;">🆕</span>
-              `;
-              preview.appendChild(row);
-            });
-
-            // 5. ¡ESTA ES LA CLAVE! Sincronizamos el input oculto con nuestro almacén
-            fileInput.files = accumulatedFiles.files;
-
-            // Actualizamos la interfaz
-            dropMessage.style.display = accumulatedFiles.files.length > 0 ? 'none' : 'block';
-            document.getElementById('attachment-count-text').innerHTML = 
-              `<strong>${accumulatedFiles.files.length} New attachments selected</strong>`;
-          }
-
-          // 6. Asegurar que el DropZone use la misma función
-          dropZone.addEventListener('drop', (e) => {
-            dropZone.style.background = '#fff';
-            handleFiles(e.dataTransfer.files);
-          });
-        </script>
- 
       </div>
 
+      <%# Barra Lateral (Sidebar) %>
       <aside class="sidebar">
         <div class="status-dropdown">
           <%= f.collection_select :status_id, @statuses, :id, :name, 
@@ -131,33 +57,31 @@
               { class: "select-status-main" } %>
         </div>
 
-        <div  class="status-dropdown">
+        <div class="status-dropdown">
           <%= f.collection_select :assignee_id, @assignable_users, :id, :name, 
               { prompt: "Assign to" }, { class: "select-assignee" } %>
         </div>
 
+        <div class="meta-item">
+          <span class="label">type</span>
+          <div class="value">
+            <%= f.collection_select :issue_type_id, @types, :id, :name, {}, { class: "meta-select" } %>
+          </div>
+        </div>
 
         <div class="meta-item">
-            <span class="label">type</span>
-            <div class="value">
-              <%= f.collection_select :issue_type_id, @types, :id, :name, {}, { class: "meta-select" } %>
-            </div>
+          <span class="label">severity</span>
+          <div class="value">
+            <%= f.collection_select :severity_id, @severities, :id, :name, {}, { class: "meta-select" } %>
           </div>
+        </div>
 
         <div class="meta-item">
-            <span class="label">severity</span>
-            <div class="value">
-              <%= f.collection_select :severity_id, @severities, :id, :name, {}, { class: "meta-select" } %>
-  
-            </div>
+          <span class="label">priority</span>
+          <div class="value">
+            <%= f.collection_select :priority_id, @priorities, :id, :name, {}, { class: "meta-select" } %>
           </div>
-
-        <div class="meta-item">
-            <span class="label">priority</span>
-            <div class="value">
-              <%= f.collection_select :priority_id, @priorities, :id, :name, {}, { class: "meta-select" } %>
-            </div>
-          </div>
+        </div>
 
         <div class="action-icons">
           <div class="calendar-wrapper btn-icon">
@@ -175,10 +99,10 @@
       </aside>
     </div>
 
-    
-
+    <%# Botón de Envío %>
     <div class="submit-container">
       <%= f.submit "CONFIRM", class: "btn-submit" %>
     </div>
+    
   <% end %>
 </div>

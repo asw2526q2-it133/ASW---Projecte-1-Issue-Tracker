@@ -26,19 +26,14 @@ class Issue < ApplicationRecord
   def no_duplicate_attachments
     return unless attachments.attached?
 
-    # Sacamos los checksums de los archivos que ya están guardados
-    existing_checksums = attachments.blobs.pluck(:checksum)
-    
-    # Comparamos los nuevos archivos entre sí y con los existentes
+    existing_checksums = attachments.blobs.reject(&:new_record?).map(&:checksum)
     new_checksums = []
-    
-    attachments.each do |attachment|
-      # Si el archivo es nuevo (no se ha guardado aún)
-      if attachment.blob.new_record?
-        if existing_checksums.include?(attachment.blob.checksum) || new_checksums.include?(attachment.blob.checksum)
-          errors.add(:attachments, "file '#{attachment.filename}' is already attached or duplicated")
-        end
-        new_checksums << attachment.blob.checksum
+
+    attachments.blobs.select(&:new_record?).each do |blob|
+      if existing_checksums.include?(blob.checksum) || new_checksums.include?(blob.checksum)
+        errors.add(:attachments, "file '#{blob.filename}' is already attached or duplicated")
+      else
+        new_checksums << blob.checksum
       end
     end
   end
