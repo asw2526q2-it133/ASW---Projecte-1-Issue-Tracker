@@ -114,13 +114,13 @@ class IssuesController < ApplicationController
     private
     def issue_params
   params.require(:issue).permit(
-    :subject, 
-    :description, 
-    :due_date, 
-    :issue_type_id,  
-    :priority_id, 
-    :severity_id, 
-    :status_id, 
+    :subject,
+    :description,
+    :due_date,
+    :issue_type_id,
+    :priority_id,
+    :severity_id,
+    :status_id,
     :assigned_to_id,
   )
 end
