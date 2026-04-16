@@ -1,2 +1,66 @@
-<h1>Activities#index</h1>
-<p>Find me in app/views/activities/index.html.erb</p>
+<div class="activities-container" style="max-width: 1000px; margin: 0 auto; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  
+  <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #e0e6ed; padding-bottom: 20px;">
+    <h1 style="color: #3c4b5f; font-size: 28px; font-weight: 300; margin: 0;">Global <span style="font-weight: bold; color: #008aa8;">Activity Feed</span></h1>
+    <span style="background: #e0e6ed; color: #73818f; padding: 5px 12px; border-radius: 15px; font-size: 13px; font-weight: bold;">
+      <%= @activities.count %> Events
+    </span>
+  </header>
+
+  <div class="timeline" style="position: relative; padding-left: 40px;">
+
+    <% if @activities.any? %>
+      <% @activities.group_by { |a| a.created_at.to_date }.each do |date, activities| %>
+        
+        <%# Separador por fecha %>
+        <div class="date-group" style="position: relative; margin-bottom: 25px;">
+          <h3 style="font-size: 12px; color: #8a9ab0; text-transform: uppercase; background: #fff; display: inline-block; padding-right: 10px; position: relative; z-index: 1;">
+            <%= date == Date.today ? "Today" : date.strftime("%B %d, %Y") %>
+          </h3>
+        </div>
+
+        <% activities.each do |activity| %>
+          <div class="activity-card" style="position: relative; background: #fff; border: 1px solid #e0e6ed; border-radius: 6px; padding: 15px; margin-bottom: 15px; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+            
+            <%# Punto en la línea de tiempo %>
+            <div style="position: absolute; left: -26px; top: 22px; width: 12px; height: 12px; border-radius: 50%; background: #5adad1; border: 3px solid #fff; box-shadow: 0 0 0 2px #e0e6ed;"></div>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <%# Avatar del usuario %>
+              <div style="width: 32px; height: 32px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; flex-shrink: 0;">
+                <%= activity.user&.name&.first&.upcase || "?" %>
+              </div>
+
+              <div style="flex-grow: 1;">
+                <p style="margin: 0; font-size: 14px; color: #3c4b5f;">
+                  <strong style="color: #008aa8;"><%= activity.user&.name || "System" %></strong> 
+                  <%= activity.action %> 
+                  <% if activity.issue %>
+                    <%= link_to "##{activity.issue.id}: #{activity.issue.subject}", issue_path(activity.issue), style: "color: #3c4b5f; text-decoration: none; font-weight: 600; border-bottom: 1px solid #5adad1;" %>
+                  <% end %>
+                </p>
+                
+                <% if activity.changes_log.present? %>
+                  <div style="margin-top: 8px; padding: 8px 12px; background: #f8f9fa; border-left: 3px solid #ced4da; font-size: 13px; color: #6c757d; font-style: italic;">
+                    <%= activity.changes_log %>
+                  </div>
+                <% end %>
+              </div>
+
+              <div style="text-align: right; min-width: 80px;">
+                <span style="font-size: 12px; color: #8a9ab0;">
+                  <%= activity.created_at.strftime("%H:%M %p") %>
+                </span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+      <% end %>
+    <% else %>
+      <div style="text-align: center; padding: 50px; background: #fdfdfd; border: 2px dashed #e0e6ed; border-radius: 8px;">
+        <p style="color: #8a9ab0; font-size: 16px;">No activity recorded in the system yet.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
