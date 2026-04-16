@@ -94,6 +94,37 @@ class IssuesController < ApplicationController
     end
   end
 
+  # GET /issues/bulk
+  def bulk
+    # Solo renderiza la vista
+  end
+
+  # POST /issues/create_bulk
+  def create_bulk
+    titles = params[:bulk_data].split("\n").map(&:strip).reject(&:empty?)
+
+    if titles.any?
+      issues_to_create = titles.map { |title| { 
+        subject: title, 
+        status_id: Status.first&.id,
+        priority_id: Priority.first&.id,
+        severity_id: Severity.first&.id,
+        issue_type_id: IssueType.first&.id,
+        user_id: current_user.id,
+        created_at: Time.current,
+        updated_at: Time.current,
+        } }
+      
+      # insert_all es muy eficiente pero se salta validaciones de Rails. 
+      # Si necesitas validaciones, usa: Issue.create(issues_to_create)
+      Issue.create(issues_to_create)
+
+      redirect_to issues_path, notice: "¡Se han creado #{titles.size} issues correctamente!"
+    else
+      redirect_to bulk_issues_path, alert: "Por favor, escribe al menos un título."
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_issue
