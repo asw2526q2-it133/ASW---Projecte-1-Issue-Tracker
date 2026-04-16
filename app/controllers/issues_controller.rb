@@ -1,5 +1,6 @@
 class IssuesController < ApplicationController
   # before_action :authenticate_user!
+  before_action :authenticate_user!
   before_action :set_issue, only: %i[ show edit update destroy ]
 
   # GET /issues or /issues.json
@@ -54,9 +55,7 @@ class IssuesController < ApplicationController
     @assignable_users = User.all
     @tags = Tag.all
 
-    loged_user = User.find_by(name: "roger")
-
-    @issue.user = loged_user
+    @issue.user = current_user
 
     respond_to do |format|
       if @issue.save
@@ -95,12 +94,12 @@ class IssuesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_issue
-      @issue = Issue.find(params.expect(:id))
+      @issue = Issue.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
-    def issue_params
-      params.expect(issue: [ :subject, :description, :issue_type, :severity, :priority, :status, :due_date, tag_ids: [] ])
+   def issue_params
+      params.expect(issue: [:subject, :description, :issue_type_id, :severity_id, :priority_id, :status_id, :due_date, tag_ids: [], attachments: [] ])
     end
 
     def sort_column
@@ -110,18 +109,4 @@ class IssuesController < ApplicationController
     def sort_direction
       %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
     end
-
-    private
-    def issue_params
-  params.require(:issue).permit(
-    :subject, 
-    :description, 
-    :due_date, 
-    :issue_type_id,  
-    :priority_id, 
-    :severity_id, 
-    :status_id, 
-    :assigned_to_id,
-  )
-end
 end

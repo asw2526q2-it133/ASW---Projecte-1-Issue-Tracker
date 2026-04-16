@@ -24,27 +24,30 @@
   <aside class="issue-sidebar">
     <div class="sidebar-item">
       <label>STATUS</label>
-      <div class="status-badge"><%= @issue.status.presence || "New" %></div>
+      <div class="status-badge"><%= @issue.status&.name || "New" %></div>
     </div>
 
     <div class="sidebar-item">
       <label>TYPE</label>
       <div class="meta-value">
-        <span class="dot red"></span> Bug
+        <span class="dot" style="background-color: <%= @issue.issue_type&.color %>"></span>
+        <%= @issue.issue_type&.name || "Bug" %>
       </div>
     </div>
 
     <div class="sidebar-item">
       <label>SEVERITY</label>
       <div class="meta-value">
-        <span class="dot green"></span> <%= @issue.severity.presence || "Normal" %>
+        <span class="dot" style="background-color: <%= @issue.severity&.color %>"></span>
+        <%= @issue.severity&.name || "Normal" %>
       </div>
     </div>
 
     <div class="sidebar-item">
       <label>PRIORITY</label>
       <div class="meta-value">
-        <span class="dot yellow"></span> <%= @issue.priority.presence || "Normal" %>
+        <span class="dot" style="background-color: <%= @issue.priority&.color %>"></span>
+        <%= @issue.priority&.name || "Normal" %>
       </div>
     </div>
 
@@ -53,9 +56,13 @@
     <div class="sidebar-item">
       <label>CREATED BY</label>
       <div class="user-info">
-      <%# Parche temporal: Comprueba si existe el método y el usuario antes de pintar %>
-      <div class="avatar"><%= respond_to?(:user) && @issue.user ? @issue.user.name.first.upcase : '?' %></div>
-      <span><%= respond_to?(:user) && @issue.user ? @issue.user.name : 'Sin asignar' %></span>
+        <% if @issue.user %>
+          <div class="avatar"><%= @issue.user.name.first.upcase %></div>
+          <span><%= @issue.user.name %></span>
+        <% else %>
+          <div class="avatar">?</div>
+          <span>Sin asignar</span>
+        <% end %>
       </div>
     </div>
 
