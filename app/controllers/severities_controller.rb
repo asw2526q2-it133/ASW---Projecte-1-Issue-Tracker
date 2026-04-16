@@ -26,7 +26,7 @@ class SeveritiesController < ApplicationController
 
     respond_to do |format|
       if @severity.save
-        format.html { redirect_to @severity, notice: "Severity was successfully created." }
+        format.html { redirect_to severities_path, notice: "Severity was successfully created." }
         format.json { render :show, status: :created, location: @severity }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -39,7 +39,7 @@ class SeveritiesController < ApplicationController
   def update
     respond_to do |format|
       if @severity.update(severity_params)
-        format.html { redirect_to @severity, notice: "Severity was successfully updated.", status: :see_other }
+        format.html { redirect_to severities_path, notice: "Severity was successfully updated.", status: :see_other }
         format.json { render :show, status: :ok, location: @severity }
       else
         format.html { render :edit, status: :unprocessable_entity }

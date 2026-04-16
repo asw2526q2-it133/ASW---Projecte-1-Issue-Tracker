@@ -26,7 +26,7 @@ class IssueTypesController < ApplicationController
 
     respond_to do |format|
       if @issue_type.save
-        format.html { redirect_to @issue_type, notice: "Issue type was successfully created." }
+        format.html { redirect_to issue_types_url, notice: "Issue type was successfully created." }
         format.json { render :show, status: :created, location: @issue_type }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -39,7 +39,7 @@ class IssueTypesController < ApplicationController
   def update
     respond_to do |format|
       if @issue_type.update(issue_type_params)
-        format.html { redirect_to @issue_type, notice: "Issue type was successfully updated.", status: :see_other }
+        format.html { redirect_to issue_types_url, notice: "Issue type was successfully updated.", status: :see_other }
         format.json { render :show, status: :ok, location: @issue_type }
       else
         format.html { render :edit, status: :unprocessable_entity }
