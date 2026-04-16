@@ -15,6 +15,12 @@ test:
   database: taiga_test
 
 production:
-  <<: *default
-  database: taiga_production
-  url: <%= ENV['DATABASE_URL'] %>
+  primary: &primary_production
+    <<: *default
+    url: <%= ENV['DATABASE_URL'] %>
+  queue:
+    <<: *primary_production
+  cache:
+    <<: *primary_production
+  cable:
+    <<: *primary_production
