@@ -140,14 +140,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_133313) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "activities", "issues"
-  add_foreign_key "activities", "users"
-  add_foreign_key "comments", "issues"
-  add_foreign_key "comments", "users"
-  add_foreign_key "issue_tags", "issues"
-  add_foreign_key "issue_tags", "tags"
   add_foreign_key "issue_watchers", "issues"
   add_foreign_key "issue_watchers", "users"
   add_foreign_key "issues", "issue_types"

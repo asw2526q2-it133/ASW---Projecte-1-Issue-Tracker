@@ -1,5 +1,7 @@
 <div class="issue-container">
-  <%= form_with(model: @issue, local: true, class: "issue-form") do |f| %>
+  <%= form_with(model: @issue, local: true, class: "issue-form", multipart: true) do |f| %>
+    
+    <%# Manejo de errores %>
     <% if @issue.errors.any? %>
       <div style="background: #fee; color: #900; border: 1px solid #900; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
         <strong>Error! Could not save:</strong>
@@ -12,6 +14,8 @@
     <% end %>
 
     <div class="form-layout">
+      
+      <%# Columna Principal %>
       <div class="main-column">
         <%# ASUNTO %>
         <div class="field">
@@ -33,15 +37,23 @@
               class: "input-description" %>
         </div>
 
-        <%# ADJUNTOS (Simulado según tu estructura) %>
-        <div class="attachments-section">
-          <div class="attachments-header">
-            <span>Attachments</span>
-            <button type="button" class="btn-plus">+</button>
+        <div class="attachments-box">
+          <div class="att-header" style="background:#ebf1f3;padding:8px 14px;border-radius:4px 4px 0 0;border-bottom:1px solid #dde6ea;">
+            <span style="font-size:13px;font-weight:500;">Attachments</span>
+          </div>
+
+          <div style="padding: 20px; border:2px dashed #ccc; border-top:none; border-radius:0 0 4px 4px; background:#fff; text-align:center;">
+            <div style="color:#7c8b9a; font-size:13px; margin-bottom: 15px;">
+              Haz clic abajo para seleccionar tus archivos:
+            </div>
+            
+            <%# Input nativo de archivos: visible para que el navegador muestre qué se ha seleccionado %>
+            <%= f.file_field :attachments, multiple: true, style: "display: block; margin: 0 auto; max-width: 100%; color: #333;" %>
           </div>
         </div>
       </div>
 
+      <%# Barra Lateral (Sidebar) %>
       <aside class="sidebar">
         <%# ESTADO PRINCIPAL %>
         <div class="status-dropdown">
@@ -104,5 +116,6 @@
       <%= link_to "CANCEL", issues_path, style: "color: #8a9ab0; text-decoration: none; margin-right: 20px; font-size: 13px; font-weight: bold;" %>
       <%= f.submit "CONFIRM", class: "btn-submit" %>
     </div>
+    
   <% end %>
 </div>

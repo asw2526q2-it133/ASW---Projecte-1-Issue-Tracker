@@ -61,6 +61,9 @@ class IssuesController < ApplicationController
 
     @issue.user = current_user
 
+    Rails.logger.debug "PARAMS: #{params.inspect}"
+    Rails.logger.debug "ATTACHMENTS: #{params[:issue][:attachments].inspect}"
+
     respond_to do |format|
       if @issue.save
         format.html { redirect_to @issue, notice: "Issue was successfully created." }
