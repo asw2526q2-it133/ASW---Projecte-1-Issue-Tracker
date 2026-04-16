@@ -1,10 +1,284 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
+@import "new_issue";
+
+body {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #33475b;
+  background-color: #f4f7f9;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  color: #008d8d;
+  font-weight: 300;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.taiga-container {
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.issues-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  background: #fafafa;
+  padding: 10px 20px;
+  border-bottom: 1px solid #eeeeee;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #888888;
+  letter-spacing: 0.5px;
+}
+
+.issue-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.1s;
+}
+
+.issue-row:hover {
+  background-color: #f9f9f9;
+}
+
+.col-icon {
+  width: 75px; 
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.col-main {
+  flex-grow: 1;
+  padding-left: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.col-status {
+  width: 110px;
+  font-size: 0.85rem;
+  color: #666666;
+  flex-shrink: 0;
+}
+
+.col-date {
+  width: 120px;
+  font-size: 0.85rem;
+  color: #999999;
+  flex-shrink: 0;
+}
+
+.col-user {
+  width: 90px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dot {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.red { background-color: #eb5757; }
+.dot.green { background-color: #2ecc71; }
+.dot.yellow { background-color: #f1c40f; }
+
+.issue-number {
+  color: #008d8d;
+  font-weight: bold;
+  margin-right: 8px;
+  font-size: 0.9rem;
+}
+
+.issue-link {
+  text-decoration: none;
+  color: #33475b;
+  font-size: 0.95rem;
+}
+
+.issue-link:hover {
+  text-decoration: underline;
+}
+
+.arrow {
+  font-size: 0.7rem;
+  margin-left: 4px;
+}
+
+.btn-new-issue {
+  background-color: #7cead5;
+  color: #111111;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  transition: background 0.2s;
+}
+
+.btn-new-issue:hover {
+  background-color: #62d2bc;
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  background-color: #d1d8dd;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.nav-links {
+  margin-top: 20px;
+}
+
+.nav-links a {
+  color: #008d8d;
+  text-decoration: none;
+}
+
+/*CSS de show*/
+.taiga-show-container {
+  display: flex;
+  gap: 30px;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.issue-main-content {
+  flex: 3;
+}
+
+.issue-header-show {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.issue-number-big {
+  font-size: 1.5rem;
+  color: #008d8d;
+  font-weight: bold;
+  padding-top: 5px;
+}
+
+.issue-description-box {
+  background: #fdfdfd;
+  border: 1px solid #f0f0f0;
+  padding: 20px;
+  border-radius: 4px;
+  min-height: 200px;
+}
+
+.issue-description-box h3 {
+  margin-top: 0;
+  font-size: 0.9rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.description-text {
+  color: #33475b;
+  white-space: pre-wrap;
+}
+
+
+.issue-sidebar {
+  flex: 1;
+  background: #fafafa;
+  padding: 20px;
+  border-left: 1px solid #eee;
+  border-radius: 0 4px 4px 0;
+}
+
+.sidebar-item {
+  margin-bottom: 20px;
+}
+
+.sidebar-item label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.meta-value {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+}
+
+.status-badge {
+  display: inline-block;
+  background: #d1d8dd;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  color: #33475b;
+}
+
+.divider {
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.show-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-edit, .btn-back {
+  text-decoration: none;
+  padding: 8px 15px;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.btn-edit { background: #7cead5; color: #111; }
+.btn-back { background: #eee; color: #666; }
+.btn-delete { 
+  background: #eb5757; 
+  color: white; 
+  border: none; 
+  padding: 8px 15px; 
+  border-radius: 3px; 
+  cursor: pointer;
+}

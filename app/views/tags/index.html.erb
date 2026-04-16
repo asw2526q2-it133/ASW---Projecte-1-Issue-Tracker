@@ -1,0 +1,68 @@
+<style>
+  .settings-container { display: flex; height: calc(100vh - 60px); background: #f6f8f9; font-family: sans-serif; }
+  .settings-sidebar { width: 250px; background: #fff; border-right: 1px solid #e0e6ed; padding: 20px 0; display: flex; flex-direction: column; }
+  .settings-sidebar h3 { font-size: 11px; font-weight: bold; color: #8a9ab0; text-transform: uppercase; margin: 0 20px 10px; letter-spacing: 0.5px; }
+  .sidebar-link { display: block; padding: 10px 20px; color: #3c4b5f; text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.2s; }
+  .sidebar-link:hover { background: #f0f3f5; color: #008aa8; }
+  .sidebar-link.active { background: #e1f5fe; color: #0277bd; font-weight: bold; border-left: 3px solid #0277bd; }
+  
+  .settings-content { flex: 1; padding: 30px; overflow-y: auto; }
+  .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .settings-header h1 { margin: 0; font-size: 24px; font-weight: 300; color: #3c4b5f; }
+  .btn-new { background: #5adad1; color: #fff; padding: 8px 18px; border-radius: 3px; text-decoration: none; font-weight: bold; font-size: 13px; border: none; cursor: pointer; }
+  
+  .config-table { width: 100%; background: #fff; border-radius: 4px; border: 1px solid #e0e6ed; border-collapse: collapse; }
+  .config-table th { background: #fdfdfd; padding: 12px 20px; text-align: left; font-size: 11px; font-weight: bold; color: #8a9ab0; border-bottom: 1px solid #e0e6ed; text-transform: uppercase; }
+  .config-table td { padding: 15px 20px; border-bottom: 1px solid #f0f3f5; font-size: 14px; color: #3c4b5f; vertical-align: middle; }
+  .config-table tr:last-child td { border-bottom: none; }
+  .color-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 10px; vertical-align: middle; }
+  .action-links a { color: #8a9ab0; text-decoration: none; font-size: 12px; margin-right: 10px; }
+  .action-links a:hover { color: #008aa8; }
+  .action-links a.delete:hover { color: #e74c3c; }
+</style>
+
+<div class="settings-container">
+  <%# MENÚ LATERAL %>
+  <div class="settings-sidebar">
+    <h3>Attributes</h3>
+    <%= link_to "Statuses", statuses_path, class: "sidebar-link" %>
+    <%= link_to "Priorities", priorities_path, class: "sidebar-link" %>
+    <%= link_to "Types", issue_types_path, class: "sidebar-link" %>
+    <%= link_to "Severities", severities_path, class: "sidebar-link" %>
+    
+    <h3 style="margin-top: 20px;">Project</h3>
+    <%= link_to "Tags", tags_path, class: "sidebar-link active" %>
+  </div>
+
+  <%# CONTENIDO PRINCIPAL %>
+  <div class="settings-content">
+    <div class="settings-header">
+      <h1>Tags</h1>
+      <%= link_to "+ ADD NEW TAG", new_tag_path, class: "btn-new" %>
+    </div>
+
+    <table class="config-table">
+      <thead>
+        <tr>
+          <th style="width: 60px;">Color</th>
+          <th>Name</th>
+          <th style="text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @tags.each do |tag| %>
+          <tr>
+            <td>
+              <span class="color-dot" style="background-color: <%= tag.color.presence || '#ccc' %>;"></span>
+            </td>
+            <td style="font-weight: 500;"><%= tag.name %></td>
+            <td style="text-align: right;" class="action-links">
+              <%= link_to "Edit", edit_tag_path(tag) %>
+              <%= link_to "Delete", tag_path(tag), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "delete" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

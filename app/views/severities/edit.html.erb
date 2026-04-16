@@ -1,0 +1,12 @@
+<% content_for :title, "Editing severity" %>
+
+<h1>Editing severity</h1>
+
+<%= render "form", severity: @severity %>
+
+<br>
+
+<div>
+  <%= link_to "Show this severity", @severity %> |
+  <%= link_to "Back to severities", severities_path %>
+</div>

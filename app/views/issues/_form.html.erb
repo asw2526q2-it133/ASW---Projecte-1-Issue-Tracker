@@ -1,0 +1,84 @@
+<div class="issue-container">
+  <%= form_with(model: @issue, local: true, class: "issue-form") do |f| %>
+
+    <div class="form-layout">
+      <div class="main-column">
+        <div class="field">
+          <%= f.text_field :subject, placeholder: "Subject", class: "input-subject" %>
+        </div>
+
+        <div  class="status-dropdown">
+          <%= f.collection_select :tag_ids, @tags, :id, :name, 
+              { prompt: "+ Add tag" }, { class: "btn-add-tag" } %>
+        </div>
+
+        <div class="field">
+          <%= f.text_area :description, 
+              placeholder: "Please add descriptive text to help others better understand this issue", 
+              class: "input-description" %>
+        </div>
+
+        <div class="attachments-section">
+          <div class="attachments-header">
+            <span>0 Attachments</span>
+            <button type="button" class="btn-plus">+</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="status-dropdown">
+          <%= f.collection_select :status_id, @statuses, :id, :name, 
+              { prompt: "Select Status" }, 
+              { class: "select-status-main" } %>
+        </div>
+
+        <div  class="status-dropdown">
+          <%= f.collection_select :assignee_id, @assignable_users, :id, :name, 
+              { prompt: "Assign to" }, { class: "select-assignee" } %>
+        </div>
+
+
+        <div class="meta-item">
+            <span class="label">type</span>
+            <div class="value">
+              <%= f.collection_select :issue_type_id, @types, :id, :name, {}, { class: "meta-select" } %>
+            </div>
+          </div>
+
+        <div class="meta-item">
+            <span class="label">severity</span>
+            <div class="value">
+              <%= f.collection_select :severity_id, @severities, :id, :name, {}, { class: "meta-select" } %>
+  
+            </div>
+          </div>
+
+        <div class="meta-item">
+            <span class="label">priority</span>
+            <div class="value">
+              <%= f.collection_select :priority_id, @priorities, :id, :name, {}, { class: "meta-select" } %>
+            </div>
+          </div>
+
+        <div class="action-icons">
+          <div class="calendar-wrapper btn-icon">
+            <span>🕒</span>
+            <%= f.date_field :due_date, class: "input-fecha-overlay" %>
+          </div>
+        </div>
+
+        <div  class="status-dropdown">
+          <%= f.collection_select :assignee_id, @assignable_users, :id, :name, 
+              { prompt: "Add Watcher" }, { class: "select-assignee" } %>
+        </div>
+      </aside>
+    </div>
+
+    
+
+    <div class="submit-container">
+      <%= f.submit "CONFIRM", class: "btn-submit" %>
+    </div>
+  <% end %>
+</div>
