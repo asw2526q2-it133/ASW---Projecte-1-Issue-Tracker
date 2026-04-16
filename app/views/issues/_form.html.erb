@@ -1,5 +1,15 @@
 <div class="issue-container">
   <%= form_with(model: @issue, local: true, class: "issue-form") do |f| %>
+    <% if @issue.errors.any? %>
+      <div style="background: #fee; color: #900; border: 1px solid #900; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+        <strong>Error! Could not save:</strong>
+        <ul style="margin: 5px 0 0 20px;">
+          <% @issue.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
     <div class="form-layout">
       <div class="main-column">
