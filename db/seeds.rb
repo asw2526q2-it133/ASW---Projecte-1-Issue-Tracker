@@ -1,14 +1,5 @@
 # db/seeds.rb
 
-puts "Clearing existing data"
-Issue.destroy_all
-Status.destroy_all
-Priority.destroy_all
-Severity.destroy_all
-IssueType.destroy_all
-Tag.destroy_all
-User.destroy_all
-
 puts "Creating admin user (sample)"
 roger = User.find_or_create_by!(email: "admin@example.com") do |user|
   user.name = "roger"
