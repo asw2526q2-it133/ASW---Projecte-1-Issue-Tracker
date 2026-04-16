@@ -12,6 +12,10 @@ Rails.application.routes.draw do
   resources :statuses
   resources :issues do
     resources :comments, shallow: true, only: [ :create, :edit, :update, :destroy ]
+    collection do
+      get :bulk
+      post :create_bulk
+    end
   end
   resources :users
   resources :profiles, only: [ :show, :edit, :update ]
