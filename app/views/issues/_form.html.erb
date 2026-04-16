@@ -78,9 +78,11 @@
           </div>
         </div>
 
-        <div  class="status-dropdown">
-          <%= f.collection_select :assignee_id, @assignable_users, :id, :name, 
-              { prompt: "Add Watcher" }, { class: "select-assignee" } %>
+        <div class="status-dropdown">
+          <span style="display: block; margin-bottom: 4px; color: #666; font-size: 0.9em;">Add Watchers</span>
+          <%= f.collection_select :watcher_ids, @assignable_users, :id, :name, 
+              {}, 
+              { multiple: true, class: "select-assignee" } %>
         </div>
       </aside>
     </div>

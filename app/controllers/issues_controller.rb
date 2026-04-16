@@ -114,8 +114,11 @@ class IssuesController < ApplicationController
         :severity_id, 
         :priority_id, 
         :status_id, 
-        :due_date, tag_ids: [], 
-        attachments: [] 
+        :due_date, 
+        tag_ids: [], 
+        attachments: [],
+        :assignee_id,
+        watcher_ids: []
       ])
     end
 end
