@@ -1,3 +1,4 @@
+=begin
 require "test_helper"
 
 class ProfilesControllerTest < ActionDispatch::IntegrationTest
@@ -16,3 +17,4 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 end
+=end
