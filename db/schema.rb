@@ -50,16 +50,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_130212) do
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
 
-  create_table "comments", force: :cascade do |t|
-    t.text "content"
-    t.datetime "created_at", null: false
-    t.integer "issue_id", null: false
-    t.datetime "updated_at", null: false
-    t.integer "user_id", null: false
-    t.index ["issue_id"], name: "index_comments_on_issue_id"
-    t.index ["user_id"], name: "index_comments_on_user_id"
-  end
-
   create_table "issue_tags", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "issue_id", null: false
@@ -140,14 +130,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_130212) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "activities", "issues"
-  add_foreign_key "activities", "users"
-  add_foreign_key "comments", "issues"
-  add_foreign_key "comments", "users"
-  add_foreign_key "issue_tags", "issues"
-  add_foreign_key "issue_tags", "tags"
   add_foreign_key "issue_watchers", "issues"
   add_foreign_key "issue_watchers", "users"
   add_foreign_key "issues", "issue_types"
