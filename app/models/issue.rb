@@ -16,6 +16,7 @@ class Issue < ApplicationRecord
   belongs_to :issue_type
   belongs_to :severity
   belongs_to :status
+  has_many :comments, dependent: :destroy
 
   scope :filter_by_status, ->(names) { joins(:status).where(statuses: { name: names }) if names.present? }
   scope :filter_by_priority, ->(names) { joins(:priority).where(priorities: { name: names }) if names.present? }

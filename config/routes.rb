@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   resources :priorities
   resources :statuses
   resources :issues do
+    resources :comments, shallow: true, only: [ :create, :edit, :update, :destroy ]
     collection do
       get :bulk
       post :create_bulk
