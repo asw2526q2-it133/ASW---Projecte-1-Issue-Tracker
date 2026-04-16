@@ -5,16 +5,19 @@ class IssuesController < ApplicationController
 
   # GET /issues or /issues.json
   def index
-    @issues = Issue.order(created_at: :desc)
+    @issues = Issue.all
 
+    # Filtros cruzados
+    @issues = @issues.filter_by_status(params[:statuses])
+    @issues = @issues.filter_by_priority(params[:priorities])
+    @issues = @issues.filter_by_severity(params[:severities])
+    @issues = @issues.filter_by_type(params[:types])
+
+    # Búsqueda por texto (opcional si la usas)
     if params[:search].present?
-      termino_busqueda = "%#{params[:search].downcase}%"
-      @issues = @issues.where("LOWER(subject) LIKE :query OR LOWER(description) LIKE :query", query: termino_busqueda)
+      t = "%#{params[:search].downcase}%"
+      @issues = @issues.where("LOWER(subject) LIKE :q OR LOWER(description) LIKE :q", q: t)
     end
-
-    @issues = @issues.where(status: params[:statuses]) if params[:statuses].present?
-    @issues = @issues.where(priority: params[:priorities]) if params[:priorities].present?
-    @issues = @issues.where(severity: params[:severities]) if params[:severities].present?
 
     @issues = @issues.reorder("#{sort_column} #{sort_direction}")
   end
@@ -98,7 +101,9 @@ class IssuesController < ApplicationController
     end
 
     def sort_column
-      %w[issue_type severity priority subject status updated_at user_id].include?(params[:sort]) ? params[:sort] : "updated_at"
+      valid_columns = %w[issue_type_id severity_id priority_id subject status_id updated_at user_id due_date]
+
+      valid_columns.include?(params[:sort]) ? params[:sort] : "updated_at"
     end
 
     def sort_direction
@@ -108,17 +113,14 @@ class IssuesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def issue_params
       params.expect(issue: [
-        :subject, 
-        :description, 
-        :issue_type_id, 
-        :severity_id, 
-        :priority_id, 
-        :status_id, 
-        :due_date, 
-        :assignee_id,
-        tag_ids: [], 
-        attachments: [],
-        watcher_ids: []
+        :subject,
+        :description,
+        :issue_type_id,
+        :severity_id,
+        :priority_id,
+        :status_id,
+        :due_date, tag_ids: [],
+        attachments: []
       ])
     end
 end
