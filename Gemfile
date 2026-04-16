@@ -4,20 +4,11 @@ source "https://rubygems.org"
 gem "rails", "~> 8.1.2"
 gem "pg"
 
-# Autentication and OAuth
+# Authentication with Devise and OmniAuth-GitHub
 gem "devise"
-gem "omniauth-google-oauth2"
 gem "omniauth-github"
-
+gem "omniauth-rails_csrf_protection"
 gem "dotenv-rails", groups: [:development, :test]
-
-group :development, :test do
-  gem "sqlite3", ">= 2.1"
-end
-
-group :production do
-  # Aquí se queda la gema "pg" que ya tienes arriba
-end
 
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
