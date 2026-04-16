@@ -79,7 +79,7 @@ class IssuesController < ApplicationController
   def update
     respond_to do |format|
       if @issue.update(issue_params)
-        
+
         if params[:issue] && params[:issue][:remove_attachments].present?
           params[:issue][:remove_attachments].each do |attachment_id|
             attachment = @issue.attachments.find_by(id: attachment_id)
