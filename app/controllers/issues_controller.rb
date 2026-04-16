@@ -104,18 +104,18 @@ class IssuesController < ApplicationController
     titles = params[:bulk_data].split("\n").map(&:strip).reject(&:empty?)
 
     if titles.any?
-      issues_to_create = titles.map { |title| { 
-        subject: title, 
+      issues_to_create = titles.map { |title| {
+        subject: title,
         status_id: Status.first&.id,
         priority_id: Priority.first&.id,
         severity_id: Severity.first&.id,
         issue_type_id: IssueType.first&.id,
         user_id: current_user.id,
         created_at: Time.current,
-        updated_at: Time.current,
+        updated_at: Time.current
         } }
-      
-      # insert_all es muy eficiente pero se salta validaciones de Rails. 
+
+      # insert_all es muy eficiente pero se salta validaciones de Rails.
       # Si necesitas validaciones, usa: Issue.create(issues_to_create)
       Issue.create(issues_to_create)
 
