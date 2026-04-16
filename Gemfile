@@ -4,6 +4,12 @@ source "https://rubygems.org"
 gem "rails", "~> 8.1.2"
 gem "pg"
 
+# Authentication with Devise and OmniAuth-GitHub
+gem "devise"
+gem "omniauth-github"
+gem "omniauth-rails_csrf_protection"
+gem "dotenv-rails", groups: [:development, :test]
+
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use sqlite3 as the database for Active Record

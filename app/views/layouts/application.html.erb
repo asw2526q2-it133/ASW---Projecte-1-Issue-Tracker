@@ -36,21 +36,34 @@
   <body>
     <%# --- BARRA DE NAVEGACIÓN SUPERIOR (Se verá en toda la app) --- %>
     <nav style="background: #20242a; padding: 0 30px; display: flex; justify-content: space-between; align-items: center; height: 60px;">
-      
-      <div style="display: flex; align-items: center; gap: 30px;">
-        <%# Logo falso de Taiga %>
-        <span style="color: #5adad1; font-weight: 900; font-size: 20px; letter-spacing: 1px;">TAIGA</span>
+    
+    <div style="display: flex; align-items: center; gap: 30px;">
+      <span style="color: #5adad1; font-weight: 900; font-size: 20px; letter-spacing: 1px;">TAIGA</span>
+      <%= link_to "Issues", issues_path, style: "color: #fff; text-decoration: none; font-weight: 500; font-size: 15px;" %>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <% if user_signed_in? %>
+        <%# Si está logueado se muestra el nombre y el enlace a Settings %>
+        <span style="color: #fff; font-size: 14px;">Hello, <strong><%= current_user.name || current_user.email %></strong></span>
         
-        <%# Enlace para volver siempre a los Issues %>
-        <%= link_to "Issues", issues_path, style: "color: #fff; text-decoration: none; font-weight: 500; font-size: 15px;" %>
-      </div>
-      
-      <%# Enlace a los Ajustes (Apunta directamente a Statuses) %>
-      <%= link_to statuses_path, style: "color: #8a9ab0; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold;" do %>
-        <span style="font-size: 16px;">⚙️</span> SETTINGS
-      <% end %>
+        <%= link_to statuses_path, style: "color: #8a9ab0; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold;" do %>
+          <span style="font-size: 16px;">⚙️</span> SETTINGS
+        <% end %>
 
-    </nav>
+        <%# Botón de Logout %>
+        <%= button_to "LOGOUT", destroy_user_session_path, method: :delete, 
+            style: "background: none; border: 1px solid #ff6666; color: #ff6666; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer;" %>
+      <% else %>
+        <%# Si no está logueado solo se ve el botón de Sign in with GitHub %>
+        <%= button_to user_github_omniauth_authorize_path, data: { turbo: false }, 
+            style: "background: #444; border: none; color: #fff; padding: 8px 15px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;" do %>
+          Sign in with GitHub
+        <% end %>
+      <% end %>
+    </div>
+
+  </nav>
 
     <%# Aquí es donde Rails inyecta el contenido de cada pantalla %>
     <%# --- ZONA DE AVISOS Y ERRORES --- %>

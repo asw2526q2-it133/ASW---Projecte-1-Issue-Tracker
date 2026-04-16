@@ -81,10 +81,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_15_213732) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.text "bio"
     t.datetime "created_at", null: false
     t.string "email"
+    t.string "encrypted_password", default: "", null: false
+    t.string "full_name"
     t.string "name"
-    t.string "password_digest"
+    t.string "provider"
+    t.string "uid"
     t.datetime "updated_at", null: false
   end
 
