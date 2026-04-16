@@ -9,6 +9,8 @@ gem "devise"
 gem "omniauth-github"
 gem "omniauth-rails_csrf_protection"
 gem "dotenv-rails", groups: [ :development, :test ]
+gem "mysql2", "~> 0.5"
+
 
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
@@ -16,7 +18,6 @@ gem "propshaft"
 # Para trabajar en tu PC (Local)
 group :development, :test do
   # gem "sqlite3", ">= 2.1"
-  gem "mysql2", "~> 0.5"
 end
 
 # Para Render (Producción)
