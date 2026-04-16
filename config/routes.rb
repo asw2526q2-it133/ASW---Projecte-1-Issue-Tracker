@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   resources :priorities
   resources :statuses
   resources :issues do
-    resources :comments, only: [:create, :edit, :update, :destroy]
+    resources :comments, shallow: true, only: [ :create, :edit, :update, :destroy ]
   end
   resources :users
   resources :profiles, only: [ :show, :edit, :update ]
