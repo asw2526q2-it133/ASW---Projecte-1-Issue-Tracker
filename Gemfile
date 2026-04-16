@@ -15,7 +15,8 @@ gem "propshaft"
 # Use sqlite3 as the database for Active Record
 # Para trabajar en tu PC (Local)
 group :development, :test do
-  gem "sqlite3", ">= 2.1"
+  # gem "sqlite3", ">= 2.1"
+  gem "mysql2", "~> 0.5"
 end
 
 # Para Render (Producción)

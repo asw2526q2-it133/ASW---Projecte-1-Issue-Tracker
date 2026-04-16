@@ -6,11 +6,11 @@ class ChangeIssueFieldsToAssociations < ActiveRecord::Migration[8.1]
     remove_column :issues, :severity, :string
     remove_column :issues, :status, :string
 
-    # 2. Añadimos las columnas de relación (integers)
-    add_column :issues, :issue_type_id, :integer
-    add_column :issues, :priority_id, :integer
-    add_column :issues, :severity_id, :integer
-    add_column :issues, :status_id, :integer
+    # 2. Añadimos las columnas de relación (bigints)
+    add_column :issues, :issue_type_id, :bigint
+    add_column :issues, :priority_id, :bigint
+    add_column :issues, :severity_id, :bigint
+    add_column :issues, :status_id, :bigint
 
     # 3. Opcional: añadimos claves foráneas para integridad
     add_foreign_key :issues, :issue_types

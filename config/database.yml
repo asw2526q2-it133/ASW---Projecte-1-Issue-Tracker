@@ -1,32 +1,20 @@
 default: &default
-  adapter: sqlite3
-  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  timeout: 5000
+  adapter: mysql2
+  encoding: utf8mb4
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: root
+  password: "password"
+  host: localhost
 
 development:
   <<: *default
-  database: storage/development.sqlite3
+  database: taiga_development
 
 test:
   <<: *default
-  database: storage/test.sqlite3
+  database: taiga_test
 
 production:
-  primary:
-    <<: *default
-    adapter: postgresql
-    url: <%= ENV["DATABASE_URL"] %>
-  queue:
-    <<: *default
-    adapter: postgresql
-    url: <%= ENV["DATABASE_URL"] %>
-  cache:
-    <<: *default
-    adapter: postgresql
-    url: <%= ENV["DATABASE_URL"] %>
-  cable:
-    <<: *default
-    adapter: postgresql
-    url: <%= ENV["DATABASE_URL"] %>
-
-  
+  <<: *default
+  database: taiga_production
+  url: <%= ENV['DATABASE_URL'] %>
