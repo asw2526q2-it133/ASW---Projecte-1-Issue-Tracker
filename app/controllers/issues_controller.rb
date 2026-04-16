@@ -115,9 +115,9 @@ class IssuesController < ApplicationController
         :priority_id, 
         :status_id, 
         :due_date, 
+        :assignee_id,
         tag_ids: [], 
         attachments: [],
-        :assignee_id,
         watcher_ids: []
       ])
     end
