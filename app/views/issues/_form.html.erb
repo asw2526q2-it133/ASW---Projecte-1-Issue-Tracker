@@ -13,66 +13,79 @@
 
     <div class="form-layout">
       <div class="main-column">
+        <%# ASUNTO %>
         <div class="field">
-          <%= f.text_field :subject, placeholder: "Subject", class: "input-subject" %>
+          <%= f.text_field :subject, placeholder: "Subject", class: "input-subject", required: true %>
         </div>
 
-        <div  class="status-dropdown">
+        <%# TAGS (Corregido para permitir selección múltiple estilo Taiga) %>
+        <div class="status-dropdown">
+          <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase;">Tags</label>
           <%= f.collection_select :tag_ids, @tags, :id, :name, 
-              { prompt: "+ Add tag" }, { class: "btn-add-tag" } %>
+              {}, 
+              { multiple: true, class: "select-tags-multi", style: "width: 100%; margin-top: 5px;" } %>
         </div>
 
-        <div class="field">
+        <%# DESCRIPCIÓN %>
+        <div class="field" style="margin-top: 20px;">
           <%= f.text_area :description, 
               placeholder: "Please add descriptive text to help others better understand this issue", 
               class: "input-description" %>
         </div>
 
+        <%# ADJUNTOS (Simulado según tu estructura) %>
         <div class="attachments-section">
           <div class="attachments-header">
-            <span>0 Attachments</span>
+            <span>Attachments</span>
             <button type="button" class="btn-plus">+</button>
           </div>
         </div>
       </div>
 
       <aside class="sidebar">
+        <%# ESTADO PRINCIPAL %>
         <div class="status-dropdown">
+          <span class="label" style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase;">Status</span>
           <%= f.collection_select :status_id, @statuses, :id, :name, 
               { prompt: "Select Status" }, 
-              { class: "select-status-main" } %>
+              { class: "select-status-main", required: true } %>
         </div>
 
-        <div  class="status-dropdown">
-          <%= f.collection_select :assignee_id, @assignable_users, :id, :name, 
+        <%# ASIGNAR A (Cambiado de assignee_id a user_id según tu schema) %>
+        <div class="status-dropdown" style="margin-top: 15px;">
+          <span class="label" style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase;">Assignee</span>
+          <%= f.collection_select :user_id, @assignable_users, :id, :name, 
               { prompt: "Assign to" }, { class: "select-assignee" } %>
         </div>
 
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <%# META ITEMS (Type, Severity, Priority) %>
+        <div class="meta-item">
+          <span class="label">Type</span>
+          <div class="value">
+            <%= f.collection_select :issue_type_id, @types, :id, :name, { prompt: "Select Type" }, { class: "meta-select", required: true } %>
+          </div>
+        </div>
 
         <div class="meta-item">
-            <span class="label">type</span>
-            <div class="value">
-              <%= f.collection_select :issue_type_id, @types, :id, :name, {}, { class: "meta-select" } %>
-            </div>
+          <span class="label">Severity</span>
+          <div class="value">
+            <%= f.collection_select :severity_id, @severities, :id, :name, { prompt: "Select Severity" }, { class: "meta-select", required: true } %>
           </div>
+        </div>
 
         <div class="meta-item">
-            <span class="label">severity</span>
-            <div class="value">
-              <%= f.collection_select :severity_id, @severities, :id, :name, {}, { class: "meta-select" } %>
-  
-            </div>
+          <span class="label">Priority</span>
+          <div class="value">
+            <%= f.collection_select :priority_id, @priorities, :id, :name, { prompt: "Select Priority" }, { class: "meta-select", required: true } %>
           </div>
+        </div>
 
-        <div class="meta-item">
-            <span class="label">priority</span>
-            <div class="value">
-              <%= f.collection_select :priority_id, @priorities, :id, :name, {}, { class: "meta-select" } %>
-            </div>
-          </div>
-
-        <div class="action-icons">
-          <div class="calendar-wrapper btn-icon">
+        <%# DUE DATE %>
+        <div class="action-icons" style="margin-top: 20px;">
+          <span class="label" style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">Due Date</span>
+          <div class="calendar-wrapper btn-icon" style="display: flex; align-items: center; gap: 10px;">
             <span>🕒</span>
             <%= f.date_field :due_date, class: "input-fecha-overlay" %>
           </div>
@@ -87,9 +100,8 @@
       </aside>
     </div>
 
-    
-
-    <div class="submit-container">
+    <div class="submit-container" style="margin-top: 30px; text-align: right; border-top: 1px solid #e0e6ed; padding-top: 20px;">
+      <%= link_to "CANCEL", issues_path, style: "color: #8a9ab0; text-decoration: none; margin-right: 20px; font-size: 13px; font-weight: bold;" %>
       <%= f.submit "CONFIRM", class: "btn-submit" %>
     </div>
   <% end %>
