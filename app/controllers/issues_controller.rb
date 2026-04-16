@@ -74,30 +74,34 @@ class IssuesController < ApplicationController
 
   # PATCH/PUT /issues/1 or /issues/1.json
   def update
-      respond_to do |format|
-        if @issue.update(issue_params)
-          # --- LÓGICA DE ACTIVIDAD ---
-          # Detectamos qué campos cambiaron (ej: ["status_id", "priority_id"])
-          # Excluimos 'updated_at' porque siempre cambia
-          cambios = @issue.saved_changes.except(:updated_at).keys.map(&:humanize).join(", ")
-          
-          desc_accion = cambios.present? ? "updated #{cambios}" : "updated the issue"
-
-          Activity.create(
-            issue: @issue,
-            user: current_user,
-            action: desc_accion
-          )
-          # ---------------------------
-
-          format.html { redirect_to @issue, notice: "Issue was successfully updated.", status: :see_other }
-          format.json { render :show, status: :ok, location: @issue }
-        else
-          format.html { render :edit, status: :unprocessable_entity }
-          format.json { render json: @issue.errors, status: :unprocessable_entity }
+    respond_to do |format|
+      if @issue.update(issue_params)
+        
+        if params[:issue] && params[:issue][:remove_attachments].present?
+          params[:issue][:remove_attachments].each do |attachment_id|
+            attachment = @issue.attachments.find_by(id: attachment_id)
+            attachment.purge if attachment
+          end
         end
+
+        cambios = @issue.saved_changes.except(:updated_at).keys.map(&:humanize).join(", ")
+        desc_accion = cambios.present? ? "updated #{cambios}" : "updated the issue"
+
+        Activity.create(
+          issue: @issue,
+          user: current_user,
+          action: desc_accion
+        )
+        # ---------------------------
+
+        format.html { redirect_to @issue, notice: "Issue was successfully updated.", status: :see_other }
+        format.json { render :show, status: :ok, location: @issue }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @issue.errors, status: :unprocessable_entity }
       end
     end
+  end
 
   # DELETE /issues/1 or /issues/1.json
   def destroy
@@ -166,7 +170,8 @@ class IssuesController < ApplicationController
         :priority_id,
         :status_id,
         :due_date, tag_ids: [],
-        attachments: []
+        attachments: [],
+        remove_attachments: []
       ])
     end
 end

@@ -1,4 +1,5 @@
 class Issue < ApplicationRecord
+  attr_accessor :remove_attachments
   # creador de la issue (obligatori)
   belongs_to :user
 
@@ -18,6 +19,8 @@ class Issue < ApplicationRecord
   belongs_to :status
   has_many :comments, dependent: :destroy
   has_many :activities, dependent: :destroy
+
+  has_many_attached :attachments
 
   scope :filter_by_status, ->(names) { joins(:status).where(statuses: { name: names }) if names.present? }
   scope :filter_by_priority, ->(names) { joins(:priority).where(priorities: { name: names }) if names.present? }
