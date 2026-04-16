@@ -1,6 +1,7 @@
 <div class="issue-container">
-  <%# ¡IMPORTANTE! Añadido multipart: true para permitir subida de archivos %>
   <%= form_with(model: @issue, local: true, class: "issue-form", multipart: true) do |f| %>
+    
+    <%# Manejo de errores %>
     <% if @issue.errors.any? %>
       <div style="background: #fee; color: #900; border: 1px solid #900; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
         <strong>Error! Could not save:</strong>
@@ -13,6 +14,8 @@
     <% end %>
 
     <div class="form-layout">
+      
+      <%# Columna Principal %>
       <div class="main-column">
         <%# ASUNTO %>
         <div class="field">
@@ -84,6 +87,7 @@
         </div>
       </div>
 
+      <%# Barra Lateral (Sidebar) %>
       <aside class="sidebar">
         <%# ESTADO PRINCIPAL %>
         <div class="status-dropdown">
@@ -146,5 +150,6 @@
       <%= link_to "CANCEL", issues_path, style: "color: #8a9ab0; text-decoration: none; margin-right: 20px; font-size: 13px; font-weight: bold;" %>
       <%= f.submit "CONFIRM", class: "btn-submit" %>
     </div>
+    
   <% end %>
 </div>

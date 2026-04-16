@@ -3,7 +3,7 @@
 <div class="taiga-show-container" style="display: flex; max-width: 1200px; margin: 0 auto; padding: 30px; gap: 30px; font-family: sans-serif;">
   
   <%# COLUMNA PRINCIPAL (70%) %>
-  <div class="issue-main-content">
+  <div class="issue-main-content" style="flex: 1;">
     
     <div class="issue-header-show" style="margin-bottom: 20px; border-bottom: 1px solid #e0e6ed; padding-bottom: 20px;">
       <span class="issue-number-big" style="color: #008aa8; font-size: 24px; font-weight: bold; margin-right: 10px;">#<%= @issue.id %></span>
@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <%# --- NUEVA SECCIÓN: ADJUNTOS --- %>
+    <%# --- SECCIÓN: ADJUNTOS --- %>
     <div class="issue-attachments-box" style="margin-bottom: 40px;">
       <h3 style="font-size: 14px; color: #8a9ab0; text-transform: uppercase; margin-bottom: 10px;">
         Attachments (<%= @issue.attachments.count %>)
@@ -45,58 +45,12 @@
         </div>
       <% end %>
     </div>
-    <%# --- FIN DE SECCIÓN ADJUNTOS --- %>
 
     <div class="show-actions" style="margin-bottom: 40px; display: flex; gap: 15px;">
       <%= link_to "Edit this issue", edit_issue_path(@issue), class: "btn-edit", style: "background: #5adad1; color: #fff; padding: 8px 15px; text-decoration: none; border-radius: 3px; font-weight: bold; font-size: 13px;" %>
       <%= button_to "Delete", @issue, method: :delete, class: "btn-delete", data: { turbo_confirm: "Are you sure?" }, style: "background: #e74c3c; color: #fff; border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 13px;" %>
       <%= link_to "Back to issues", issues_path, class: "btn-back", style: "color: #8a9ab0; padding: 8px 0; text-decoration: none; font-weight: bold; font-size: 13px; margin-left: 10px;" %>
     </div>
-
-    <%# SIDEBAR (30%) %>
-    <aside class="issue-sidebar" style="width: 280px; flex-shrink: 0; background: #fdfdfd; border: 1px solid #e0e6ed; border-radius: 4px; padding: 20px; height: fit-content;">
-      
-      <div class="sidebar-item" style="margin-bottom: 20px;">
-        <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">STATUS</label>
-        <div class="status-badge" style="display: inline-block; background-color: <%= @issue.status&.color || '#e1f5fe' %>; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; text-transform: uppercase;">
-          <%= @issue.status&.name || "New" %>
-        </div>
-      </div>
-
-      <% [
-        { label: "TYPE", color: @issue.issue_type&.color, name: @issue.issue_type&.name || "Sin tipo" },
-        { label: "SEVERITY", color: @issue.severity&.color, name: @issue.severity&.name || "Normal" },
-        { label: "PRIORITY", color: @issue.priority&.color, name: @issue.priority&.name || "Normal" }
-      ].each do |meta| %>
-        <div class="sidebar-item" style="margin-bottom: 20px;">
-          <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;"><%= meta[:label] %></label>
-          <div class="meta-value" style="display: flex; align-items: center; font-size: 14px; color: #3c4b5f;">
-            <span class="dot" style="width: 10px; height: 10px; border-radius: 50%; background-color: <%= meta[:color] || '#ccc' %>; margin-right: 8px;"></span>
-            <%= meta[:name] %>
-          </div>
-        </div>
-      <% end %>
-
-      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-
-      <div class="sidebar-item" style="margin-bottom: 20px;">
-        <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">ASSIGNED TO</label>
-        <div class="user-info" style="display: flex; align-items: center; font-size: 14px; color: #3c4b5f;">
-          <% if @issue.user %>
-            <div class="avatar" style="width: 24px; height: 24px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; margin-right: 8px;"><%= @issue.user.name.first.upcase %></div>
-            <span><%= @issue.user.name %></span>
-          <% else %>
-            <div class="avatar" style="width: 24px; height: 24px; background: #eee; color: #999; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; margin-right: 8px;">?</div>
-            <span>Unassigned</span>
-          <% end %>
-        </div>
-      </div>
-
-      <div class="sidebar-item">
-        <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">MODIFIED</label>
-        <div class="meta-value small" style="font-size: 13px; color: #73818f;"><%= @issue.updated_at.strftime("%d %b %Y, %H:%M") %></div>
-      </div>
-    </aside>
 
     <%# --- SECCIÓN: COMENTARIOS Y ACTIVIDADES LADO A LADO --- %>
     <div class="issue-history-section" style="border-top: 2px solid #e0e6ed; padding-top: 30px; margin-top: 20px;">
@@ -181,5 +135,51 @@
 
       </div>
     </div>
-  </div>
+  </div> <%# Fin de la columna principal %>
+
+  <%# SIDEBAR (30%) %>
+  <aside class="issue-sidebar" style="width: 280px; flex-shrink: 0; background: #fdfdfd; border: 1px solid #e0e6ed; border-radius: 4px; padding: 20px; height: fit-content;">
+    
+    <div class="sidebar-item" style="margin-bottom: 20px;">
+      <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">STATUS</label>
+      <div class="status-badge" style="display: inline-block; background-color: <%= @issue.status&.color || '#e1f5fe' %>; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; text-transform: uppercase;">
+        <%= @issue.status&.name || "New" %>
+      </div>
+    </div>
+
+    <% [
+      { label: "TYPE", color: @issue.issue_type&.color, name: @issue.issue_type&.name || "Sin tipo" },
+      { label: "SEVERITY", color: @issue.severity&.color, name: @issue.severity&.name || "Normal" },
+      { label: "PRIORITY", color: @issue.priority&.color, name: @issue.priority&.name || "Normal" }
+    ].each do |meta| %>
+      <div class="sidebar-item" style="margin-bottom: 20px;">
+        <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;"><%= meta[:label] %></label>
+        <div class="meta-value" style="display: flex; align-items: center; font-size: 14px; color: #3c4b5f;">
+          <span class="dot" style="width: 10px; height: 10px; border-radius: 50%; background-color: <%= meta[:color] || '#ccc' %>; margin-right: 8px;"></span>
+          <%= meta[:name] %>
+        </div>
+      </div>
+    <% end %>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <div class="sidebar-item" style="margin-bottom: 20px;">
+      <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">ASSIGNED TO</label>
+      <div class="user-info" style="display: flex; align-items: center; font-size: 14px; color: #3c4b5f;">
+        <% if @issue.user %>
+          <div class="avatar" style="width: 24px; height: 24px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; margin-right: 8px;"><%= @issue.user.name.first.upcase %></div>
+          <span><%= @issue.user.name %></span>
+        <% else %>
+          <div class="avatar" style="width: 24px; height: 24px; background: #eee; color: #999; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; margin-right: 8px;">?</div>
+          <span>Unassigned</span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="sidebar-item">
+      <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">MODIFIED</label>
+      <div class="meta-value small" style="font-size: 13px; color: #73818f;"><%= @issue.updated_at.strftime("%d %b %Y, %H:%M") %></div>
+    </div>
+  </aside>
+
 </div>
