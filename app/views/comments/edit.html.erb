@@ -1,0 +1,34 @@
+<% content_for :title, "Edit Comment" %>
+
+<div class="taiga-container" style="display: flex; flex-direction: column; min-height: 100vh; font-family: sans-serif; background-color: #f6f8f9; padding: 40px 20px;">
+  
+  <div class="edit-comment-wrapper" style="max-width: 800px; margin: 0 auto; width: 100%; background: #fff; border: 1px solid #e0e6ed; border-radius: 4px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+    
+    <h2 style="color: #008aa8; margin-top: 0; font-size: 20px; border-bottom: 1px solid #e0e6ed; padding-bottom: 15px; margin-bottom: 25px;">
+      Edit Comment
+    </h2>
+
+    <%= form_with(model: @comment, local: true) do |f| %>
+      
+      <%# Manejo de errores por si lo deja en blanco %>
+      <% if @comment.errors.any? %>
+        <div style="background: #fee; color: #e74c3c; border: 1px solid #e74c3c; padding: 15px; margin-bottom: 20px; border-radius: 4px; font-size: 14px;">
+          <strong>Error:</strong> El comentario no puede guardarse vacío.
+        </div>
+      <% end %>
+
+      <div style="margin-bottom: 20px;">
+        <%= f.label :content, "Your comment", style: "display: block; font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;" %>
+        <%= f.text_area :content, rows: 6, style: "width: 100%; padding: 15px; border: 1px solid #c2cfd6; border-radius: 4px; resize: vertical; font-family: sans-serif; font-size: 14px; color: #20242a; box-sizing: border-box;" %>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; align-items: center; gap: 20px; border-top: 1px solid #e0e6ed; padding-top: 20px;">
+        <%# El botón de cancelar te devuelve a la Issue a la que pertenece el comentario %>
+        <%= link_to "Cancel", issue_path(@comment.issue), style: "color: #8a9ab0; text-decoration: none; font-size: 14px; font-weight: bold;" %>
+        
+        <%= f.submit "Save Comment", style: "background: #5adad1; color: #fff; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 13px;" %>
+      </div>
+    <% end %>
+
+  </div>
+</div>

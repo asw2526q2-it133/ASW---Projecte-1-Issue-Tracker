@@ -1,0 +1,21 @@
+<% content_for :title, "Editing issue ##{@issue.id}" %>
+
+<div class="taiga-container" style="display: flex; flex-direction: column; min-height: 100vh; font-family: sans-serif; background-color: #f6f8f9;">
+  
+  <header class="issues-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: #fff; border-bottom: 1px solid #e0e6ed; flex-shrink: 0;">
+    <h1 class="form-title" style="color: #008aa8; font-size: 24px; font-weight: 300; margin: 0;">
+      Editing Issue <span style="font-weight: bold;">#<%= @issue.id %></span>
+    </h1>
+    
+    <div>
+      <%= link_to "Show", @issue, style: "color: #8a9ab0; text-decoration: none; font-weight: bold; font-size: 13px; margin-right: 15px;" %>
+      <%= link_to "Back to issues", issues_path, style: "color: #8a9ab0; text-decoration: none; font-weight: bold; font-size: 13px;" %>
+    </div>
+  </header>
+
+  <div class="form-wrapper" style="padding: 30px; display: flex; justify-content: center;">
+    <%# Este render llamará al _form.html.erb que configuramos antes, 
+        manteniendo toda la estética de creación (main column + sidebar) %>
+    <%= render "form", issue: @issue %>
+  </div>
+</div>

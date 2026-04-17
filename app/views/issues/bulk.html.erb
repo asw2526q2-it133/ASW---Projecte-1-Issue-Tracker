@@ -1,0 +1,13 @@
+<div style="padding: 30px;">
+  <h1>Inserir múltiple issues</h1>
+  <p>Escriu el títol de cada issue en una línia nova:</p>
+
+  <%= form_with url: create_bulk_issues_path, method: :post do |f| %>
+    <div style="margin-bottom: 15px;">
+      <%= f.text_area :bulk_data, rows: 10, style: "width: 100%; border: 1px solid #ccc; padding: 10px;"%>
+    </div>
+
+    <%= f.submit "Create All Issues", class: "btn-primary", style: "background: #5adad1; color: #fff; padding: 10px 20px; border: none; cursor: pointer;" %>
+    <%= link_to "Cancel", issues_path, style: "margin-left: 10px; color: #666;" %>
+  <% end %>
+</div>

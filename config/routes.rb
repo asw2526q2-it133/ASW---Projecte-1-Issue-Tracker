@@ -1,4 +1,24 @@
 Rails.application.routes.draw do
+  get "profiles/show"
+  get "profiles/edit"
+  get "profiles/update"
+  devise_for :users, controllers: { omniauth_callbacks: "users/omniauth_callbacks" }
+
+  get "activities/index"
+  resources :tags
+  resources :severities
+  resources :issue_types
+  resources :priorities
+  resources :statuses
+  resources :issues do
+    resources :comments, shallow: true, only: [ :create, :edit, :update, :destroy ]
+    collection do
+      get :bulk
+      post :create_bulk
+    end
+  end
+  resources :users
+  resources :profiles, only: [ :show, :edit, :update ]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
