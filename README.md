@@ -1,5 +1,14 @@
 # README
 
+*Arnau Hernández Navarro
+*Meritxell Sales Torrentó
+*Alex Michel Mediavilla Jiménez
+*Roger Guinovart Plana
+
+https://tree.taiga.io/project/arnau1741-asw2526q2-it133/timeline
+asw-projecte-1-issue-tracker-1278.onrender.com
+
+
 This README would normally document whatever steps are necessary to get the
 application up and running.
 
