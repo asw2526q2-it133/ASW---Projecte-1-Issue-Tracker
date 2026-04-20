@@ -6,7 +6,7 @@ class IssueType < ApplicationRecord
   private
 
   def check_for_associated_issues
-    # Buscamos en la columna 'issue_type' de los Issues
+    # Buscamos en la columna issue_type si hay alguna issue con el nombre del tipo que quiere borrar
     if Issue.where(issue_type: self.name).any?
       errors.add(:base, "No se puede eliminar el tipo '#{self.name}' porque está siendo usado por uno o más Issues.")
       throw :abort

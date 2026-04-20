@@ -1,7 +1,7 @@
 <div class="issue-container">
   <%= form_with(model: @issue, local: true, class: "issue-form", multipart: true) do |f| %>
     
-    <%# Manejo de errores %>
+    <%# error manegment dins la vista %>
     <% if @issue.errors.any? %>
       <div style="background: #fee; color: #900; border: 1px solid #900; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
         <strong>Error! Could not save:</strong>
@@ -15,14 +15,13 @@
 
     <div class="form-layout">
       
-      <%# Columna Principal %>
       <div class="main-column">
-        <%# ASUNTO %>
+        <%# subject %>
         <div class="field">
           <%= f.text_field :subject, placeholder: "Subject", class: "input-subject", required: true %>
         </div>
 
-        <%# TAGS (Corregido para permitir selección múltiple estilo Taiga) %>
+        <%# tags %>
         <div class="status-dropdown">
           <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase;">Tags</label>
           <%= f.collection_select :tag_ids, @tags, :id, :name, 
@@ -30,14 +29,14 @@
               { multiple: true, class: "select-tags-multi", style: "width: 100%; margin-top: 5px;" } %>
         </div>
 
-        <%# DESCRIPCIÓN %>
+        <%# descripcio %>
         <div class="field" style="margin-top: 20px;">
           <%= f.text_area :description, 
               placeholder: "Please add descriptive text to help others better understand this issue", 
               class: "input-description" %>
         </div>
 
-        <%# ADJUNTOS (100% HTML/CSS nativo) %>
+        <%# adjunts %>
         <div class="attachments-section" style="margin-top: 20px;">
           <div class="attachments-header" style="background:#ebf1f3;padding:8px 14px;border-radius:4px 4px 0 0;border-bottom:1px solid #dde6ea;">
             <span style="font-size:13px;font-weight:bold;color:#8a9ab0;text-transform:uppercase;">Attachments</span>
@@ -45,7 +44,7 @@
 
           <div style="padding: 20px; border:2px dashed #ccc; border-top:none; border-radius:0 0 4px 4px; background:#fff;">
             
-            <%# --- ARCHIVOS EXISTENTES --- %>
+            <%# arxius adjuntats %>
             <% if @issue.attachments.attached? %>
               <div style="margin-bottom: 20px; text-align: left;">
                 <p style="font-size: 12px; color: #8a9ab0; margin-bottom: 10px; font-weight: bold; text-transform: uppercase;">Archivos guardados:</p>
@@ -62,7 +61,7 @@
                       <%# Mantiene el archivo al guardar %>
                       <%= f.hidden_field :attachments, multiple: true, value: file.signed_id %>
                       
-                      <%# Casilla para eliminar %>
+                      <%# eliminar checkbox %>
                       <label style="font-size: 12px; color: #e74c3c; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: bold;">
                         <%= check_box_tag "issue[remove_attachments][]", file.id %>
                         Eliminar
@@ -75,7 +74,7 @@
               <hr style="border: 0; border-top: 1px dashed #ccc; margin: 20px 0;">
             <% end %>
 
-            <%# --- CAMPO PARA SUBIR NUEVOS --- %>
+            <%# pujar nous adjunts %>
             <div style="text-align: center;">
               <div style="color:#7c8b9a; font-size:13px; margin-bottom: 15px;">
                 <%= @issue.attachments.attached? ? "Añadir más archivos:" : "Haz clic abajo para seleccionar tus archivos:" %>
@@ -87,7 +86,7 @@
         </div>
       </div>
 
-      <%# Barra Lateral (Sidebar) %>
+      <%# barra latereal %>
       <aside class="sidebar">
         <%# ESTADO PRINCIPAL %>
         <div class="status-dropdown">
@@ -97,7 +96,7 @@
               { class: "select-status-main", required: true } %>
         </div>
 
-        <%# ASIGNAR A (Cambiado de assignee_id a user_id según tu schema) %>
+        <%# assign to %>
         <div class="status-dropdown" style="margin-top: 15px;">
           <span class="label" style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase;">Assignee</span>
           <%= f.collection_select :user_id, @assignable_users, :id, :name, 
@@ -106,7 +105,7 @@
 
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
 
-        <%# META ITEMS (Type, Severity, Priority) %>
+        <%# assign carecteristiques a la issue (type, severity, priority) %>
         <div class="meta-item">
           <span class="label">Type</span>
           <div class="value">
@@ -128,7 +127,7 @@
           </div>
         </div>
 
-        <%# DUE DATE %>
+        <%# data venciment %>
         <div class="action-icons" style="margin-top: 20px;">
           <span class="label" style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">Due Date</span>
           <div class="calendar-wrapper btn-icon" style="display: flex; align-items: center; gap: 10px;">

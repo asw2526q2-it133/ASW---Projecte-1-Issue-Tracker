@@ -22,11 +22,10 @@
 </style>
 
 <div class="settings-container">
-  <%# MENÚ LATERAL %>
+  <%# menu lateral %>
   <div class="settings-sidebar">
     <h3>Attributes</h3>
     <%= link_to "Statuses", statuses_path, class: "sidebar-link" %>
-    <%# Fíjate que aquí le ponemos la clase 'active' a Priorities %>
     <%= link_to "Priorities", priorities_path, class: "sidebar-link active" %>
     <%= link_to "Types", issue_types_path, class: "sidebar-link" %>
     <%= link_to "Severities", severities_path, class: "sidebar-link" %>
@@ -35,7 +34,7 @@
     <%= link_to "Tags", tags_path, class: "sidebar-link" %>
   </div>
 
-  <%# CONTENIDO PRINCIPAL %>
+  <%# contingut principal %>
   <div class="settings-content">
     <div class="settings-header">
       <h1>Priorities</h1>

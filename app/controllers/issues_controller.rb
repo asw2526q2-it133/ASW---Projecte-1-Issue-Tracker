@@ -95,7 +95,6 @@ class IssuesController < ApplicationController
           user: current_user,
           action: desc_accion
         )
-        # ---------------------------
 
         format.html { redirect_to @issue, notice: "Issue was successfully updated.", status: :see_other }
         format.json { render :show, status: :ok, location: @issue }
@@ -137,8 +136,6 @@ class IssuesController < ApplicationController
         updated_at: Time.current
         } }
 
-      # insert_all es muy eficiente pero se salta validaciones de Rails.
-      # Si necesitas validaciones, usa: Issue.create(issues_to_create)
       Issue.create(issues_to_create)
 
       redirect_to issues_path, notice: "¡Se han creado #{titles.size} issues correctamente!"
@@ -148,7 +145,6 @@ class IssuesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_issue
       @issue = Issue.find(params[:id])
     end
@@ -163,7 +159,6 @@ class IssuesController < ApplicationController
       %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
     end
 
-    # Only allow a list of trusted parameters through.
     def issue_params
       params.expect(issue: [
         :subject,

@@ -11,7 +11,7 @@
 
 <div class="profile-container">
   <div class="profile-header">
-    <%# Usamos el helper que creamos en el paso anterior %>
+    <%# helper usage %>
     <%= user_avatar(@user, size: 80) %>
     
     <div class="profile-info">
@@ -19,7 +19,7 @@
       <p><%= @user.email %></p>
     </div>
 
-    <%# Si es mi perfil, muestro el botón de editar %>
+    <%# Si es propio perfil mostrar editar perfil btn %>
     <% if @user == current_user %>
       <%= link_to "EDITAR PERFIL", edit_profile_path(@user), class: "btn-edit" %>
     <% end %>

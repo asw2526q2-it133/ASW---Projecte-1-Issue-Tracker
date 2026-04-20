@@ -16,7 +16,7 @@ class CommentsController < ApplicationController
   end
 
   def edit
-    # Renderiza la vista edit.html.erb
+    # edit.html.erb
   end
 
   def update
@@ -39,7 +39,7 @@ class CommentsController < ApplicationController
     @comment = Comment.find(params[:id])
   end
 
-  # ¡Seguridad! Comprueba que el usuario actual es el dueño del comentario
+  # Comprovar que usuari actual és autor del comment
   def authorize_user!
     unless @comment.user == current_user
       redirect_to @comment.issue, alert: "No tienes permiso para modificar este comentario."

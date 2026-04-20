@@ -26,11 +26,11 @@ class StatusesController < ApplicationController
 
     respond_to do |format|
       if @status.save
-        # CAMBIO: Redirige a la lista en lugar de a la vista "show"
+        #Redirige a la lista en lugar de a la vista "show"
         format.html { redirect_to statuses_url, notice: "El estado se creó correctamente." }
         format.json { render :show, status: :created, location: @status }
       else
-        # Esto es lo que hace que salgan los errores rojos en el formulario (duplicados)
+        # Esto es lo que hace que salgan los errores rojos en el formulario duplicados
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @status.errors, status: :unprocessable_entity }
       end
@@ -41,7 +41,7 @@ class StatusesController < ApplicationController
   def update
     respond_to do |format|
       if @status.update(status_params)
-        # CAMBIO: Redirige a la lista
+        # Redirige a la lista
         format.html { redirect_to statuses_url, notice: "El estado se actualizó correctamente.", status: :see_other }
         format.json { render :show, status: :ok, location: @status }
       else
@@ -53,7 +53,7 @@ class StatusesController < ApplicationController
 
   # DELETE /statuses/1 or /statuses/1.json
   def destroy
-    # Parche temporal: Buscamos en la base de datos los issues que tengan este texto exacto
+
     issues_usando_estado = Issue.where(status: @status.name)
 
     if issues_usando_estado.any?
@@ -63,7 +63,7 @@ class StatusesController < ApplicationController
         format.json { render json: { error: "En uso" }, status: :unprocessable_entity }
       end
     else
-      # Si no hay ninguno, lo borramos con total seguridad
+      # Si no hay ninguno, lo borramos def
       @status.destroy
       respond_to do |format|
         format.html { redirect_to statuses_url, notice: "Estado borrado correctamente." }
@@ -73,12 +73,11 @@ class StatusesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+    
     def set_status
       @status = Status.find(params.expect(:id))
     end
 
-    # Only allow a list of trusted parameters through.
     def status_params
       params.expect(status: [ :name, :color ])
     end

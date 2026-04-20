@@ -2,7 +2,7 @@
 
 <div class="taiga-show-container" style="display: flex; max-width: 1200px; margin: 0 auto; padding: 30px; gap: 30px; font-family: sans-serif;">
   
-  <%# COLUMNA PRINCIPAL (70%) %>
+  <%# main content%>
   <div class="issue-main-content" style="flex: 1;">
     
     <div class="issue-header-show" style="margin-bottom: 20px; border-bottom: 1px solid #e0e6ed; padding-bottom: 20px;">
@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <%# --- SECCIÓN: ADJUNTOS --- %>
+    <%# adjunts / attachments %>
     <div class="issue-attachments-box" style="margin-bottom: 40px;">
       <h3 style="font-size: 14px; color: #8a9ab0; text-transform: uppercase; margin-bottom: 10px;">
         Attachments (<%= @issue.attachments.count %>)
@@ -52,11 +52,11 @@
       <%= link_to "Back to issues", issues_path, class: "btn-back", style: "color: #8a9ab0; padding: 8px 0; text-decoration: none; font-weight: bold; font-size: 13px; margin-left: 10px;" %>
     </div>
 
-    <%# --- SECCIÓN: COMENTARIOS Y ACTIVIDADES LADO A LADO --- %>
+    <%# seccio de comentaris i activitats %>
     <div class="issue-history-section" style="border-top: 2px solid #e0e6ed; padding-top: 30px; margin-top: 20px;">
-      <div style="display: flex; gap: 30px; align-items: flex-start;">
+      <div style="display: flex; gap: 100px; align-items: flex-start;">
         
-        <%# COLUMNA IZQUIERDA: COMENTARIOS (60%) %>
+        <%# comentaris %>
         <div class="comments-column" style="flex: 1.5;">
           <h3 class="comments-title" style="color: #3c4b5f; font-size: 16px; margin-bottom: 20px;">
             Comments (<%= @issue.comments.count %>)
@@ -91,7 +91,7 @@
             <% end %>
           </div>
 
-          <%# Formulario para añadir comentario %>
+          <%# afegir comentari %>
           <div class="new-comment-box" style="margin-top: 30px; background: #fdfdfd; padding: 20px; border: 1px solid #e0e6ed; border-radius: 4px;"> 
             <h4 style="margin-top: 0; color: #3c4b5f; font-size: 14px;">Add a comment</h4>
             <%= form_with(model: [@issue, Comment.new], local: true) do |f| %> 
@@ -101,7 +101,7 @@
           </div>
         </div>
 
-        <%# COLUMNA DERECHA: ACTIVIDADES (40%) %>
+        <%# activitats %>
         <div class="activities-column" style="flex: 1; background: #fdfdfd; border: 1px solid #e0e6ed; border-radius: 4px; padding: 20px;">
           <h3 style="color: #3c4b5f; font-size: 16px; margin-bottom: 20px;">
             Issue Activity
@@ -135,9 +135,9 @@
 
       </div>
     </div>
-  </div> <%# Fin de la columna principal %>
+  </div> 
 
-  <%# SIDEBAR (30%) %>
+  <%# sidebar on caracteristiques issue %>
   <aside class="issue-sidebar" style="width: 280px; flex-shrink: 0; background: #fdfdfd; border: 1px solid #e0e6ed; border-radius: 4px; padding: 20px; height: fit-content;">
     
     <div class="sidebar-item" style="margin-bottom: 20px;">

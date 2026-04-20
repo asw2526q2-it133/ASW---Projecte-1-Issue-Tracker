@@ -10,7 +10,7 @@
 
     <%= form_with(model: @comment, local: true) do |f| %>
       
-      <%# Manejo de errores por si lo deja en blanco %>
+      <%# Error managment en la vista %>
       <% if @comment.errors.any? %>
         <div style="background: #fee; color: #e74c3c; border: 1px solid #e74c3c; padding: 15px; margin-bottom: 20px; border-radius: 4px; font-size: 14px;">
           <strong>Error:</strong> El comentario no puede guardarse vacío.
@@ -23,7 +23,6 @@
       </div>
 
       <div style="display: flex; justify-content: flex-end; align-items: center; gap: 20px; border-top: 1px solid #e0e6ed; padding-top: 20px;">
-        <%# El botón de cancelar te devuelve a la Issue a la que pertenece el comentario %>
         <%= link_to "Cancel", issue_path(@comment.issue), style: "color: #8a9ab0; text-decoration: none; font-size: 14px; font-weight: bold;" %>
         
         <%= f.submit "Save Comment", style: "background: #5adad1; color: #fff; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 13px;" %>
