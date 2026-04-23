@@ -2,11 +2,12 @@ class ProfilesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_user
 
-def show
+  def show
     issues_base = @user.assigned_issues.open_assigned
 
     sort_column = params[:sort] || "updated_at"
     sort_direction = %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
+    
     @open_assigned_issues = case sort_column
     when "issue_type_id"
       issues_base.joins(:issue_type).order("issue_types.name #{sort_direction}")
@@ -23,6 +24,9 @@ def show
     else
       issues_base.order("#{sort_column} #{sort_direction}")
     end
+
+    @watched_issues = @user.watched_issues if @user == current_user
+    @comments = @user.comments.includes(:issue).order(created_at: :desc)
   end
 
   def edit

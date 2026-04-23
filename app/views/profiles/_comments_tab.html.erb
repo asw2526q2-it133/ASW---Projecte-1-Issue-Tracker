@@ -1,0 +1,28 @@
+<div id="comments-tab">
+  <% if @comments.any? %>
+    <% @comments.each do |comment| %>
+      <div class="comment-item" style="border-bottom: 1px solid #eee; padding: 15px 0;">
+        
+        <p style="margin-bottom: 8px;">
+          <%= link_to "##{comment.issue.id} #{comment.issue.subject}", issue_path(comment.issue, anchor: "comment_#{comment.id}"), style: "text-decoration: none; color: #008d8d; font-weight: bold; font-size: 1.15em;" %>
+          <span style="margin-left: 10px; font-size: 0.85em; color: #999;"><%= comment.created_at.strftime("%d %b %Y %H:%M") %></span>
+        </p>
+
+        <p style="color: #33475b; font-size: 0.95em; line-height: 1.4;"><%= comment.content %></p>
+
+        <% if @user == current_user %>
+          <div style="margin-top: 10px; display: flex; gap: 15px;">
+            <%= link_to 'Editar', edit_comment_path(comment), style: "text-decoration: none; color: #008d8d; font-size: 0.8em; font-weight: 600;" %>
+            
+            <%= link_to 'Esborrar', comment_path(comment), 
+                  data: { turbo_method: :delete, turbo_confirm: 'Segur que vols esborrar aquest comentari?' }, 
+                  style: "text-decoration: none; color: #eb5757; font-size: 0.8em; font-weight: 600;" %>
+          </div>
+        <% end %>
+
+      </div>
+    <% end %>
+  <% else %>
+    <p style="color: #666; font-style: italic; padding: 15px 0;">Aquest usuari encara no ha realitzat cap comentari.</p>
+  <% end %>
+</div>

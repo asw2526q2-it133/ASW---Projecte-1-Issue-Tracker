@@ -3,7 +3,8 @@ class User < ApplicationRecord
          :recoverable, :validatable,
          :omniauthable, omniauth_providers: [ :github ]
 
-  has_many :issues, dependent: :destroy
+  has_many :issue_watchers, dependent: :destroy
+  has_many :watched_issues, through: :issue_watchers, source: :issue
   has_many :comments, dependent: :destroy
   has_many :assigned_issues, class_name: "Issue", foreign_key: "assignee_id"
 

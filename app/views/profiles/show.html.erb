@@ -1,51 +1,24 @@
 <style>
-  .profile-container { 
-    max-width: 900px; 
-    margin: 30px auto; 
-    background: #fff; 
-    border: 1px solid #e0e6ed; 
-    border-radius: 8px; 
-    padding: 40px; 
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  .tab-link {
+    background: none; 
+    border: none; 
+    padding: 12px 5px; 
+    cursor: pointer;
+    font-weight: bold; 
+    color: #999; 
+    border-bottom: 3px solid transparent;
+    font-size: 1em;
+    transition: 0.3s;
   }
-  
-  .profile-header { 
-    display: flex; 
-    align-items: center; 
-    gap: 25px; 
-    padding-bottom: 30px; 
-    border-bottom: 1px solid #f0f3f5; 
-    margin-bottom: 30px; 
+  .tab-link:hover { color: #333; }
+  .tab-link.active {
+    color: #333; 
+    border-bottom: 3px solid #0097a7;
   }
+  .tab-panel { animation: fadeIn 0.4s; }
+  @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
 
-  .profile-info h1 { font-size: 26px; color: #374151; margin: 0; font-weight: 600; }
-  .profile-info p { color: #6b7280; margin-top: 4px; }
-
-  .profile-bio { margin-bottom: 40px; }
-  .profile-bio h3 { 
-    font-size: 11px; 
-    text-transform: uppercase; 
-    color: #9ca3af; 
-    letter-spacing: 1px; 
-    margin-bottom: 12px; 
-  }
-
-  .nav-tabs { border-bottom: 2px solid #f3f4f6; gap: 20px; }
-  .nav-tabs .nav-link {
-    border: none;
-    color: #6b7280;
-    font-weight: 500;
-    padding: 10px 5px;
-    border-bottom: 2px solid transparent;
-    transition: all 0.3s;
-  }
-  .nav-tabs .nav-link.active {
-    color: #111827;
-    background: none;
-    border-bottom: 2px solid #2563eb; /* Color blau corporatiu */
-  }
-
-  .table { margin-top: 20px; border-collapse: separate; border-spacing: 0; width: 100%; }
+  .table { margin-top: 20px; border-collapse: separate; border-spacing: 0; width: 100%; font-family: sans-serif; }
   .table th { 
     background: #f9fafb; 
     color: #4b5563; 
@@ -54,8 +27,10 @@
     text-transform: uppercase; 
     padding: 12px;
     border-bottom: 1px solid #e5e7eb;
+    text-align: left;
   }
   .table td { padding: 16px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+  .table th.text-center, .table td.text-center { text-align: center !important; }
   
   .issue-link { color: #2563eb; text-decoration: none; font-weight: 500; }
   .issue-link:hover { text-decoration: underline; }
@@ -68,95 +43,141 @@
     background: #e5e7eb;
     color: #374151;
   }
-
-  .table th, .table td {
-    text-align: left !important;
-    padding-left: 15px !important; /* Donem una mica d'aire perquè no s'enganxi a la vora */
-  }
-  
-  .table th a {
-    justify-content: flex-start !important; 
-    width: auto !important;
-  }
+  .sort-link { color: inherit; text-decoration: none; }
+  .sort-link:hover { color: #008aa8; }
 </style>
 
-<div class="profile-container">
-  <div class="profile-header">
-    <%= user_avatar(@user, size: 80) %>
-    <div class="profile-info">
-      <h1><%= @user.full_name.presence || @user.name.presence || "Usuari" %></h1>
-      <p><%= @user.email %></p>
+<div class="profile-layout" style="display: flex; gap: 40px; align-items: flex-start; padding: 20px; max-width: 1200px; margin: 0 auto;">
+  
+  <aside class="profile-sidebar" style="flex: 0 0 250px; background: #fff; padding: 20px; border: 1px solid #e0e6ed; border-radius: 8px;">
+    <div class="text-center" style="text-align: center; margin-bottom: 20px;">
+      <% if @user.avatar.attached? %>
+        <%= image_tag @user.avatar, style: "width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 1px solid #eee;" %>
+      <% else %>
+        <div style="width: 160px; height: 160px; border-radius: 50%; 
+                    background-color: #008aa8; 
+                    margin: 0 auto; display: flex; align-items: center; justify-content: center; 
+                    color: white; font-size: 80px; font-weight: 300; text-transform: uppercase;">
+          <%= @user.full_name.presence ? @user.full_name[0] : @user.name[0] %>
+        </div>
+      <% end %>
+      
+      <h2 style="color: #008aa8; margin-top: 15px; font-size: 1.8rem; font-weight: 300; margin-bottom: 0;"><%= @user.full_name %></h2>
+      <p style="color: #666; margin-top: 5px;">@<%= @user.name %></p>
     </div>
-    <% if @user == current_user %>
-      <%= link_to "EDITAR PERFIL", edit_profile_path(@user), class: "btn-edit" %>
-    <% end %>
-  </div>
 
-  <div class="profile-bio">
-    <h3>Biografía</h3>
-    <p><%= @user.bio.presence || "Aquest usuari no té biografia." %></p>
-  </div>
-
-  <div class="profile-content">
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
-      <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#open-assigned">Open Assigned Issues</button>
-      </li>
-    </ul>
-
-    <div class="tab-content">
-      <div class="tab-pane fade show active" id="open-assigned">
-        <% if @open_assigned_issues.any? %>
-          <table class="table table-hover align-middle">
-            <thead>
-              <tr>
-                <th style="width: 250px;"><%= sortable "subject", "ISSUE" %></th>
-                <th class="text-center"><%= sortable "issue_type_id", "TYPE" %></th>
-                <th class="text-center"><%= sortable "severity_id", "SEVERITY" %></th>
-                <th class="text-center"><%= sortable "priority_id", "PRIORITY" %></th>
-                <th class="text-center"><%= sortable "status_id", "STATUS" %></th>
-                <th><%= sortable "updated_at", "MODIFIED" %></th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @open_assigned_issues.each do |issue| %>
-                <tr>
-                  <td>
-                    <span style="color: #008aa8; font-weight: bold; margin-right: 8px;">#<%= issue.id %></span>
-                    <%= link_to issue.subject, issue_path(issue), style: "text-decoration: none; color: #20242a; font-weight: 500;" %>
-                  </td>
-                  
-                  <td class="text-center">
-                    <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.issue_type&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.issue_type&.name %>"></span>
-                  </td>
-                  
-                  <td class="text-center">
-                    <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.severity&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.severity&.name %>"></span>
-                  </td>
-                  
-                  <td class="text-center">
-                    <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.priority&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.priority&.name %>"></span>
-                  </td>
-                  
-                  <td class="text-center">
-                    <span style="background-color: <%= issue.status&.color || '#e1f5fe' %>; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
-                      <%= issue.status&.name || "New" %>
-                    </span>
-                  </td>
-                  
-                  <td style="color: #73818f; font-size: 13px;">
-                    <%= issue.updated_at.strftime("%d %b %Y") %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        <% else %>
-          <div class="py-5 text-center text-muted">
-            <p>No tens cap issue assignada actualment.</p>
-          </div>
-        <% end %>
+    <div class="stats" style="display: flex; justify-content: space-between; margin: 25px 0; text-align: center;">
+      <div class="stat">
+        <span style="font-size: 1.4em; font-weight: bold; display: block;"><%= @open_assigned_issues.count %></span>
+        <small style="color: #777; font-size: 0.8em;">Open<br>Assigned</small>
+      </div>
+      <div class="stat">
+        <span style="font-size: 1.4em; font-weight: bold; display: block;"><%= @user.watched_issues.count %></span>
+        <small style="color: #777; font-size: 0.8em;">Watched<br>Issues</small>
+      </div>
+      <div class="stat">
+        <span style="font-size: 1.4em; font-weight: bold; display: block;"><%= @comments.count %></span>
+        <small style="color: #777; font-size: 0.8em;">Comments</small>
       </div>
     </div>
-  </div>
+
+    <div class="bio" style="font-size: 0.95em; color: #444; line-height: 1.4; border-top: 1px solid #eee; padding-top: 15px;">
+      <p><%= @user.bio.presence || "Aquest usuari no té biografia." %></p>
+    </div>
+
+    <% if @user == current_user %>
+      <div style="margin-top: 20px; text-align: center;">
+        <%= link_to 'EDIT PROFILE', edit_profile_path(@user), style: "display: inline-block; background: #5adad1; color: white; padding: 8px 20px; text-decoration: none; border-radius: 4px; font-size: 0.85em; font-weight: bold;" %>
+      </div>
+    <% end %>
+  </aside>
+
+  <main class="profile-main" style="flex: 1; background: #fff; padding: 30px; border: 1px solid #e0e6ed; border-radius: 8px;">
+    <div class="tabs-container">
+      
+      <div class="tabs-header" style="border-bottom: 2px solid #eee; display: flex; gap: 30px; margin-bottom: 20px;">
+        <button onclick="openTab(event, 'assigned')" class="tab-link active">Open Assigned Issues</button>
+        
+        <% if @user == current_user %>
+          <button onclick="openTab(event, 'watched')" class="tab-link">Watched Issues</button>
+        <% end %>
+        
+        <button onclick="openTab(event, 'comments')" class="tab-link">Comments</button>
+      </div>
+
+      <div class="tabs-content">
+        
+        <div id="assigned" class="tab-panel" style="display: block;">
+          <% if @open_assigned_issues.any? %>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th style="width: 250px;"><%= sortable "subject", "ISSUE" %></th>
+                  <th class="text-center"><%= sortable "issue_type_id", "TYPE" %></th>
+                  <th class="text-center"><%= sortable "severity_id", "SEVERITY" %></th>
+                  <th class="text-center"><%= sortable "priority_id", "PRIORITY" %></th>
+                  <th class="text-center"><%= sortable "status_id", "STATUS" %></th>
+                  <th><%= sortable "updated_at", "MODIFIED" %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @open_assigned_issues.each do |issue| %>
+                  <tr>
+                    <td>
+                      <span style="color: #008aa8; font-weight: bold; margin-right: 8px;">#<%= issue.id %></span>
+                      <%= link_to issue.subject, issue_path(issue), class: "issue-link" %>
+                    </td>
+                    <td class="text-center">
+                      <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.issue_type&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.issue_type&.name %>"></span>
+                    </td>
+                    <td class="text-center">
+                      <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.severity&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.severity&.name %>"></span>
+                    </td>
+                    <td class="text-center">
+                      <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.priority&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.priority&.name %>"></span>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge-status" style="background-color: <%= issue.status&.color || '#e1f5fe' %>; color: #fff;">
+                        <%= issue.status&.name || "New" %>
+                      </span>
+                    </td>
+                    <td style="color: #73818f; font-size: 13px;">
+                      <%= issue.updated_at.strftime("%d %b %Y") %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <div style="padding: 60px; text-align: center; color: #8a9ab0;">
+              No tens cap issue assignada actualment.
+            </div>
+          <% end %>
+        </div>
+
+        <% if @user == current_user %>
+          <div id="watched" class="tab-panel" style="display: none;">
+            <%= render partial: 'issues/table', locals: { issues: @watched_issues } %>
+          </div>
+        <% end %>
+
+        <div id="comments" class="tab-panel" style="display: none;">
+          <%= render 'profiles/comments_tab' %>
+        </div>
+
+      </div>
+    </div>
+  </main>
 </div>
+
+<script>
+  function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tab-panel");
+    for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; }
+    tablinks = document.getElementsByClassName("tab-link");
+    for (i = 0; i < tablinks.length; i++) { tablinks[i].className = tablinks[i].className.replace(" active", ""); }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+  }
+</script>
