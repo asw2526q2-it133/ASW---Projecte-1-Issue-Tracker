@@ -1,7 +1,8 @@
 class IssuesController < ApplicationController
-  # before_action :authenticate_user!
   before_action :authenticate_user!
   before_action :set_issue, only: %i[ show edit update destroy ]
+
+  before_action :authorize_issue_creator!, only: %i[ edit update destroy ]
 
   # GET /issues or /issues.json
   def index
@@ -145,6 +146,12 @@ class IssuesController < ApplicationController
   end
 
   private
+    def authorize_issue_creator!
+      unless @issue.user == current_user
+        redirect_to @issue, alert: "No tens permís per modificar o esborrar aquesta issue. Només el creador ho pot fer."
+      end
+    end
+
     def set_issue
       @issue = Issue.find(params[:id])
     end
