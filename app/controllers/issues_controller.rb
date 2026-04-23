@@ -167,6 +167,7 @@ class IssuesController < ApplicationController
         :severity_id,
         :priority_id,
         :status_id,
+        :assignee_id,
         :due_date, tag_ids: [],
         attachments: [],
         remove_attachments: []

@@ -8,6 +8,7 @@ class Issue < ApplicationRecord
 
   # persona a qui se li assigna la issue
   belongs_to :assignee, class_name: "User", optional: true
+  scope :open_assigned, -> { joins(:status).where.not(statuses: { name: ['Closed', 'Resolved'] }) }
 
   # watchers de la issue
   has_many :issue_watchers, dependent: :destroy

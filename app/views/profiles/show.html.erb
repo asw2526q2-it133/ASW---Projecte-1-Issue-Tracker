@@ -1,25 +1,92 @@
 <style>
-  .profile-container { max-width: 600px; margin: 40px auto; background: #fff; border: 1px solid #e0e6ed; border-radius: 4px; padding: 40px; font-family: sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-  .profile-header { display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #f0f3f5; padding-bottom: 30px; margin-bottom: 30px; }
-  .profile-info h1 { margin: 0 0 5px 0; font-size: 24px; color: #3c4b5f; }
-  .profile-info p { margin: 0; color: #8a9ab0; font-size: 14px; }
-  .profile-bio h3 { font-size: 12px; text-transform: uppercase; color: #8a9ab0; margin-bottom: 10px; letter-spacing: 0.5px; }
-  .profile-bio p { font-size: 15px; color: #3c4b5f; line-height: 1.6; white-space: pre-wrap; }
-  .btn-edit { background: #f0f3f5; color: #3c4b5f; padding: 8px 16px; border-radius: 3px; text-decoration: none; font-weight: bold; font-size: 13px; transition: background 0.2s; margin-left: auto; }
-  .btn-edit:hover { background: #e0e6ed; color: #008aa8; }
+  .profile-container { 
+    max-width: 900px; 
+    margin: 30px auto; 
+    background: #fff; 
+    border: 1px solid #e0e6ed; 
+    border-radius: 8px; 
+    padding: 40px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  }
+  
+  .profile-header { 
+    display: flex; 
+    align-items: center; 
+    gap: 25px; 
+    padding-bottom: 30px; 
+    border-bottom: 1px solid #f0f3f5; 
+    margin-bottom: 30px; 
+  }
+
+  .profile-info h1 { font-size: 26px; color: #374151; margin: 0; font-weight: 600; }
+  .profile-info p { color: #6b7280; margin-top: 4px; }
+
+  .profile-bio { margin-bottom: 40px; }
+  .profile-bio h3 { 
+    font-size: 11px; 
+    text-transform: uppercase; 
+    color: #9ca3af; 
+    letter-spacing: 1px; 
+    margin-bottom: 12px; 
+  }
+
+  .nav-tabs { border-bottom: 2px solid #f3f4f6; gap: 20px; }
+  .nav-tabs .nav-link {
+    border: none;
+    color: #6b7280;
+    font-weight: 500;
+    padding: 10px 5px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+  }
+  .nav-tabs .nav-link.active {
+    color: #111827;
+    background: none;
+    border-bottom: 2px solid #2563eb; /* Color blau corporatiu */
+  }
+
+  .table { margin-top: 20px; border-collapse: separate; border-spacing: 0; width: 100%; }
+  .table th { 
+    background: #f9fafb; 
+    color: #4b5563; 
+    font-weight: 600; 
+    font-size: 12px; 
+    text-transform: uppercase; 
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .table td { padding: 16px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+  
+  .issue-link { color: #2563eb; text-decoration: none; font-weight: 500; }
+  .issue-link:hover { text-decoration: underline; }
+
+  .badge-status {
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  .table th, .table td {
+    text-align: left !important;
+    padding-left: 15px !important; /* Donem una mica d'aire perquè no s'enganxi a la vora */
+  }
+  
+  .table th a {
+    justify-content: flex-start !important; 
+    width: auto !important;
+  }
 </style>
 
 <div class="profile-container">
   <div class="profile-header">
-    <%# helper usage %>
     <%= user_avatar(@user, size: 80) %>
-    
     <div class="profile-info">
-      <h1><%= @user.name.presence || @user.full_name.presence || "Usuario Sin Nombre" %></h1>
+      <h1><%= @user.full_name.presence || @user.name.presence || "Usuari" %></h1>
       <p><%= @user.email %></p>
     </div>
-
-    <%# Si es propio perfil mostrar editar perfil btn %>
     <% if @user == current_user %>
       <%= link_to "EDITAR PERFIL", edit_profile_path(@user), class: "btn-edit" %>
     <% end %>
@@ -27,10 +94,69 @@
 
   <div class="profile-bio">
     <h3>Biografía</h3>
-    <% if @user.bio.present? %>
-      <p><%= @user.bio %></p>
-    <% else %>
-      <p style="color: #8a9ab0; font-style: italic;">Este usuario aún no ha escrito una biografía.</p>
-    <% end %>
+    <p><%= @user.bio.presence || "Aquest usuari no té biografia." %></p>
+  </div>
+
+  <div class="profile-content">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#open-assigned">Open Assigned Issues</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="open-assigned">
+        <% if @open_assigned_issues.any? %>
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th style="width: 250px;"><%= sortable "subject", "ISSUE" %></th>
+                <th class="text-center"><%= sortable "issue_type_id", "TYPE" %></th>
+                <th class="text-center"><%= sortable "severity_id", "SEVERITY" %></th>
+                <th class="text-center"><%= sortable "priority_id", "PRIORITY" %></th>
+                <th class="text-center"><%= sortable "status_id", "STATUS" %></th>
+                <th><%= sortable "updated_at", "MODIFIED" %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @open_assigned_issues.each do |issue| %>
+                <tr>
+                  <td>
+                    <span style="color: #008aa8; font-weight: bold; margin-right: 8px;">#<%= issue.id %></span>
+                    <%= link_to issue.subject, issue_path(issue), style: "text-decoration: none; color: #20242a; font-weight: 500;" %>
+                  </td>
+                  
+                  <td class="text-center">
+                    <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.issue_type&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.issue_type&.name %>"></span>
+                  </td>
+                  
+                  <td class="text-center">
+                    <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.severity&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.severity&.name %>"></span>
+                  </td>
+                  
+                  <td class="text-center">
+                    <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.priority&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.priority&.name %>"></span>
+                  </td>
+                  
+                  <td class="text-center">
+                    <span style="background-color: <%= issue.status&.color || '#e1f5fe' %>; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
+                      <%= issue.status&.name || "New" %>
+                    </span>
+                  </td>
+                  
+                  <td style="color: #73818f; font-size: 13px;">
+                    <%= issue.updated_at.strftime("%d %b %Y") %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <div class="py-5 text-center text-muted">
+            <p>No tens cap issue assignada actualment.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>

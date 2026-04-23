@@ -14,7 +14,7 @@ status_data = [
   { name: "In Progress", color: "#5ADAD1" },
   { name: "Closed", color: "#A95AD5" }
 ]
-status_data.each { |data| Status..find_or_create_by!(data) }
+status_data.each { |data| Status.find_or_create_by!(data) }
 
 puts "Creating priorities"
 priority_data = [
@@ -22,7 +22,7 @@ priority_data = [
   { name: "Normal", color: "#40B829" },
   { name: "High", color: "#E44057" }
 ]
-priority_data.each { |data| Priority..find_or_create_by!(data) }
+priority_data.each { |data| Priority.find_or_create_by!(data) }
 
 puts "Creating severities"
 severity_data = [
@@ -32,7 +32,7 @@ severity_data = [
   { name: "Important", color: "#FFA500" },
   { name: "Critical", color: "#E44057" }
 ]
-severity_data.each { |data| Severity..find_or_create_by!(data) }
+severity_data.each { |data| Severity.find_or_create_by!(data) }
 
 puts "Creating issue types"
 type_data = [
@@ -40,7 +40,7 @@ type_data = [
   { name: "Question", color: "#A95AD5" },
   { name: "Enhancement", color: "#40B829" }
 ]
-type_data.each { |data| IssueType..find_or_create_by!(data) }
+type_data.each { |data| IssueType.find_or_create_by!(data) }
 
 puts "Creating tags"
 [ "Frontend", "Backend", "Urgente", "Refactor" ].each do |tag_name|

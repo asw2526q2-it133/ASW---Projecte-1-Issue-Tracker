@@ -5,6 +5,7 @@ class User < ApplicationRecord
 
   has_many :issues, dependent: :destroy
   has_many :comments, dependent: :destroy
+  has_many :assigned_issues, class_name: "Issue", foreign_key: "assignee_id"
 
   has_one_attached :avatar
 

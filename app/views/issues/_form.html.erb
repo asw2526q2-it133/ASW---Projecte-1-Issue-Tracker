@@ -99,8 +99,7 @@
         <%# assign to %>
         <div class="status-dropdown" style="margin-top: 15px;">
           <span class="label" style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase;">Assignee</span>
-          <%= f.collection_select :user_id, @assignable_users, :id, :name, 
-              { prompt: "Assign to" }, { class: "select-assignee" } %>
+          <%= f.collection_select :assignee_id, @assignable_users, :id, :name, { prompt: "Assign to" }, { class: "select-assignee" } %>
         </div>
 
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
