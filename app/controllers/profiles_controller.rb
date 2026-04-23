@@ -3,6 +3,10 @@ class ProfilesController < ApplicationController
   before_action :set_user
 
   def show
+    @user = User.find(params[:id])
+    @assigned_issues = Issue.where(assignee: @user).joins(:status).where.not(statuses: { name: 'Closed' })
+    @watched_issues = @user.watched_issues if @user == current_user
+    @comments = @user.comments.includes(:issue).order(created_at: :desc)
   end
 
   def edit
