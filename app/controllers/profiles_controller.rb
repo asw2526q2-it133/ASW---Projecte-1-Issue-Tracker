@@ -8,7 +8,7 @@ def show
     sort_column = params[:sort] || "updated_at"
     sort_direction = %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
 
-    # Creem una funció" reutilitzable per aplicar l'ordenació a QUALSEVOL llista
+    # Funció reutilitzable per aplicar l'ordenació a qualsevol llista
     apply_sorting = ->(issues) do
       return [] unless issues
       case sort_column

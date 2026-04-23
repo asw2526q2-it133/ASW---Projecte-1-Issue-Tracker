@@ -14,7 +14,7 @@ class IssuesController < ApplicationController
     @issues = @issues.filter_by_severity(params[:severities])
     @issues = @issues.filter_by_type(params[:types])
 
-    # Búsqueda por texto (opcional si la usas)
+    # Búsqueda por texto
     if params[:search].present?
       t = "%#{params[:search].downcase}%"
       @issues = @issues.where("LOWER(subject) LIKE :q OR LOWER(description) LIKE :q", q: t)

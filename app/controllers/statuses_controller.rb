@@ -26,11 +26,9 @@ class StatusesController < ApplicationController
 
     respond_to do |format|
       if @status.save
-        #Redirige a la lista en lugar de a la vista "show"
         format.html { redirect_to statuses_url, notice: "El estado se creó correctamente." }
         format.json { render :show, status: :created, location: @status }
       else
-        # Esto es lo que hace que salgan los errores rojos en el formulario duplicados
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @status.errors, status: :unprocessable_entity }
       end
@@ -56,14 +54,12 @@ class StatusesController < ApplicationController
 
     issues_usando_estado = Issue.where(status: @status.name)
 
-    if issues_usando_estado.any?
-      # Si hay, bloqueamos y mostramos el mensaje de error pidiendo reasignación
+    if issues_usando_estado.any? # Si hay issues usando este estado, no lo borramos y mostramos un mensaje de error
       respond_to do |format|
         format.html { redirect_to statuses_url, alert: "No se puede borrar '#{@status.name}' porque está siendo usado por #{issues_usando_estado.count} issue(s). Por favor, reasígnalos a otro estado antes de borrar." }
         format.json { render json: { error: "En uso" }, status: :unprocessable_entity }
       end
     else
-      # Si no hay ninguno, lo borramos def
       @status.destroy
       respond_to do |format|
         format.html { redirect_to statuses_url, notice: "Estado borrado correctamente." }
