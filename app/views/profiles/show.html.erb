@@ -1,36 +1,111 @@
-<style>
-  .profile-container { max-width: 600px; margin: 40px auto; background: #fff; border: 1px solid #e0e6ed; border-radius: 4px; padding: 40px; font-family: sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-  .profile-header { display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #f0f3f5; padding-bottom: 30px; margin-bottom: 30px; }
-  .profile-info h1 { margin: 0 0 5px 0; font-size: 24px; color: #3c4b5f; }
-  .profile-info p { margin: 0; color: #8a9ab0; font-size: 14px; }
-  .profile-bio h3 { font-size: 12px; text-transform: uppercase; color: #8a9ab0; margin-bottom: 10px; letter-spacing: 0.5px; }
-  .profile-bio p { font-size: 15px; color: #3c4b5f; line-height: 1.6; white-space: pre-wrap; }
-  .btn-edit { background: #f0f3f5; color: #3c4b5f; padding: 8px 16px; border-radius: 3px; text-decoration: none; font-weight: bold; font-size: 13px; transition: background 0.2s; margin-left: auto; }
-  .btn-edit:hover { background: #e0e6ed; color: #008aa8; }
-</style>
-
-<div class="profile-container">
-  <div class="profile-header">
-    <%# helper usage %>
-    <%= user_avatar(@user, size: 80) %>
-    
-    <div class="profile-info">
-      <h1><%= @user.name.presence || @user.full_name.presence || "Usuario Sin Nombre" %></h1>
-      <p><%= @user.email %></p>
+<div class="profile-layout" style="display: flex; gap: 40px; align-items: flex-start; padding: 20px;">
+  
+  <aside class="profile-sidebar" style="flex: 0 0 250px;">
+    <div class="text-center" style="text-align: center; margin-bottom: 20px;">
+      <% if @user.avatar.attached? %>
+        <%= image_tag @user.avatar, style: "width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 1px solid #eee;" %>
+      <% else %>
+        <div style="width: 160px; height: 160px; border-radius: 50%; 
+                    background-color: #008d8d; 
+                    margin: 0 auto; display: flex; align-items: center; justify-content: center; 
+                    color: white; font-size: 80px; font-weight: 300; text-transform: uppercase;">
+          <%= @user.full_name.present? ? @user.full_name[0] : @user.name[0] %>
+        </div>
+      <% end %>
+      
+      <h2 style="color: #008d8d; margin-top: 15px; font-size: 1.8rem; font-weight: 300; margin-bottom: 0;"><%= @user.full_name %></h2>
+      <p style="color: #666; margin-top: 5px;">@<%= @user.name %></p>
     </div>
 
-    <%# Si es propio perfil mostrar editar perfil btn %>
-    <% if @user == current_user %>
-      <%= link_to "EDITAR PERFIL", edit_profile_path(@user), class: "btn-edit" %>
-    <% end %>
-  </div>
+    <div class="stats" style="display: flex; justify-content: space-between; margin: 25px 0; text-align: center;">
+      <div class="stat">
+        <span style="font-size: 1.4em; font-weight: bold; display: block;"><%= @assigned_issues.count %></span>
+        <small style="color: #777; font-size: 0.8em;">Open<br>Assigned</small>
+      </div>
+      <div class="stat">
+        <span style="font-size: 1.4em; font-weight: bold; display: block;"><%= @user.watched_issues.count %></span>
+        <small style="color: #777; font-size: 0.8em;">Watched<br>Issues</small>
+      </div>
+      <div class="stat">
+        <span style="font-size: 1.4em; font-weight: bold; display: block;"><%= @comments.count %></span>
+        <small style="color: #777; font-size: 0.8em;">Comments</small>
+      </div>
+    </div>
 
-  <div class="profile-bio">
-    <h3>Biografía</h3>
-    <% if @user.bio.present? %>
+    <div class="bio" style="font-size: 0.95em; color: #444; line-height: 1.4; border-top: 1px solid #eee; padding-top: 15px;">
       <p><%= @user.bio %></p>
-    <% else %>
-      <p style="color: #8a9ab0; font-style: italic;">Este usuario aún no ha escrito una biografía.</p>
+    </div>
+
+    <% if @user == current_user %>
+      <div style="margin-top: 20px;">
+        <%= link_to 'EDIT BIO', edit_profile_path(@user), style: "display: inline-block; background: #4db6ac; color: white; padding: 6px 15px; text-decoration: none; border-radius: 4px; font-size: 0.85em; font-weight: bold;" %>
+      </div>
     <% end %>
-  </div>
+  </aside>
+
+  <main class="profile-main" style="flex: 1;">
+    <div class="tabs-container">
+      <div class="tabs-header" style="border-bottom: 2px solid #eee; display: flex; gap: 30px; margin-bottom: 20px;">
+        <button onclick="openTab(event, 'assigned')" class="tab-link active">Open Assigned Issues</button>
+        
+        <% if @user == current_user %>
+          <button onclick="openTab(event, 'watched')" class="tab-link">Watched Issues</button>
+        <% end %>
+        
+        <button onclick="openTab(event, 'comments')" class="tab-link">Comments</button>
+      </div>
+
+      <div class="tabs-content">
+        <div id="assigned" class="tab-panel" style="display: block;">
+          <%= render partial: 'issues/table', locals: { issues: @assigned_issues } %>
+        </div>
+
+        <% if @user == current_user %>
+          <div id="watched" class="tab-panel" style="display: none;">
+            <%= render partial: 'issues/table', locals: { issues: @watched_issues } %>
+          </div>
+        <% end %>
+
+        <div id="comments" class="tab-panel" style="display: none;">
+          <%# Asumiendo que moviste el archivo a la carpeta profiles %>
+          <%= render 'profiles/comments_tab' %>
+        </div>
+      </div>
+    </div>
+  </main>
+
 </div>
+
+<style>
+  /* Estilos para las pestañas */
+  .tab-link {
+    background: none; 
+    border: none; 
+    padding: 12px 5px; 
+    cursor: pointer;
+    font-weight: bold; 
+    color: #999; 
+    border-bottom: 3px solid transparent;
+    font-size: 1em;
+    transition: 0.3s;
+  }
+  .tab-link:hover { color: #333; }
+  .tab-link.active {
+    color: #333; 
+    border-bottom: 3px solid #0097a7;
+  }
+  .tab-panel { animation: fadeIn 0.4s; }
+  @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+</style>
+
+<script>
+  function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tab-panel");
+    for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; }
+    tablinks = document.getElementsByClassName("tab-link");
+    for (i = 0; i < tablinks.length; i++) { tablinks[i].className = tablinks[i].className.replace(" active", ""); }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+  }
+</script>
