@@ -6,6 +6,7 @@ class User < ApplicationRecord
   has_many :issue_watchers, dependent: :destroy
   has_many :watched_issues, through: :issue_watchers, source: :issue
   has_many :comments, dependent: :destroy
+  has_many :assigned_issues, class_name: "Issue", foreign_key: "assignee_id"
 
   has_one_attached :avatar
 

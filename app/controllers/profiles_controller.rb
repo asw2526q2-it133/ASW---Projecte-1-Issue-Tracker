@@ -2,10 +2,32 @@ class ProfilesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_user
 
-  def show
+def show
     @user = User.find(params[:id])
-    @assigned_issues = Issue.where(assignee: @user).joins(:status).where.not(statuses: { name: 'Closed' })
-    @watched_issues = @user.watched_issues if @user == current_user
+
+    sort_column = params[:sort] || "updated_at"
+    sort_direction = %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
+
+    # Creem una funció" reutilitzable per aplicar l'ordenació a QUALSEVOL llista
+    apply_sorting = ->(issues) do
+      return [] unless issues
+      case sort_column
+      when "issue_type_id" then issues.joins(:issue_type).order("issue_types.name #{sort_direction}")
+      when "severity_id" then issues.joins(:severity).order("severities.name #{sort_direction}")
+      when "priority_id" then issues.joins(:priority).order("priorities.name #{sort_direction}")
+      when "status_id" then issues.joins(:status).order("statuses.name #{sort_direction}")
+      when "subject" then issues.order("subject #{sort_direction}")
+      when "updated_at" then issues.order("updated_at #{sort_direction}")
+      else issues.order("#{sort_column} #{sort_direction}")
+      end
+    end
+
+    @open_assigned_issues = apply_sorting.call(@user.assigned_issues.open_assigned)
+    
+    if @user == current_user
+      @watched_issues = apply_sorting.call(@user.watched_issues)
+    end
+
     @comments = @user.comments.includes(:issue).order(created_at: :desc)
   end
 
