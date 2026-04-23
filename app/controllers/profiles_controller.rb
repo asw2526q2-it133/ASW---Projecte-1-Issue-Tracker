@@ -2,30 +2,32 @@ class ProfilesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_user
 
-  def show
-    issues_base = @user.assigned_issues.open_assigned
+def show
+    @user = User.find(params[:id])
 
     sort_column = params[:sort] || "updated_at"
     sort_direction = %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
-    
-    @open_assigned_issues = case sort_column
-    when "issue_type_id"
-      issues_base.joins(:issue_type).order("issue_types.name #{sort_direction}")
-    when "severity_id"
-      issues_base.joins(:severity).order("severities.name #{sort_direction}")
-    when "priority_id"
-      issues_base.joins(:priority).order("priorities.name #{sort_direction}")
-    when "status_id"
-      issues_base.joins(:status).order("statuses.name #{sort_direction}")
-    when "subject"
-      issues_base.order("subject #{sort_direction}")
-    when "updated_at"
-      issues_base.order("updated_at #{sort_direction}")
-    else
-      issues_base.order("#{sort_column} #{sort_direction}")
+
+    # Creem una funció" reutilitzable per aplicar l'ordenació a QUALSEVOL llista
+    apply_sorting = ->(issues) do
+      return [] unless issues
+      case sort_column
+      when "issue_type_id" then issues.joins(:issue_type).order("issue_types.name #{sort_direction}")
+      when "severity_id" then issues.joins(:severity).order("severities.name #{sort_direction}")
+      when "priority_id" then issues.joins(:priority).order("priorities.name #{sort_direction}")
+      when "status_id" then issues.joins(:status).order("statuses.name #{sort_direction}")
+      when "subject" then issues.order("subject #{sort_direction}")
+      when "updated_at" then issues.order("updated_at #{sort_direction}")
+      else issues.order("#{sort_column} #{sort_direction}")
+      end
     end
 
-    @watched_issues = @user.watched_issues if @user == current_user
+    @open_assigned_issues = apply_sorting.call(@user.assigned_issues.open_assigned)
+    
+    if @user == current_user
+      @watched_issues = apply_sorting.call(@user.watched_issues)
+    end
+
     @comments = @user.comments.includes(:issue).order(created_at: :desc)
   end
 

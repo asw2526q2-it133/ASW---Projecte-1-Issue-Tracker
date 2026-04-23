@@ -176,6 +176,7 @@ class IssuesController < ApplicationController
         :status_id,
         :assignee_id,
         :due_date, tag_ids: [],
+        watcher_ids: [],
         attachments: [],
         remove_attachments: []
       ])

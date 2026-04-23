@@ -68,7 +68,7 @@
 
     <div class="stats" style="display: flex; justify-content: space-between; margin: 25px 0; text-align: center;">
       <div class="stat">
-        <span style="font-size: 1.4em; font-weight: bold; display: block;"><%= @open_assigned_issues.count %></span>
+        <span style="font-size: 1.4em; font-weight: bold; display: block;"><%= @open_assigned_issues ? @open_assigned_issues.count : 0 %></span>
         <small style="color: #777; font-size: 0.8em;">Open<br>Assigned</small>
       </div>
       <div class="stat">
@@ -76,7 +76,7 @@
         <small style="color: #777; font-size: 0.8em;">Watched<br>Issues</small>
       </div>
       <div class="stat">
-        <span style="font-size: 1.4em; font-weight: bold; display: block;"><%= @comments.count %></span>
+        <span style="font-size: 1.4em; font-weight: bold; display: block;"><%= @comments ? @comments.count : 0 %></span>
         <small style="color: #777; font-size: 0.8em;">Comments</small>
       </div>
     </div>
@@ -108,7 +108,7 @@
       <div class="tabs-content">
         
         <div id="assigned" class="tab-panel" style="display: block;">
-          <% if @open_assigned_issues.any? %>
+          <% if @open_assigned_issues && @open_assigned_issues.any? %>
             <table class="table">
               <thead>
                 <tr>
@@ -157,7 +157,51 @@
 
         <% if @user == current_user %>
           <div id="watched" class="tab-panel" style="display: none;">
-            <%= render partial: 'issues/table', locals: { issues: @watched_issues } %>
+            <% if @watched_issues && @watched_issues.any? %>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 250px;"><%= sortable "subject", "ISSUE" %></th>
+                    <th class="text-center"><%= sortable "issue_type_id", "TYPE" %></th>
+                    <th class="text-center"><%= sortable "severity_id", "SEVERITY" %></th>
+                    <th class="text-center"><%= sortable "priority_id", "PRIORITY" %></th>
+                    <th class="text-center"><%= sortable "status_id", "STATUS" %></th>
+                    <th><%= sortable "updated_at", "MODIFIED" %></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @watched_issues.each do |issue| %>
+                    <tr>
+                      <td>
+                        <span style="color: #008aa8; font-weight: bold; margin-right: 8px;">#<%= issue.id %></span>
+                        <%= link_to issue.subject, issue_path(issue), class: "issue-link" %>
+                      </td>
+                      <td class="text-center">
+                        <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.issue_type&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.issue_type&.name %>"></span>
+                      </td>
+                      <td class="text-center">
+                        <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.severity&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.severity&.name %>"></span>
+                      </td>
+                      <td class="text-center">
+                        <span style="display: inline-block; height: 10px; width: 10px; background-color: <%= issue.priority&.color || '#ccc' %>; border-radius: 50%;" title="<%= issue.priority&.name %>"></span>
+                      </td>
+                      <td class="text-center">
+                        <span class="badge-status" style="background-color: <%= issue.status&.color || '#e1f5fe' %>; color: #fff;">
+                          <%= issue.status&.name || "New" %>
+                        </span>
+                      </td>
+                      <td style="color: #73818f; font-size: 13px;">
+                        <%= issue.updated_at.strftime("%d %b %Y") %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            <% else %>
+              <div style="padding: 60px; text-align: center; color: #8a9ab0;">
+                No estàs observant cap issue actualment.
+              </div>
+            <% end %>
           </div>
         <% end %>
 
@@ -177,7 +221,23 @@
     for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; }
     tablinks = document.getElementsByClassName("tab-link");
     for (i = 0; i < tablinks.length; i++) { tablinks[i].className = tablinks[i].className.replace(" active", ""); }
+    
     document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
+    
+    if (evt) {
+      evt.currentTarget.className += " active";
+    } else {
+      var btn = document.querySelector(`button[onclick*="${tabName}"]`);
+      if (btn) btn.className += " active";
+    }
+    
+    localStorage.setItem("activeProfileTab", tabName);
   }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    var activeTab = localStorage.getItem("activeProfileTab");
+    if (activeTab && document.getElementById(activeTab)) {
+      openTab(null, activeTab);
+    }
+  });
 </script>
