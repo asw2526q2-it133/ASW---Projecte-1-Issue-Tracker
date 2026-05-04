@@ -14,6 +14,8 @@ class User < ApplicationRecord
   validate :avatar_content_type
   validate :avatar_size
 
+  before_create :generate_api_key
+
   def self.from_omniauth(auth)
     where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
       user.email = auth.info.email
@@ -25,6 +27,10 @@ class User < ApplicationRecord
 
   private
 
+  def generate_api_key
+    self.api_key = SecureRandom.hex(16)
+  end
+  
   def avatar_content_type
     if avatar.attached? && !avatar.content_type.in?(%w[image/jpeg image/png image/webp])
       errors.add(:avatar, "debe ser una imagen JPEG, PNG o WEBP")
