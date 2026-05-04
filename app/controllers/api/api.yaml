@@ -1,0 +1,110 @@
+openapi: 3.0.0
+info:
+  title: Taiga API (ASW Project)
+  description: API REST per al gestor d'incidències.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:10000/api
+    description: Servidor Local
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+
+  schemas:
+    Issue:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        subject:
+          type: string
+          example: "Afegir botó de login"
+        description:
+          type: string
+          example: "Cal afegir un botó al menú principal..."
+        status_id:
+          type: integer
+          example: 2
+        user_id:
+          type: integer
+          example: 5
+        created_at:
+          type: string
+          format: date-time
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /issues:
+    get:
+      summary: Llista totes les issues
+      description: Retorna un array amb totes les issues del sistema en format JSON.
+      tags:
+        - Issues
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+        '401':
+          description: No autoritzat. Cal una API Key.
+    post:
+      summary: Crea una nova issue
+      description: Afegeix una nova incidència al sistema. Fa servir multipart/form-data per permetre pujar fitxers des de l'editor.
+      tags:
+        - Issues
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                'issue[subject]':
+                  type: string
+                  description: Títol de la issue (Obligatori)
+                  example: "S'ha trencat el botó de login"
+                'issue[description]':
+                  type: string
+                  description: Descripció detallada
+                  example: "Quan intento fer login, la pàgina dóna error 500."
+                'issue[issue_type_id]':
+                  type: integer
+                  example: 1
+                'issue[severity_id]':
+                  type: integer
+                  example: 1
+                'issue[priority_id]':
+                  type: integer
+                  example: 1
+                'issue[status_id]':
+                  type: integer
+                  example: 1
+                'issue[attachments][]':
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: "Pots seleccionar i pujar diversos fitxers aquí"
+      responses:
+        '201':
+          description: Issue creada correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '422':
+          description: Error de validació (ex. falta el subject).
