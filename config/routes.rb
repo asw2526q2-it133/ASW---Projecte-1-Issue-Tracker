@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   namespace :api do
     resources :issues
     resources :issue_types
+    resources :severities
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
