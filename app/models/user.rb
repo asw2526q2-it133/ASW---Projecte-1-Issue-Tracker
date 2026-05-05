@@ -1,6 +1,5 @@
 class User < ApplicationRecord
-  devise :database_authenticatable, :registerable,
-         :recoverable, :validatable,
+  devise :database_authenticatable, :validatable,
          :omniauthable, omniauth_providers: [ :github ]
 
   has_many :issue_watchers, dependent: :destroy
