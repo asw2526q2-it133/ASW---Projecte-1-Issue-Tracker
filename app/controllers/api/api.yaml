@@ -78,8 +78,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Activity'
-        # -------------------------------------------------
-
+    # -------------------------------------------------
+    IssueType:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Bug"
+        color:
+          type: string
+          example: "#ff0000"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
 security:
   - ApiKeyAuth: []
 
@@ -177,3 +194,154 @@ paths:
           description: No autoritzat. Api-Key invàlida o absent.
         '404':
           description: Error. La issue sol·licitada no existeix.
+  #----------------------------------------------------------
+  /issue_types:
+    get:
+      summary: Llista tots els tipus d'incidència
+      description: Retorna un array amb tots els tipus d'incidència disponibles al sistema.
+      tags:
+        - Issue Types
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IssueType'
+        '401':
+          description: No autoritzat. Cal una API Key.
+    post:
+      summary: Crea un nou tipus d'incidència
+      description: Afegeix un nou tipus (ex. Bug, Question) al sistema.
+      tags:
+        - Issue Types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                issue_type:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nom del tipus (Obligatori i únic)
+                      example: "Enhancement"
+                    color:
+                      type: string
+                      description: Color en format HEX
+                      example: "#3498db"
+      responses:
+        '201':
+          description: Tipus creat correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueType'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '422':
+          description: Error de validació (ex. nom duplicat o buit).
+
+  /issue_types/{id}:
+    get:
+      summary: Obté un tipus concret
+      description: Retorna les dades d'un tipus d'incidència segons el seu ID.
+      tags:
+        - Issue Types
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric del tipus.
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueType'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Tipus no trobat.
+
+    patch:
+      summary: Actualitza un tipus
+      description: Modifica el nom o el color d'un tipus existent usant el seu ID numèric.
+      tags:
+        - Issue Types
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric del tipus que vols modificar.
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                issue_type:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "Bug Crític"
+                    color:
+                      type: string
+                      example: "#ff0000"
+      responses:
+        '200':
+          description: Tipus actualitzat correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueType'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Tipus no trobat.
+        '422':
+          description: Error de validació.
+
+    delete:
+      summary: Esborra un tipus
+      description: Elimina un tipus del sistema. Si està en ús, cal enviar el paràmetre `replacement_id` per reassignar les issues. No es pot esborrar si només en queda un.
+      tags:
+        - Issue Types
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric del tipus que vols esborrar.
+          schema:
+            type: integer
+            example: 1
+        - name: replacement_id
+          in: query
+          required: false
+          description: L'ID del tipus que heretarà les issues (Obligatori si el tipus que s'esborra està en ús).
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '204':
+          description: Tipus eliminat correctament (Sense contingut).
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Tipus o replacement_id no trobat.
+        '422':
+          description: Error. Falta el replacement_id, s'està intentant esborrar l'últim registre, etc.
