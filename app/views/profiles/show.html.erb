@@ -86,10 +86,14 @@
     </div>
 
     <% if @user == current_user %>
-      <div style="margin-top: 20px; padding: 12px; background: #f0fdfa; border: 1px dashed #5adad1; border-radius: 6px; text-align: left;">
+      <div style="margin-top: 20px; padding: 12px; background: #f0fdfa; border: 1px dashed #5adad1; border-radius: 6px; text-align: left; cursor: pointer; transition: background 0.2s;"
+           onmouseover="this.style.background='#e1f5fe'" 
+           onmouseout="this.style.background='#f0fdfa'"
+           onclick="navigator.clipboard.writeText('<%= @user.api_key %>'); document.getElementById('copy-hint').innerText = '✓ Copiada al portapapers!'; setTimeout(() => document.getElementById('copy-hint').innerText = 'Fes clic a sobre per copiar la clau', 2500);"
+           title="Copiar API Key">
         <span style="font-size: 11px; font-weight: bold; color: #008aa8; text-transform: uppercase; display: block; margin-bottom: 5px;">API Key</span>
-        <code style="font-family: monospace; font-size: 13px; color: #374151; word-break: break-all; user-select: all;"><%= @user.api_key %></code>
-        <small style="display: block; color: #8a9ab0; font-size: 10px; margin-top: 5px;">Utilitza aquesta clau per accedir a la API</small>
+        <code style="display: block; font-family: monospace; font-size: 13px; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= @user.api_key %></code>
+        <small id="copy-hint" style="display: block; color: #008aa8; font-size: 10px; margin-top: 5px; font-weight: bold;">Fes clic a sobre per copiar la clau</small>
       </div>
     <% end %>
     
