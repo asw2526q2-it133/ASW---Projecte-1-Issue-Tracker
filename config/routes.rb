@@ -22,7 +22,8 @@ Rails.application.routes.draw do
 
   # Rutes de l'API (Editat per la tasca US90)
   namespace :api do
-    resources :issues, only: [ :show ]
+    resources :issues
+    resources :issue_types
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
