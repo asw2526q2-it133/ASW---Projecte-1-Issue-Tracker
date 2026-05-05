@@ -2,15 +2,69 @@ class Api::IssuesController < Api::ApplicationController
   before_action :set_issue, only: [:show, :update, :destroy]
   before_action :authorize_issue_creator!, only: [:update, :destroy]
 
-  # GET /api/issues
+# GET /api/issues
   def index
+    # Opcional: Si en la primera entrega implementasteis filtros/búsqueda,
+    # deberías aplicarlos aquí en lugar de usar Issue.all directamente.
     @issues = Issue.all
-    render json: @issues.as_json(include: [:user, :status, :issue_type, :priority, :severity])
+    
+    issues_json = @issues.as_json(
+      # Solo devolvemos los campos propios de la issue para no sobrecargar
+      except: [:created_at, :updated_at], 
+      include: {
+        # Creador de la issue
+        user: { only: [:id, :name, :email] },
+        # Usuario asignado
+        assignee: { only: [:id, :name, :email] },
+        # Tablas de configuración
+        status: { only: [:id, :name] },
+        issue_type: { only: [:id, :name] },
+        priority: { only: [:id, :name] },
+        severity: { only: [:id, :name] }
+      }
+    )
+
+    render json: issues_json, status: :ok
   end
 
-  # GET /api/issues/:id
+# GET /api/issues/:id
   def show
-    render json: @issue.as_json(include: [:user, :status, :issue_type, :priority, :severity, :comments])
+    issue_json = @issue.as_json(
+      include: {
+        # Creador de la issue
+        user: { only: [:id, :name, :email] },
+        # Usuario asignado (si existe esta relación en tu modelo)
+        assignee: { only: [:id, :name, :email] }, 
+        # Tablas maestras (settings)
+        status: { only: [:id, :name] },
+        issue_type: { only: [:id, :name] },
+        priority: { only: [:id, :name] },
+        severity: { only: [:id, :name] },
+        # Observadores
+        watchers: { only: [:id, :name, :email] },
+        # Comentarios anidando al autor
+        comments: { 
+          include: { 
+            user: { only: [:id, :name] } 
+          } 
+        }
+      }
+    )
+
+    if @issue.respond_to?(:attachments) && @issue.attachments.attached?
+      issue_json[:attachments] = @issue.attachments.map do |attachment|
+        {
+          id: attachment.id,
+          filename: attachment.filename.to_s,
+          # url_for genera la ruta correcta para que se pueda descargar el archivo
+          url: url_for(attachment) 
+        }
+      end
+    else
+      issue_json[:attachments] = []
+    end
+
+    render json: issue_json, status: :ok
   end
 
   # POST /api/issues
