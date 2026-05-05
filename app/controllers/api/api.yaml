@@ -7,6 +7,7 @@ info:
 servers:
   - url: http://localhost:10000/api
     description: Servidor Local
+  # Afegeix aquí el de Render quan el tinguis, ex: url: https://la-teva-app.onrender.com/api
 
 components:
   securitySchemes:
@@ -16,6 +17,37 @@ components:
       name: X-Api-Key
 
   schemas:
+    # --- NOU: Esquemes per a Comentaris i Activitats (US90) ---
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        body:
+          type: string
+          example: "He revisat això i segueix fallant."
+        user_id:
+          type: integer
+          example: 2
+        created_at:
+          type: string
+          format: date-time
+          
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        description:
+          type: string
+          example: "L'usuari ha canviat l'estat a In Progress"
+        created_at:
+          type: string
+          format: date-time
+    # ---------------------------------------------------------
+
     Issue:
       type: object
       properties:
@@ -37,6 +69,16 @@ components:
         created_at:
           type: string
           format: date-time
+        # --- NOU: Afegim les llistes a la Issue (US90) ---
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        activities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
+        # -------------------------------------------------
 
 security:
   - ApiKeyAuth: []
@@ -59,6 +101,7 @@ paths:
                   $ref: '#/components/schemas/Issue'
         '401':
           description: No autoritzat. Cal una API Key.
+          
     post:
       summary: Crea una nova issue
       description: Afegeix una nova incidència al sistema. Fa servir multipart/form-data per permetre pujar fitxers des de l'editor.
@@ -108,3 +151,29 @@ paths:
           description: No autoritzat. Api-Key invàlida o absent.
         '422':
           description: Error de validació (ex. falta el subject).
+
+  /issues/{id}:
+    get:
+      summary: Obté una issue concreta
+      description: Retorna les dades d'una incidència concreta incloent els seus comentaris i activitats (Tasques de la US90).
+      tags:
+        - Issues
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID de la incidència que volem consultar.
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Operació exitosa. Retorna la informació de la issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Error. La issue sol·licitada no existeix.

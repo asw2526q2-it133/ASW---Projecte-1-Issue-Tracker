@@ -1,53 +1,55 @@
 class Api::IssuesController < Api::ApplicationController
-  before_action :set_issue, only: [:show, :update, :destroy]
-  before_action :authorize_issue_creator!, only: [:update, :destroy]
+  before_action :set_issue, only: [ :show, :update, :destroy ]
+  before_action :authorize_issue_creator!, only: [ :update, :destroy ]
 
-# GET /api/issues
+  # GET /api/issues
   def index
     # Opcional: Si en la primera entrega implementasteis filtros/búsqueda,
     # deberías aplicarlos aquí en lugar de usar Issue.all directamente.
     @issues = Issue.all
-    
+
     issues_json = @issues.as_json(
       # Solo devolvemos los campos propios de la issue para no sobrecargar
-      except: [:created_at, :updated_at], 
+      except: [ :created_at, :updated_at ],
       include: {
         # Creador de la issue
-        user: { only: [:id, :name, :email] },
+        user: { only: [ :id, :name, :email ] },
         # Usuario asignado
-        assignee: { only: [:id, :name, :email] },
+        assignee: { only: [ :id, :name, :email ] },
         # Tablas de configuración
-        status: { only: [:id, :name] },
-        issue_type: { only: [:id, :name] },
-        priority: { only: [:id, :name] },
-        severity: { only: [:id, :name] }
+        status: { only: [ :id, :name ] },
+        issue_type: { only: [ :id, :name ] },
+        priority: { only: [ :id, :name ] },
+        severity: { only: [ :id, :name ] }
       }
     )
 
     render json: issues_json, status: :ok
   end
 
-# GET /api/issues/:id
+  # GET /api/issues/:id
   def show
     issue_json = @issue.as_json(
       include: {
         # Creador de la issue
-        user: { only: [:id, :name, :email] },
+        user: { only: [ :id, :name, :email ] },
         # Usuario asignado (si existe esta relación en tu modelo)
-        assignee: { only: [:id, :name, :email] }, 
+        assignee: { only: [ :id, :name, :email ] },
         # Tablas maestras (settings)
-        status: { only: [:id, :name] },
-        issue_type: { only: [:id, :name] },
-        priority: { only: [:id, :name] },
-        severity: { only: [:id, :name] },
+        status: { only: [ :id, :name ] },
+        issue_type: { only: [ :id, :name ] },
+        priority: { only: [ :id, :name ] },
+        severity: { only: [ :id, :name ] },
         # Observadores
-        watchers: { only: [:id, :name, :email] },
+        watchers: { only: [ :id, :name, :email ] },
         # Comentarios anidando al autor
-        comments: { 
-          include: { 
-            user: { only: [:id, :name] } 
-          } 
-        }
+        comments: {
+          include: {
+            user: { only: [ :id, :name ] }
+          }
+        },
+        # Añadido mínimo para la US90 de Taiga
+        activities: {}
       }
     )
 
@@ -57,7 +59,7 @@ class Api::IssuesController < Api::ApplicationController
           id: attachment.id,
           filename: attachment.filename.to_s,
           # url_for genera la ruta correcta para que se pueda descargar el archivo
-          url: url_for(attachment) 
+          url: url_for(attachment)
         }
       end
     else
@@ -99,12 +101,12 @@ class Api::IssuesController < Api::ApplicationController
   def set_issue
     @issue = Issue.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Issue no encontrada' }, status: :not_found
+    render json: { error: "Issue no encontrada" }, status: :not_found
   end
 
   def authorize_issue_creator!
     unless @issue.user == current_user
-      render json: { error: 'No tienes permiso para modificar esta issue' }, status: :forbidden
+      render json: { error: "No tienes permiso para modificar esta issue" }, status: :forbidden
     end
   end
 

@@ -20,9 +20,11 @@ Rails.application.routes.draw do
   resources :users
   resources :profiles, only: [ :show, :edit, :update ]
 
+  # Rutes de l'API (Editat per la tasca US90)
   namespace :api do
-    resources :issues
-  end 
+    resources :issues, only: [ :show ]
+  end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
