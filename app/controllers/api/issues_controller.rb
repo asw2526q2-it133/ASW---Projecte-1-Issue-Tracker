@@ -1,11 +1,10 @@
 class Api::IssuesController < Api::ApplicationController
-  before_action :set_issue, only: [ :show, :update, :destroy ]
-  before_action :authorize_issue_creator!, only: [ :update, :destroy ]
+  # MODIFICAT: Afegits els nous mètodes al set_issue
+  before_action :set_issue, only: [ :show, :update, :destroy, :add_watcher, :remove_watcher, :add_attachment, :remove_attachment ]
+  # before_action :authorize_issue_creator!, only: [ :update, :destroy ]
 
-# GET /api/issues
-  def index
-    # Iniciem amb l'scope base i fem joins per poder filtrar/ordenar per noms
-    # Fem 'left_outer_joins' per no perdre issues que puguin tenir algun camp buit
+  # GET /api/issues
+ def index
     @issues = Issue.left_outer_joins(:issue_type, :status, :priority, :severity)
 
     # FILTRATGE PER NOM (Filtres "include")
@@ -21,7 +20,7 @@ class Api::IssuesController < Api::ApplicationController
     end
 
     # ORDENACIÓ PER NOM O DATA
-    # Ara l'ordenació de tipus, estat, etc., es fa pel camp 'name' de la taula relacionada
+    # l'ordenació de tipus, estat, etc., es fa pel camp 'name' de la taula relacionada
     sort_whitelist = {
       "type"     => "issue_types.name",
       "status"   => "statuses.name",
@@ -38,40 +37,36 @@ class Api::IssuesController < Api::ApplicationController
     @issues = @issues.order("#{sort_column} #{sort_direction}")
 
     # SERIALITZACIÓ I RESPOSTA
-    render json: @issues.as_json(
+    issues_json = @issues.as_json(
+      except: [ :created_at, :updated_at ],
       include: {
-        user: { only: [:id, :name, :email] },
-        assignee: { only: [:id, :name, :email] },
-        status: { only: [:id, :name] },
-        issue_type: { only: [:id, :name] },
-        priority: { only: [:id, :name] },
-        severity: { only: [:id, :name] }
+        user: { only: [ :id, :name, :email ] },
+        assignee: { only: [ :id, :name, :email ] },
+        status: { only:[ :id, :name ] },
+        issue_type: { only: [ :id, :name ] },
+        priority: { only: [ :id, :name ] },
+        severity: { only:[ :id, :name ] }
       }
-    ), status: :ok
-  end
+    )
 
+    render json: issues_json, status: :ok
+  end
   # GET /api/issues/:id
   def show
     issue_json = @issue.as_json(
       include: {
-        # Creador de la issue
         user: { only: [ :id, :name, :email ] },
-        # Usuario asignado (si existe esta relación en tu modelo)
         assignee: { only: [ :id, :name, :email ] },
-        # Tablas maestras (settings)
         status: { only: [ :id, :name ] },
         issue_type: { only: [ :id, :name ] },
         priority: { only: [ :id, :name ] },
         severity: { only: [ :id, :name ] },
-        # Observadores
         watchers: { only: [ :id, :name, :email ] },
-        # Comentarios anidando al autor
         comments: {
           include: {
             user: { only: [ :id, :name ] }
           }
         },
-        # Añadido mínimo para la US90 de Taiga
         activities: {}
       }
     )
@@ -81,7 +76,6 @@ class Api::IssuesController < Api::ApplicationController
         {
           id: attachment.id,
           filename: attachment.filename.to_s,
-          # url_for genera la ruta correcta para que se pueda descargar el archivo
           url: url_for(attachment)
         }
       end
@@ -143,7 +137,20 @@ class Api::IssuesController < Api::ApplicationController
 
   # PUT/PATCH /api/issues/:id
   def update
-    if @issue.update(issue_params)
+    # 1. Assignem els valors nous a memòria sense guardar-los encara
+    @issue.assign_attributes(issue_params)
+
+    # 2. Busquem qualsevol comentari nou que s'estigui intentant crear
+    # i li assignem automàticament l'usuari que fa la petició
+    @issue.comments.select(&:new_record?).each do |comment|
+      comment.user = current_user
+    end
+
+    # 3. Guardem la issue i els comentaris a la base de dades
+    if @issue.save
+      # AFEGIT: user: current_user
+      @issue.activities.create!(action: "Issue actualitzada per #{current_user.name}", user: current_user)
+
       render json: @issue, status: :ok
     else
       render json: { errors: @issue.errors.full_messages }, status: :unprocessable_entity
@@ -155,6 +162,58 @@ class Api::IssuesController < Api::ApplicationController
     @issue.destroy
     head :no_content
   end
+
+  # POST /api/issues/:id/watchers
+  def add_watcher
+    user = User.find(params[:watcher_id])
+    unless @issue.watchers.include?(user)
+      @issue.watchers << user
+      # AFEGIT: user: current_user
+      @issue.activities.create!(action: "Usuari #{user.name} afegit com a watcher per #{current_user.name}", user: current_user)
+    end
+    render json: { message: "Watcher afegit correctament" }, status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Usuari no trobat" }, status: :not_found
+  end
+
+  # DELETE /api/issues/:id/watchers/:watcher_id
+  def remove_watcher
+    user = User.find(params[:watcher_id])
+    if @issue.watchers.delete(user)
+      # AFEGIT: user: current_user
+      @issue.activities.create!(action: "Usuari #{user.name} eliminat com a watcher per #{current_user.name}", user: current_user)
+      head :no_content
+    else
+      render json: { error: "L'usuari no és watcher d'aquesta issue" }, status: :unprocessable_entity
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Usuari no trobat" }, status: :not_found
+  end
+
+  # POST /api/issues/:id/attachments
+  def add_attachment
+    if params[:attachment].present?
+      @issue.attachments.attach(params[:attachment])
+      # AFEGIT: user: current_user
+      @issue.activities.create!(action: "Fitxer adjunt afegit per #{current_user.name}", user: current_user)
+      render json: { message: "Fitxer adjuntat correctament" }, status: :ok
+    else
+      render json: { error: "Cap fitxer proporcionat" }, status: :unprocessable_entity
+    end
+  end
+
+  # DELETE /api/issues/:id/attachments/:attachment_id
+  def remove_attachment
+    attachment = @issue.attachments.find(params[:attachment_id])
+    attachment.purge
+    # AFEGIT: user: current_user
+    @issue.activities.create!(action: "Fitxer adjunt eliminat per #{current_user.name}", user: current_user)
+    head :no_content
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Fitxer no trobat" }, status: :not_found
+  end
+
+  # --------------------------------------------------
 
   private
 
@@ -174,7 +233,8 @@ class Api::IssuesController < Api::ApplicationController
     params.require(:issue).permit(
       :subject, :description, :issue_type_id, :severity_id,
       :priority_id, :status_id, :assignee_id, :due_date,
-      tag_ids: [], watcher_ids: [], attachments: []
+      tag_ids: [], watcher_ids: [], attachments: [],
+      comments_attributes: [ :id, :content, :_destroy ]
     )
   end
 end

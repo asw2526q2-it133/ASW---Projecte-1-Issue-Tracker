@@ -20,19 +20,31 @@ Rails.application.routes.draw do
   resources :users
   resources :profiles, only: [ :show, :edit, :update, :destroy ]
 
-  # Rutes de l'API (Editat per la tasca US90)
-  namespace :api do
+namespace :api do
     resources :issues do
+      # Rutes de col·lecció (afecten a totes les issues)
       collection do
         post :bulk
       end
+      
+      # Rutes de membre (afecten a una issue concreta, ex: /issues/1/watchers)
+      member do
+        post :watchers, to: "issues#add_watcher"
+        delete "watchers/:watcher_id", to: "issues#remove_watcher"
+        post :attachments, to: "issues#add_attachment"
+        delete "attachments/:attachment_id", to: "issues#remove_attachment"
+      end
+
+      # Rutes niades per als comentaris
       resources :comments, only: [:index, :create, :update, :destroy]
     end
+
     resources :issue_types
     resources :severities
     resources :statuses
     resources :priorities
     resources :tags
+    
     resources :users, only: [ :show, :update ] do
       member do
         get :assigned_issues
@@ -41,17 +53,3 @@ Rails.application.routes.draw do
       end
     end
   end
-
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  root "issues#index"
-end
