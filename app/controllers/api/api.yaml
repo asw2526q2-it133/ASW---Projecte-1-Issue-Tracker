@@ -97,6 +97,25 @@ components:
         updated_at:
           type: string
           format: date-time
+    #----------------------------------------------------------
+    Severity:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Important"
+        color:
+          type: string
+          example: "#ff9900"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
 security:
   - ApiKeyAuth: []
 
@@ -345,3 +364,153 @@ paths:
           description: Tipus o replacement_id no trobat.
         '422':
           description: Error. Falta el replacement_id, s'està intentant esborrar l'últim registre, etc.
+  /severities:
+    get:
+      summary: Llista totes les severitats
+      description: Retorna un array amb totes les severitats disponibles al sistema.
+      tags:
+        - Severities
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Severity'
+        '401':
+          description: No autoritzat. Cal una API Key.
+    post:
+      summary: Crea una nova severitat
+      description: Afegeix una nova severitat al sistema.
+      tags:
+        - Severities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                severity:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nom de la severitat (Obligatori i únic)
+                      example: "Crítica"
+                    color:
+                      type: string
+                      description: Color en format HEX
+                      example: "#ff0000"
+      responses:
+        '201':
+          description: Severitat creada correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Severity'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '422':
+          description: Error de validació.
+
+  /severities/{id}:
+    get:
+      summary: Obté una severitat concreta
+      description: Retorna les dades d'una severitat segons el seu ID.
+      tags:
+        - Severities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric de la severitat.
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Severity'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Severitat no trobada.
+
+    patch:
+      summary: Actualitza una severitat
+      description: Modifica el nom o el color d'una severitat.
+      tags:
+        - Severities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric de la severitat.
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                severity:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "Molt Crítica"
+                    color:
+                      type: string
+                      example: "#8b0000"
+      responses:
+        '200':
+          description: Severitat actualitzada correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Severity'
+        '401':
+          description: No autoritzat.
+        '404':
+          description: Severitat no trobada.
+        '422':
+          description: Error de validació.
+
+    delete:
+      summary: Esborra una severitat
+      description: Elimina una severitat del sistema. Si està en ús, cal enviar el paràmetre `replacement_id`.
+      tags:
+        - Severities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric de la severitat que vols esborrar.
+          schema:
+            type: integer
+            example: 1
+        - name: replacement_id
+          in: query
+          required: false
+          description: L'ID de la severitat que heretarà les issues.
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '204':
+          description: Severitat eliminada correctament.
+        '401':
+          description: No autoritzat.
+        '404':
+          description: Severitat o replacement_id no trobat.
+        '422':
+          description: Error. Falta el replacement_id o s'està intentant esborrar l'últim registre.
