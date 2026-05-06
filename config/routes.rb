@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   namespace :api do
     resources :issues
     resources :issue_types
+    resources :tags
     resources :severities
   end
 
