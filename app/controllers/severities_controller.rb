@@ -50,11 +50,11 @@ class SeveritiesController < ApplicationController
 
   # DELETE /severities/1 or /severities/1.json
   def destroy
-  # 1. Buscamos issues que usen el nombre de esta severidad (parche temporal por ser Strings)
+  # Buscamos issues que usen el nombre de esta severidad (parche temporal por ser Strings)
   issues_en_uso = Issue.where(severity: @severity.name)
 
   if issues_en_uso.any?
-    # 2. Si hay issues, BLOQUEAMOS y mandamos un ALERT (mensaje de error)
+    # Si hay issues, BLOQUEAMOS y mandamos un ALERT (mensaje de error)
     respond_to do |format|
       format.html {
         redirect_to severities_url,
@@ -63,7 +63,7 @@ class SeveritiesController < ApplicationController
       format.json { head :unprocessable_entity }
     end
   else
-    # 3. Si no hay issues, procedemos al borrado real
+    # Si no hay issues, procedemos al borrado real
     @severity.destroy
     respond_to do |format|
       format.html { redirect_to severities_url, notice: "Severidad eliminada correctamente." }
@@ -73,12 +73,10 @@ class SeveritiesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_severity
       @severity = Severity.find(params.expect(:id))
     end
 
-    # Only allow a list of trusted parameters through.
     def severity_params
       params.expect(severity: [ :name, :color ])
     end

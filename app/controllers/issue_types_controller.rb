@@ -59,11 +59,11 @@ class IssueTypesController < ApplicationController
   end
 
   def destroy
-    # 1. Buscamos issues que usen el nombre de este tipo (parche temporal por ser Strings)
+    # Buscamos issues que usen el nombre de este tipo (parche temporal por ser Strings)
     issues_en_uso = Issue.where(issue_type: @issue_type.name)
 
     if issues_en_uso.any?
-      # 2. Si hay issues, BLOQUEAMOS y mandamos un ALERT (mensaje de error)
+      # Si hay issues, BLOQUEAMOS y mandamos un mensaje de error
       respond_to do |format|
         format.html {
           redirect_to issue_types_url,
@@ -72,7 +72,7 @@ class IssueTypesController < ApplicationController
         format.json { head :unprocessable_entity }
       end
     else
-      # 3. Si no hay issues, procedemos al borrado real
+      # Si no hay issues, procedemos al borrado real
       @issue_type.destroy
       respond_to do |format|
         format.html { redirect_to issue_types_url, notice: "Tipo eliminado correctamente." }
@@ -82,12 +82,10 @@ class IssueTypesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_issue_type
       @issue_type = IssueType.find(params.expect(:id))
     end
 
-    # Only allow a list of trusted parameters through.
     def issue_type_params
       params.expect(issue_type: [ :name, :color ])
     end

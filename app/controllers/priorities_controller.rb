@@ -39,7 +39,6 @@ class PrioritiesController < ApplicationController
   end
 
   def destroy
-    # Quitamos la exclamación para que el modelo pueda bloquear el borrado amigablemente
     if @priority.destroy
       respond_to do |format|
         format.html { redirect_to priorities_url, notice: "La prioridad fue eliminada.", status: :see_other }

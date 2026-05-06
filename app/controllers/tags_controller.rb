@@ -59,12 +59,10 @@ class TagsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_tag
       @tag = Tag.find(params.expect(:id))
     end
 
-    # Only allow a list of trusted parameters through.
     def tag_params
       params.expect(tag: [ :name, :color ])
     end

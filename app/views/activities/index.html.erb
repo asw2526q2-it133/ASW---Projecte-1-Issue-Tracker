@@ -12,7 +12,7 @@
     <% if @activities.any? %>
       <% @activities.group_by { |a| a.created_at.to_date }.each do |date, activities| %>
         
-        <%# Separador por fecha %>
+        <%# Separador per la data %>
         <div class="date-group" style="position: relative; margin-bottom: 25px;">
           <h3 style="font-size: 12px; color: #8a9ab0; text-transform: uppercase; background: #fff; display: inline-block; padding-right: 10px; position: relative; z-index: 1;">
             <%= date == Date.today ? "Today" : date.strftime("%B %d, %Y") %>
@@ -22,11 +22,10 @@
         <% activities.each do |activity| %>
           <div class="activity-card" style="position: relative; background: #fff; border: 1px solid #e0e6ed; border-radius: 6px; padding: 15px; margin-bottom: 15px; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
             
-            <%# Punto en la línea de tiempo %>
             <div style="position: absolute; left: -26px; top: 22px; width: 12px; height: 12px; border-radius: 50%; background: #5adad1; border: 3px solid #fff; box-shadow: 0 0 0 2px #e0e6ed;"></div>
 
             <div style="display: flex; align-items: center; gap: 12px;">
-              <%# Avatar del usuario %>
+              <%# Avatar del usuari %>
               <div style="width: 32px; height: 32px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; flex-shrink: 0;">
                 <%= activity.user&.name&.first&.upcase || "?" %>
               </div>

@@ -1,0 +1,1335 @@
+openapi: 3.0.0
+info:
+  title: Taiga API (ASW Project)
+  description: API REST per al gestor d'incidències.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:10000/api
+    description: Servidor Local
+  # Afegeix aquí el de Render quan el tinguis, ex: url: https://la-teva-app.onrender.com/api
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+
+  schemas:
+    # Esquemes per a Comentaris i Activitats
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        content:
+          type: string
+          example: "He revisat això i segueix fallant."
+        user_id:
+          type: integer
+          example: 2
+        created_at:
+          type: string
+          format: date-time
+          
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        action:
+          type: string
+          example: "L'usuari ha canviat l'estat a In Progress"
+        created_at:
+          type: string
+          format: date-time
+
+    Issue:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        subject:
+          type: string
+          example: "Afegir botó de login"
+        description:
+          type: string
+          example: "Cal afegir un botó al menú principal..."
+        status_id:
+          type: integer
+          example: 2
+        user_id:
+          type: integer
+          example: 5
+        created_at:
+          type: string
+          format: date-time
+        # Afegim les llistes a la Issue
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        activities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
+   
+    IssueType:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Bug"
+        color:
+          type: string
+          example: "#ff0000"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    #----------------------------------------------------------
+    Severity:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Important"
+        color:
+          type: string
+          example: "#ff9900"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    #----------------------------------------------------------
+    Status:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: "Open" }
+        color: { type: string, example: "#00ff00" }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    #----------------------------------------------------------
+    Priority:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "High"
+        color:
+          type: string
+          example: "#ff0000"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    #----------------------------------------------------------
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: "High Priority"
+        color:
+          type: string
+          example: "#f44336"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /issues:
+    get:
+      summary: Llistar issues per nom
+      description: |
+        Retorna un llistat d'issues amb les següents funcionalitats:
+        - **Filtratge**: Per nom de tipus, estat, prioritat i severitat (ex: 'Bug', 'Open').
+        - **Cerca**: Per paraula clau en el 'subject' i 'description' (paràmetre 'q').
+        - **Ordenació**: Per nom de les relacions o dates.
+      tags:
+        - Issues
+      parameters:
+        - name: type
+          in: query
+          description: "Filtrar pel NOM del tipus (ex: Bug, Feature)"
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: "Filtrar pel NOM de l'estat (ex: New, Open, Closed)"
+          schema:
+            type: string
+        - name: priority
+          in: query
+          description: "Filtrar pel NOM de la prioritat (ex: Low, Normal, High)"
+          schema:
+            type: string
+        - name: severity
+          in: query
+          description: "Filtrar pel NOM de la severitat (ex: Wishlist, Minor, Critical)"
+          schema:
+            type: string
+        - name: q
+          in: query
+          description: Text a cercar en el Subjecte o la Descripció
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Camp per ordenar els resultats
+          schema:
+            type: string
+            enum: [type, status, priority, severity, issue_no, modified, due_date]
+        - name: direction
+          in: query
+          description: Direcció de l'ordenació
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: Llistat d'issues obtingut correctament.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+        '401':
+          description: No autoritzat. L'API Key és absent o incorrecta.
+
+    post:
+      summary: Crear una nova issue
+      description: |
+        Crea una issue utilitzant els noms dels atributs (Status, Type, Priority, Severity). 
+        Si s'inclouen tags que no existeixen, es crearan automàticament.
+      tags:
+        - Issues
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - subject
+                - status
+                - type
+                - priority
+                - severity
+              properties:
+                subject:
+                  type: string
+                  description: Títol de la issue.
+                  example: "Error en la validació del formulari"
+                description:
+                  type: string
+                  description: Descripció detallada del problema.
+                  example: "Quan l'usuari deixa el camp buit, l'app peta."
+                status:
+                  type: string
+                  description: Nom de l'estat.
+                  example: "New"
+                type:
+                  type: string
+                  description: Nom del tipus d'issue.
+                  example: "Bug"
+                priority:
+                  type: string
+                  description: Nom de la prioritat.
+                  example: "High"
+                severity:
+                  type: string
+                  description: Nom de la severitat.
+                  example: "Critical"
+                due_date:
+                  type: string
+                  format: date
+                  description: Data límit per resoldre la issue.
+                  example: "2026-05-20"
+                assignee:
+                  type: string
+                  description: Nom o Email de l'usuari a qui s'assigna la issue.
+                  example: "Joan"
+                tags:
+                  type: array
+                  description: Llista de noms de tags.
+                  items:
+                    type: string
+                  example: ["frontend", "security"]
+      responses:
+        '201':
+          description: Issue creada amb èxit.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '422':
+          description: Atribut no trobat (nom incorrecte) o error de validació.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: string
+        '500':
+          description: Error intern del servidor.
+
+  /issues/bulk:
+    post:
+      summary: Creació massiva d'issues (Bulk Insert)
+      description: Permet crear múltiples issues de cop enviant un text amb salts de línia. Requereix API Key.
+      tags:
+        - Issues
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bulk_data:
+                  type: string
+                  description: Títols de les issues separats per salts de línia (\n)
+                  example: "Primera issue des de l'API\nSegona issue des de l'API\nTercera issue des de l'API"
+      responses:
+        '201':
+          description: Issues creades correctament.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "S'han creat 3 issues correctament"
+                  issues:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        subject:
+                          type: string
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '422':
+          description: Error de validació (no s'han enviat dades).
+
+  /issues/{id}:
+    get:
+      summary: Obté una issue concreta
+      description: Retorna les dades d'una incidència concreta incloent els seus comentaris i activitats.
+      tags:
+        - Issues
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID de la incidència que volem consultar.
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Operació exitosa. Retorna la informació de la issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Error. La issue sol·licitada no existeix.
+
+    patch:
+      summary: Actualitza dades i comentaris
+      description: Actualitza els camps generals, la data límit i els comentaris.
+      tags:
+        - Issues
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                issue:
+                  type: object
+                  properties:
+                    subject:
+                      type: string
+                    description:
+                      type: string
+                    due_date:
+                      type: string
+                      format: date
+                    status_id:
+                      type: integer
+                    comments_attributes:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          content:
+                            type: string
+            example:
+              issue:
+                subject: "Nou títol corregit"
+                description: "Nova descripció de prova"
+                due_date: "2026-12-31"
+                status_id: 1
+                comments_attributes:
+                  - content: "Afegint un comentari des de l'API"
+      responses:
+        '200':
+          description: Issue actualitzada.
+        '403':
+          description: No tens permís per modificar-la.
+        '422':
+          description: Error de validació.
+
+    delete:
+      summary: Elimina una issue
+      description: Esborra una incidència sencera del sistema.
+      tags:
+        - Issues
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Issue eliminada correctament.
+        '403':
+          description: No tens permís.
+        '404':
+          description: La issue no existeix.
+
+  /issues/{id}/watchers:
+    post:
+      summary: Afegeix un watcher
+      description: Afegeix un usuari com a observador de la issue. Genera activitat automàtica.
+      tags:
+        - Watchers & Attachments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                watcher_id:
+                  type: integer
+                  example: 2
+      responses:
+        '200':
+          description: Watcher afegit correctament.
+        '404':
+          description: Usuari no trobat.
+
+  /issues/{id}/watchers/{watcher_id}:
+    delete:
+      summary: Elimina un watcher
+      description: Treu un usuari de la llista d'observadors. Genera activitat automàtica.
+      tags:
+        - Watchers & Attachments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: watcher_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Watcher eliminat.
+        '404':
+          description: Usuari no trobat.
+
+  /issues/{id}/attachments:
+    post:
+      summary: Afegeix un fitxer adjunt
+      description: Puja un fitxer nou a la issue. Genera activitat automàtica.
+      tags:
+        - Watchers & Attachments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                attachment:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Fitxer adjuntat.
+        '422':
+          description: Cap fitxer proporcionat.
+
+  /issues/{id}/attachments/{attachment_id}:
+    delete:
+      summary: Elimina un fitxer adjunt
+      description: Esborra un fitxer concret usant el seu ID. Genera activitat automàtica.
+      tags:
+        - Watchers & Attachments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: attachment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Fitxer eliminat correctament.
+        '404':
+          description: Fitxer no trobat.
+  #----------------------------------------------------------
+  /issue_types:
+    get:
+      summary: Llista tots els tipus d'incidència
+      description: Retorna un array amb tots els tipus d'incidència disponibles al sistema.
+      tags:
+        - Issue Types
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IssueType'
+        '401':
+          description: No autoritzat. Cal una API Key.
+    post:
+      summary: Crea un nou tipus d'incidència
+      description: Afegeix un nou tipus (ex. Bug, Question) al sistema.
+      tags:
+        - Issue Types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                issue_type:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nom del tipus (Obligatori i únic)
+                      example: "Enhancement"
+                    color:
+                      type: string
+                      description: Color en format HEX
+                      example: "#3498db"
+      responses:
+        '201':
+          description: Tipus creat correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueType'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '422':
+          description: Error de validació (ex. nom duplicat o buit).
+
+  /issue_types/{id}:
+    get:
+      summary: Obté un tipus concret
+      description: Retorna les dades d'un tipus d'incidència segons el seu ID.
+      tags:
+        - Issue Types
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric del tipus.
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueType'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Tipus no trobat.
+
+    patch:
+      summary: Actualitza un tipus
+      description: Modifica el nom o el color d'un tipus existent usant el seu ID numèric.
+      tags:
+        - Issue Types
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric del tipus que vols modificar.
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                issue_type:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "Bug Crític"
+                    color:
+                      type: string
+                      example: "#ff0000"
+      responses:
+        '200':
+          description: Tipus actualitzat correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueType'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Tipus no trobat.
+        '422':
+          description: Error de validació.
+
+    delete:
+      summary: Esborra un tipus
+      description: Elimina un tipus del sistema. Si està en ús, cal enviar el paràmetre `replacement_id` per reassignar les issues. No es pot esborrar si només en queda un.
+      tags:
+        - Issue Types
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric del tipus que vols esborrar.
+          schema:
+            type: integer
+            example: 1
+        - name: replacement_id
+          in: query
+          required: false
+          description: L'ID del tipus que heretarà les issues (Obligatori si el tipus que s'esborra està en ús).
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '204':
+          description: Tipus eliminat correctament (Sense contingut).
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Tipus o replacement_id no trobat.
+        '422':
+          description: Error. Falta el replacement_id, s'està intentant esborrar l'últim registre, etc.
+
+  /statuses:
+    get:
+      summary: Llistar tots els estats
+      tags:
+        - Statuses
+      responses:
+        '200':
+          description: Llista obtinguda correctament
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+    post:
+      summary: Crear un nou estat
+      tags:
+        - Statuses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                status:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "In Progress"
+                    color:
+                      type: string
+                      example: "#FFA500"
+      responses:
+        '201':
+          description: Estat creat correctament
+        '422':
+          description: Error de validació
+
+  /statuses/{id}:
+    get:
+      summary: Obtenir un estat per ID
+      tags:
+        - Statuses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detall de l'estat
+        '404':
+          description: Estat no trobat
+
+    patch:
+      summary: Actualitzar un estat
+      tags:
+        - Statuses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    color:
+                      type: string
+      responses:
+        '200':
+          description: Estat actualitzat
+        '422':
+          description: Error de validació
+
+    delete:
+      summary: Esborrar un estat
+      description: |
+        Si l'estat s'està utilitzant en alguna issue, cal proporcionar un `replacement_id` 
+        per reassignar-les abans d'esborrar.
+      tags:
+        - Statuses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: replacement_id
+          in: query
+          description: ID de l'estat que substituirà l'actual en les issues existents.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Estat esborrat (sense contingut)
+        '404':
+          description: Estat o replacement_id no trobat
+        '422':
+          description: Error de validació o falta el replacement_id
+  /priorities:
+    get:
+      summary: Llistar totes les prioritats
+      tags:
+        - Priorities
+      responses:
+        '200':
+          description: Llista de prioritats obtinguda correctament
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Priority'
+    post:
+      summary: Crear una nova prioritat
+      tags:
+        - Priorities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                priority:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "Urgent"
+                    color:
+                      type: string
+                      example: "#cc0000"
+      responses:
+        '201':
+          description: Prioritat creada
+        '422':
+          description: Error de validació
+
+  /priorities/{id}:
+    get:
+      summary: Obtenir una prioritat per ID
+      tags:
+        - Priorities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detall de la prioritat
+        '404':
+          description: Prioritat no trobada
+
+    patch:
+      summary: Actualitzar una prioritat
+      tags:
+        - Priorities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priority:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    color:
+                      type: string
+      responses:
+        '200':
+          description: Prioritat actualitzada
+
+    delete:
+      summary: Esborrar una prioritat
+      description: |
+        Si la prioritat s'utilitza en alguna issue, cal un `replacement_id` per reassignar-les.
+      tags:
+        - Priorities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: replacement_id
+          in: query
+          description: ID de la prioritat que substituirà la que s'esborra.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Prioritat esborrada
+        '422':
+          description: Error (falta replacement_id o ID no vàlid)
+
+  /severities:
+    get:
+      summary: Llista totes les severitats
+      description: Retorna un array amb totes les severitats disponibles al sistema.
+      tags:
+        - Severities
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Severity'
+        '401':
+          description: No autoritzat. Cal una API Key.
+    post:
+      summary: Crea una nova severitat
+      description: Afegeix una nova severitat al sistema.
+      tags:
+        - Severities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                severity:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nom de la severitat (Obligatori i únic)
+                      example: "Crítica"
+                    color:
+                      type: string
+                      description: Color en format HEX
+                      example: "#ff0000"
+      responses:
+        '201':
+          description: Severitat creada correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Severity'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '422':
+          description: Error de validació.
+
+  /severities/{id}:
+    get:
+      summary: Obté una severitat concreta
+      description: Retorna les dades d'una severitat segons el seu ID.
+      tags:
+        - Severities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric de la severitat.
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Severity'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Severitat no trobada.
+
+    patch:
+      summary: Actualitza una severitat
+      description: Modifica el nom o el color d'una severitat.
+      tags:
+        - Severities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric de la severitat.
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                severity:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "Molt Crítica"
+                    color:
+                      type: string
+                      example: "#8b0000"
+      responses:
+        '200':
+          description: Severitat actualitzada correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Severity'
+        '401':
+          description: No autoritzat.
+        '404':
+          description: Severitat no trobada.
+        '422':
+          description: Error de validació.
+
+    delete:
+      summary: Esborra una severitat
+      description: Elimina una severitat del sistema. Si està en ús, cal enviar el paràmetre `replacement_id`.
+      tags:
+        - Severities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric de la severitat que vols esborrar.
+          schema:
+            type: integer
+            example: 1
+        - name: replacement_id
+          in: query
+          required: false
+          description: L'ID de la severitat que heretarà les issues.
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '204':
+          description: Severitat eliminada correctament.
+        '401':
+          description: No autoritzat.
+        '404':
+          description: Severitat o replacement_id no trobat.
+        '422':
+          description: Error. Falta el replacement_id o s'està intentant esborrar l'últim registre.
+
+  /tags:
+    get:
+      summary: Llistar tots els tags
+      description: Retorna un llistat complet de totes les etiquetes disponibles.
+      tags:
+        - Tags
+      responses:
+        '200':
+          description: Llista obtinguda correctament.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+    post:
+      summary: Crear un nou tag
+      tags:
+        - Tags
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tag
+              properties:
+                tag:
+                  type: object
+                  required:
+                    - name
+                  properties:
+                    name:
+                      type: string
+                      example: "Bug Fix"
+                    color:
+                      type: string
+                      example: "#e91e63"
+      responses:
+        '201':
+          description: Tag creat correctament.
+        '422':
+          description: Error de validació (nom buit o duplicat).
+
+  /tags/{id}:
+    get:
+      summary: Obtenir un tag per ID
+      tags:
+        - Tags
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detall del tag.
+        '404':
+          description: Tag no trobat.
+
+    patch:
+      summary: Actualitzar un tag
+      tags:
+        - Tags
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tag:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    color:
+                      type: string
+      responses:
+        '200':
+          description: Tag actualitzat.
+        '404':
+          description: Tag no trobat.
+        '422':
+          description: Error de validació.
+
+    delete:
+      summary: Esborrar un tag
+      description: Elimina el tag i les seves relacions amb les issues (no requereix replacement_id).
+      tags:
+        - Tags
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tag eliminat correctament (sense contingut).
+        '404':
+          description: Tag no trobat.
+
+  /users/{id}:
+      get:
+        summary: Obté el perfil d'un usuari
+        description: Retorna les dades públiques d'un usuari, incloent-hi la URL del seu avatar si en té.
+        tags:
+          - Users
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: ID de l'usuari
+            schema:
+              type: integer
+        responses:
+          '200':
+            description: Operació exitosa.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: "roger"
+                    full_name:
+                      type: string
+                      example: "Roger Guinovart"
+                    email:
+                      type: string
+                      example: "roger@example.com"
+                    bio:
+                      type: string
+                      example: "Desenvolupador Full-Stack"
+                    avatar_url:
+                      type: string
+                      nullable: true
+                      example: "http://localhost:10000/rails/active_storage/blobs/redirect/..."
+          '400':
+            description: Paràmetre invàlid. L'ID ha de ser un enter positiu.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: "L'ID proporcionat no és vàlid."
+          '404':
+            description: Usuari no trobat.
+
+      patch:
+        summary: Actualitza el perfil de l'usuari
+        description: Permet modificar la biografia i la foto de perfil. Requereix API Key i només el propi usuari pot editar el seu perfil.
+        tags:
+          - Users
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: ID de l'usuari a editar
+            schema:
+              type: integer
+        requestBody:
+          required: true
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  'user[bio]':
+                    type: string
+                    description: Nova biografia de l'usuari
+                  'user[avatar]':
+                    type: string
+                    format: binary
+                    description: Nova foto de perfil (JPG, PNG, WEBP)
+        responses:
+          '200':
+            description: Perfil actualitzat correctament.
+          '401':
+            description: No autoritzat (Falta API Key o és invàlida).
+          '403':
+            description: Prohibit (Estàs intentant editar el perfil d'un altre usuari).
+          '404':
+            description: Usuari no trobat.
+          '422':
+            description: Error de validació (ex. imatge massa gran o format incorrecte).
+
+
+  /users/{id}/assigned_issues:
+      get:
+        summary: Llista les issues assignades obertes
+        tags: [Users]
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema:
+              type: integer
+        responses:
+          '200':
+            description: Llista d'issues assignades
+          '404':
+            description: Usuari no trobat
+
+  /users/{id}/watched_issues:
+    get:
+      summary: Llista les issues observades
+      description: Requereix API Key. Només el propi usuari pot veure aquesta llista.
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Llista d'issues observades
+        '401':
+          description: No autoritzat (Falta API Key)
+        '403':
+          description: Prohibit (No ets el propietari del perfil)
+        '404':
+          description: Usuari no trobat
+
+  /users/{id}/comments:
+    get:
+      summary: Llista els comentaris de l'usuari
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Llista de comentaris
+        '404':
+          description: Usuari no trobat

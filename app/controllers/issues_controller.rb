@@ -1,7 +1,8 @@
 class IssuesController < ApplicationController
-  # before_action :authenticate_user!
   before_action :authenticate_user!
   before_action :set_issue, only: %i[ show edit update destroy ]
+
+  before_action :authorize_issue_creator!, only: %i[ edit update destroy ]
 
   # GET /issues or /issues.json
   def index
@@ -13,7 +14,7 @@ class IssuesController < ApplicationController
     @issues = @issues.filter_by_severity(params[:severities])
     @issues = @issues.filter_by_type(params[:types])
 
-    # Búsqueda por texto (opcional si la usas)
+    # Búsqueda por texto
     if params[:search].present?
       t = "%#{params[:search].downcase}%"
       @issues = @issues.where("LOWER(subject) LIKE :q OR LOWER(description) LIKE :q", q: t)
@@ -75,11 +76,17 @@ class IssuesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /issues/1 or /issues/1.json
+# PATCH/PUT /issues/1 or /issues/1.json
   def update
+    # "foto" dels IDs abans d'actualitzar
+    old_tag_ids = @issue.tag_ids.sort
+    old_watcher_ids = @issue.watcher_ids.sort
+    old_attachment_ids = @issue.attachments.pluck(:id).sort
+
     respond_to do |format|
       if @issue.update(issue_params)
 
+        # Gestió d'esborrat d'adjunts
         if params[:issue] && params[:issue][:remove_attachments].present?
           params[:issue][:remove_attachments].each do |attachment_id|
             attachment = @issue.attachments.find_by(id: attachment_id)
@@ -87,15 +94,47 @@ class IssuesController < ApplicationController
           end
         end
 
-        cambios = @issue.saved_changes.except(:updated_at).keys.map(&:humanize).join(", ")
-        desc_accion = cambios.present? ? "updated #{cambios}" : "updated the issue"
+        # IDs després d'actualitzar
+        # Fem .reload als attachments per assegurar-nos que detecta els que acabem d'esborrar o afegir
+        new_tag_ids = @issue.tag_ids.sort
+        new_watcher_ids = @issue.watcher_ids.sort
+        new_attachment_ids = @issue.attachments.reload.pluck(:id).sort
 
-        Activity.create(
-          issue: @issue,
-          user: current_user,
-          action: desc_accion
-        )
-        # ---------------------------
+        # REGISTRE D'ACTIVITATS
+        changed_fields = @issue.saved_changes.except(:updated_at).keys
+        
+        # canvis als tags, watchers i attachments si han canviat
+        changed_fields << 'tags' if old_tag_ids != new_tag_ids
+        changed_fields << 'watchers' if old_watcher_ids != new_watcher_ids
+        changed_fields << 'attachments' if old_attachment_ids != new_attachment_ids
+        
+        if changed_fields.any?
+          humanized_changes = changed_fields.map do |field|
+            case field
+            when 'status_id' then 'Status'
+            when 'priority_id' then 'Priority'
+            when 'severity_id' then 'Severity'
+            when 'issue_type_id' then 'Type'
+            when 'assignee_id' then 'Assignee'
+            when 'subject' then 'Subject'
+            when 'description' then 'Description'
+            when 'due_date' then 'Due Date'
+            when 'tags' then 'Tags'
+            when 'watchers' then 'Watchers'
+            when 'attachments' then 'Attachments'
+            else field.humanize
+            end
+          end
+
+          action_text = "updated #{humanized_changes.to_sentence}"
+
+          Activity.create(
+            issue: @issue,
+            user: current_user,
+            action: action_text,
+            changes_log: nil
+          )
+        end
 
         format.html { redirect_to @issue, notice: "Issue was successfully updated.", status: :see_other }
         format.json { render :show, status: :ok, location: @issue }
@@ -137,8 +176,6 @@ class IssuesController < ApplicationController
         updated_at: Time.current
         } }
 
-      # insert_all es muy eficiente pero se salta validaciones de Rails.
-      # Si necesitas validaciones, usa: Issue.create(issues_to_create)
       Issue.create(issues_to_create)
 
       redirect_to issues_path, notice: "¡Se han creado #{titles.size} issues correctamente!"
@@ -148,7 +185,12 @@ class IssuesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+    def authorize_issue_creator!
+      unless @issue.user == current_user
+        redirect_to @issue, alert: "No tens permís per modificar o esborrar aquesta issue. Només el creador ho pot fer."
+      end
+    end
+
     def set_issue
       @issue = Issue.find(params[:id])
     end
@@ -163,7 +205,6 @@ class IssuesController < ApplicationController
       %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
     end
 
-    # Only allow a list of trusted parameters through.
     def issue_params
       params.expect(issue: [
         :subject,
@@ -172,7 +213,9 @@ class IssuesController < ApplicationController
         :severity_id,
         :priority_id,
         :status_id,
+        :assignee_id,
         :due_date, tag_ids: [],
+        watcher_ids: [],
         attachments: [],
         remove_attachments: []
       ])

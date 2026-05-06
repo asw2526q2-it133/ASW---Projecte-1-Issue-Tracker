@@ -1,185 +1,192 @@
-<p style="color: #27ae60; position: absolute; top: 10px; right: 10px; z-index: 1000; font-weight: bold;"><%= notice %></p>
-
-<div class="taiga-show-container" style="display: flex; max-width: 1200px; margin: 0 auto; padding: 30px; gap: 30px; font-family: sans-serif;">
+<div class="taiga-show-container" style="display: flex; max-width: 1200px; margin: 0 auto; padding: 30px; gap: 40px; font-family: sans-serif;">
   
-  <%# COLUMNA PRINCIPAL (70%) %>
-  <div class="issue-main-content" style="flex: 1;">
+  <%# COLUMNA PRINCIPAL (ESQUERRA)%>
+  <div class="issue-main-content" style="flex: 1; min-width: 0;">
     
-    <div class="issue-header-show" style="margin-bottom: 20px; border-bottom: 1px solid #e0e6ed; padding-bottom: 20px;">
-      <span class="issue-number-big" style="color: #008aa8; font-size: 24px; font-weight: bold; margin-right: 10px;">#<%= @issue.id %></span>
-      <h1 style="display: inline; font-size: 24px; color: #3c4b5f; font-weight: 500; margin: 0;"><%= @issue.subject %></h1>
-    </div>
-
-    <div class="issue-description-box" style="margin-bottom: 30px; color: #20242a; line-height: 1.6;">
-      <h3 style="font-size: 14px; color: #8a9ab0; text-transform: uppercase; margin-bottom: 10px;">Description</h3>
-      <div class="description-text" style="background: #fdfdfd; padding: 20px; border: 1px solid #e0e6ed; border-radius: 4px;">
-        <%= @issue.description.presence || "No description provided." %>
+    <%#CAPÇALERA I BOTONS %>
+    <div class="issue-header-show" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #e0e6ed; padding-bottom: 20px;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <span style="color: #008aa8; font-size: 26px; font-weight: bold; margin: 0;">#<%= @issue.id %></span>
+        <h1 style="font-size: 24px; color: #3c4b5f; font-weight: 500; margin: 0;"><%= @issue.subject %></h1>
+      </div>
+      
+      <div class="show-actions" style="display: flex; gap: 10px; flex-shrink: 0; margin: 0;">
+        <%= link_to "Edit", edit_issue_path(@issue), style: "background: #5adad1; color: #fff; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 13px; transition: background 0.2s;" %>
+        <%= button_to "Delete", @issue, method: :delete, data: { turbo_confirm: "Are you sure?" }, style: "background: #e74c3c; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: background 0.2s;" %>
+        <%= link_to "Back", issues_path, style: "background: #f0f3f5; color: #3c4b5f; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 13px; transition: background 0.2s;" %>
       </div>
     </div>
 
-    <%# --- SECCIÓN: ADJUNTOS --- %>
+    <%# DESCRIPCIÓ %>
+    <div class="issue-description-box" style="margin-bottom: 35px;">
+      <h3 style="font-size: 12px; color: #8a9ab0; text-transform: uppercase; margin-bottom: 10px; font-weight: bold;">Description</h3>
+      <div class="description-text" style="background: #fdfdfd; padding: 25px; border: 1px solid #e0e6ed; border-radius: 6px; color: #20242a; line-height: 1.6; font-size: 14px; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word;"><%= @issue.description.presence || "No description provided." %></div>
+    </div>
+
+    <%# ADJUNTS %>
     <div class="issue-attachments-box" style="margin-bottom: 40px;">
-      <h3 style="font-size: 14px; color: #8a9ab0; text-transform: uppercase; margin-bottom: 10px;">
+      <h3 style="font-size: 12px; color: #8a9ab0; text-transform: uppercase; margin-bottom: 10px; font-weight: bold;">
         Attachments (<%= @issue.attachments.count %>)
       </h3>
       
       <% if @issue.attachments.attached? %>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
           <% @issue.attachments.each do |file| %>
-            <div style="background: #fdfdfd; border: 1px solid #e0e6ed; border-radius: 4px; padding: 12px; display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 24px;">📎</span>
+            <div style="background: #fff; border: 1px solid #e0e6ed; border-radius: 6px; padding: 12px 15px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+              <span style="font-size: 20px;">📎</span>
               <div style="overflow: hidden; flex: 1;">
                 <%= link_to file.filename.to_s, rails_blob_path(file, disposition: "attachment"), 
                     style: "display: block; font-size: 13px; color: #008aa8; text-decoration: none; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;",
                     target: "_blank", title: file.filename.to_s %>
-                <span style="font-size: 11px; color: #8a9ab0;">
-                  <%= number_to_human_size(file.byte_size) %>
-                </span>
+                <span style="font-size: 11px; color: #8a9ab0;"><%= number_to_human_size(file.byte_size) %></span>
               </div>
             </div>
           <% end %>
         </div>
       <% else %>
-        <div style="background: #fdfdfd; padding: 20px; border: 1px solid #e0e6ed; border-radius: 4px; color: #8a9ab0; font-size: 13px; font-style: italic;">
+        <div style="background: #fdfdfd; padding: 20px; border: 1px dashed #e0e6ed; border-radius: 6px; color: #8a9ab0; font-size: 13px; font-style: italic; text-align: center;">
           No attachments provided.
         </div>
       <% end %>
     </div>
 
-    <div class="show-actions" style="margin-bottom: 40px; display: flex; gap: 15px;">
-      <%= link_to "Edit this issue", edit_issue_path(@issue), class: "btn-edit", style: "background: #5adad1; color: #fff; padding: 8px 15px; text-decoration: none; border-radius: 3px; font-weight: bold; font-size: 13px;" %>
-      <%= button_to "Delete", @issue, method: :delete, class: "btn-delete", data: { turbo_confirm: "Are you sure?" }, style: "background: #e74c3c; color: #fff; border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 13px;" %>
-      <%= link_to "Back to issues", issues_path, class: "btn-back", style: "color: #8a9ab0; padding: 8px 0; text-decoration: none; font-weight: bold; font-size: 13px; margin-left: 10px;" %>
-    </div>
+    <%# COMENTARIS %>
+    <div class="comments-section" style="border-top: 2px solid #e0e6ed; padding-top: 30px;">
+      <h3 style="color: #3c4b5f; font-size: 18px; margin-bottom: 20px; font-weight: 500;">
+        Comments (<%= @issue.comments.count %>)
+      </h3>
 
-    <%# --- SECCIÓN: COMENTARIOS Y ACTIVIDADES LADO A LADO --- %>
-    <div class="issue-history-section" style="border-top: 2px solid #e0e6ed; padding-top: 30px; margin-top: 20px;">
-      <div style="display: flex; gap: 30px; align-items: flex-start;">
-        
-        <%# COLUMNA IZQUIERDA: COMENTARIOS (60%) %>
-        <div class="comments-column" style="flex: 1.5;">
-          <h3 class="comments-title" style="color: #3c4b5f; font-size: 16px; margin-bottom: 20px;">
-            Comments (<%= @issue.comments.count %>)
-          </h3>
-
-          <div id="comments-list">
-            <% if @issue.comments.any? %> 
-              <% @issue.comments.order(created_at: :asc).each do |comment| %>
-                <div class="comment" style="background: #fff; padding: 15px; border: 1px solid #e0e6ed; border-radius: 4px; margin-bottom: 15px; display: flex; gap: 15px;">
-                  <div class="avatar" style="width: 35px; height: 35px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;"> 
-                    <%= comment.user&.name&.first&.upcase || "?" %> 
-                  </div>
-                  <div style="flex: 1;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;"> 
-                      <strong style="color: #008aa8; font-size: 14px;"><%= comment.user&.name || "Unknown" %></strong>
-                      <span style="color: #8a9ab0; font-size: 12px;"><%= comment.created_at.strftime("%d %b %Y, %H:%M") %></span> 
-                    </div>
-                    <div style="color: #20242a; font-size: 14px; margin-bottom: 10px;"> 
-                      <%= simple_format(comment.content) %> 
-                    </div>
-                    <% if comment.user == current_user %>
-                      <div style="text-align: right; font-size: 12px;">
-                        <%= link_to "Edit", edit_comment_path(comment), style: "color: #8a9ab0; text-decoration: none; margin-right: 10px;" %> 
-                        <%= link_to "Delete", comment_path(comment), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, style: "color: #e74c3c; text-decoration: none;" %>
-                      </div>
-                    <% end %>
-                  </div>
+      <div id="comments-list">
+        <% if @issue.comments.any? %> 
+          <% @issue.comments.order(created_at: :asc).each do |comment| %>
+            <div class="comment" style="background: #fff; padding: 20px; border: 1px solid #e0e6ed; border-radius: 6px; margin-bottom: 15px; display: flex; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+              <div style="flex-shrink: 0;"> 
+                <%= user_avatar(comment.user, size: 40) %>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center;"> 
+                  <% if comment.user %>
+                    <%= link_to comment.user.name, profile_path(comment.user), style: "color: #008aa8; font-size: 14px; font-weight: bold; text-decoration: none;" %>
+                  <% else %>
+                    <strong style="color: #008aa8; font-size: 14px;">Unknown</strong>
+                  <% end %>
+                  <span style="color: #8a9ab0; font-size: 12px;"><%= comment.created_at.strftime("%d %b %Y, %H:%M") %></span> 
                 </div>
-              <% end %>
-            <% else %>
-              <p style="color: #8a9ab0; font-style: italic;">No comments yet.</p>
-            <% end %>
-          </div>
-
-          <%# Formulario para añadir comentario %>
-          <div class="new-comment-box" style="margin-top: 30px; background: #fdfdfd; padding: 20px; border: 1px solid #e0e6ed; border-radius: 4px;"> 
-            <h4 style="margin-top: 0; color: #3c4b5f; font-size: 14px;">Add a comment</h4>
-            <%= form_with(model: [@issue, Comment.new], local: true) do |f| %> 
-              <%= f.text_area :content, placeholder: "Leave a comment...", rows: 3, style: "width: 100%; padding: 10px; border: 1px solid #c2cfd6; border-radius: 4px; resize: vertical; margin-bottom: 10px; box-sizing: border-box;" %>
-              <%= f.submit "Save Comment", style: "background: #5adad1; color: #fff; border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 13px;" %> 
-            <% end %>
-          </div>
-        </div>
-
-        <%# COLUMNA DERECHA: ACTIVIDADES (40%) %>
-        <div class="activities-column" style="flex: 1; background: #fdfdfd; border: 1px solid #e0e6ed; border-radius: 4px; padding: 20px;">
-          <h3 style="color: #3c4b5f; font-size: 16px; margin-bottom: 20px;">
-            Issue Activity
-          </h3>
-          
-          <div class="timeline-compact" style="position: relative; padding-left: 25px; padding-top: 30px;">
-            <% if @issue.activities.any? %>
-              <% @issue.activities.order(created_at: :desc).each do |activity| %>
-                <div class="activity-item" style="position: relative; margin-bottom: 20px;">
-                  <div style="position: absolute; left: -21px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #5adad1; border: 2px solid #fff; box-shadow: 0 0 0 1px #e0e6ed; z-index: 2;"></div>
-                  
-                  <div style="font-size: 13px; color: #3c4b5f;">
-                    <strong style="color: #008aa8;"><%= activity.user&.name || "System" %></strong> 
-                    <span style="color: #73818f;"><%= activity.action %></span> 
-                    <div style="color: #8a9ab0; font-size: 11px; margin-top: 2px;">
-                      <%= activity.created_at.strftime("%H:%M - %d %b") %> 
-                    </div>
-                    <% if activity.changes_log.present? %> 
-                      <div style="margin-top: 5px; padding: 5px 10px; background: #f8f9fa; border-left: 2px solid #ced4da; font-size: 12px; color: #6c757d; font-style: italic;">
-                        <%= activity.changes_log %> 
-                      </div>
-                    <% end %>
-                  </div>
+                <div style="color: #3c4b5f; font-size: 14px; line-height: 1.5; margin-bottom: 10px;"> 
+                  <%= simple_format(comment.content, style: "margin: 0;") %> 
                 </div>
-              <% end %>
-            <% else %>
-              <p style="color: #8a9ab0; font-size: 13px; font-style: italic;">No history recorded.</p>
-            <% end %>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div> <%# Fin de la columna principal %>
-
-  <%# SIDEBAR (30%) %>
-  <aside class="issue-sidebar" style="width: 280px; flex-shrink: 0; background: #fdfdfd; border: 1px solid #e0e6ed; border-radius: 4px; padding: 20px; height: fit-content;">
-    
-    <div class="sidebar-item" style="margin-bottom: 20px;">
-      <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">STATUS</label>
-      <div class="status-badge" style="display: inline-block; background-color: <%= @issue.status&.color || '#e1f5fe' %>; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; text-transform: uppercase;">
-        <%= @issue.status&.name || "New" %>
-      </div>
-    </div>
-
-    <% [
-      { label: "TYPE", color: @issue.issue_type&.color, name: @issue.issue_type&.name || "Sin tipo" },
-      { label: "SEVERITY", color: @issue.severity&.color, name: @issue.severity&.name || "Normal" },
-      { label: "PRIORITY", color: @issue.priority&.color, name: @issue.priority&.name || "Normal" }
-    ].each do |meta| %>
-      <div class="sidebar-item" style="margin-bottom: 20px;">
-        <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;"><%= meta[:label] %></label>
-        <div class="meta-value" style="display: flex; align-items: center; font-size: 14px; color: #3c4b5f;">
-          <span class="dot" style="width: 10px; height: 10px; border-radius: 50%; background-color: <%= meta[:color] || '#ccc' %>; margin-right: 8px;"></span>
-          <%= meta[:name] %>
-        </div>
-      </div>
-    <% end %>
-
-    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-
-    <div class="sidebar-item" style="margin-bottom: 20px;">
-      <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">ASSIGNED TO</label>
-      <div class="user-info" style="display: flex; align-items: center; font-size: 14px; color: #3c4b5f;">
-        <% if @issue.user %>
-          <div class="avatar" style="width: 24px; height: 24px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; margin-right: 8px;"><%= @issue.user.name.first.upcase %></div>
-          <span><%= @issue.user.name %></span>
+                <% if comment.user == current_user %>
+                  <div style="text-align: right; font-size: 12px; margin-top: 10px;">
+                    <%= link_to "Edit", edit_comment_path(comment), style: "color: #8a9ab0; text-decoration: none; margin-right: 15px; font-weight: bold;" %> 
+                    <%= link_to "Delete", comment_path(comment), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, style: "color: #e74c3c; text-decoration: none; font-weight: bold;" %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
         <% else %>
-          <div class="avatar" style="width: 24px; height: 24px; background: #eee; color: #999; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; margin-right: 8px;">?</div>
-          <span>Unassigned</span>
+          <p style="color: #8a9ab0; font-style: italic; font-size: 14px;">No comments yet.</p>
+        <% end %>
+      </div>
+
+      <%# AFEGIR COMENTARI %>
+      <div class="new-comment-box" style="margin-top: 30px; background: #fdfdfd; padding: 20px; border: 1px solid #e0e6ed; border-radius: 6px;"> 
+        <h4 style="margin-top: 0; color: #3c4b5f; font-size: 14px; margin-bottom: 15px;">Add a comment</h4>
+        <%= form_with(model:[@issue, Comment.new], local: true) do |f| %> 
+          <%= f.text_area :content, placeholder: "Leave a comment...", rows: 4, style: "width: 100%; padding: 15px; border: 1px solid #c2cfd6; border-radius: 4px; resize: vertical; margin-bottom: 15px; box-sizing: border-box; font-family: inherit; font-size: 14px;" %>
+          <div style="text-align: right;">
+            <%= f.submit "Post Comment", style: "background: #5adad1; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: background 0.2s;" %> 
+          </div>
         <% end %>
       </div>
     </div>
+  </div> 
 
-    <div class="sidebar-item">
-      <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">MODIFIED</label>
-      <div class="meta-value small" style="font-size: 13px; color: #73818f;"><%= @issue.updated_at.strftime("%d %b %Y, %H:%M") %></div>
+  <%# COLUMNA LATERAL (DRETA)                    %>
+  <aside class="issue-sidebar" style="width: 300px; flex-shrink: 0;">
+    
+    <%# CAIXA DE METADADES %>
+    <div style="background: #fdfdfd; border: 1px solid #e0e6ed; border-radius: 6px; padding: 25px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      
+      <div class="sidebar-item" style="margin-bottom: 20px;">
+        <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 8px;">STATUS</label>
+        <div class="status-badge" style="display: inline-block; background-color: <%= @issue.status&.color || '#e1f5fe' %>; color: #fff; padding: 6px 14px; border-radius: 15px; font-size: 12px; font-weight: bold; text-transform: uppercase;">
+          <%= @issue.status&.name || "New" %>
+        </div>
+      </div>
+
+      <%[
+        { label: "TYPE", color: @issue.issue_type&.color, name: @issue.issue_type&.name || "Sin tipo" },
+        { label: "SEVERITY", color: @issue.severity&.color, name: @issue.severity&.name || "Normal" },
+        { label: "PRIORITY", color: @issue.priority&.color, name: @issue.priority&.name || "Normal" }
+      ].each do |meta| %>
+        <div class="sidebar-item" style="margin-bottom: 15px;">
+          <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;"><%= meta[:label] %></label>
+          <div class="meta-value" style="display: flex; align-items: center; font-size: 14px; color: #3c4b5f; font-weight: 500;">
+            <span class="dot" style="width: 10px; height: 10px; border-radius: 50%; background-color: <%= meta[:color] || '#ccc' %>; margin-right: 10px;"></span>
+            <%= meta[:name] %>
+          </div>
+        </div>
+      <% end %>
+
+      <hr style="border: 0; border-top: 1px solid #e0e6ed; margin: 20px 0;">
+
+      <div class="sidebar-item" style="margin-bottom: 20px;">
+        <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 10px;">ASSIGNED TO</label>
+        <div class="user-info" style="display: flex; align-items: center; font-size: 14px; color: #3c4b5f; font-weight: 500;">
+          <% if @issue.assignee %>
+            <div style="margin-right: 10px; display: flex;">
+              <%= user_avatar(@issue.assignee, size: 28) %>
+            </div>
+            <%= link_to @issue.assignee.name, profile_path(@issue.assignee), style: "color: #3c4b5f; text-decoration: none;" %>
+          <% else %>
+            <div style="width: 28px; height: 28px; background: #eee; color: #999; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; margin-right: 10px;">?</div>
+            <span style="color: #8a9ab0; font-style: italic;">Unassigned</span>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="sidebar-item">
+        <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">MODIFIED</label>
+        <div class="meta-value small" style="font-size: 13px; color: #73818f;"><%= @issue.updated_at.strftime("%d %b %Y, %H:%M") %></div>
+      </div>
     </div>
+
+    <%# CAIXA D'ACTIVITATS (Amb scroll) %>
+    <div style="background: #fff; border: 1px solid #e0e6ed; border-radius: 6px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <h3 style="font-size: 12px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+        Issue Activity
+      </h3>
+      
+      <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+        <div class="timeline-compact" style="border-left: 2px solid #e0e6ed; margin-left: 10px; padding-left: 20px;">
+          <% if @issue.activities.any? %>
+            <% @issue.activities.order(created_at: :desc).each do |activity| %>
+              <div class="activity-item" style="position: relative; margin-bottom: 25px;">
+                <%# Punt de la línia temporal %>
+                <div style="position: absolute; left: -27px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #5adad1; border: 2px solid #fff; box-shadow: 0 0 0 1px #e0e6ed;"></div>
+                
+                <div style="font-size: 13px; color: #3c4b5f; line-height: 1.4;">
+                  <strong style="color: #008aa8;"><%= activity.user&.name || "System" %></strong><br>
+                  <span style="color: #555;"><%= activity.action %></span> 
+                  <div style="color: #8a9ab0; font-size: 11px; margin-top: 4px;">
+                    <%= activity.created_at.strftime("%H:%M - %d %b") %> 
+                  </div>
+                  <% if activity.changes_log.present? %> 
+                    <div style="margin-top: 6px; padding: 6px 10px; background: #f8f9fa; border-left: 2px solid #ced4da; font-size: 12px; color: #6c757d; font-style: italic;">
+                      <%= simple_format(activity.changes_log, style: "margin: 0;") %> 
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <p style="color: #8a9ab0; font-size: 13px; font-style: italic; margin: 0;">No history recorded.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
   </aside>
 
 </div>

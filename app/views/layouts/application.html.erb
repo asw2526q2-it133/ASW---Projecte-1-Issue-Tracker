@@ -11,19 +11,18 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%# "Rails" Enable PWA manifest for installable apps (enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%# inclou stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
     <style>
-      /* Quitamos los márgenes por defecto para que la barra toque los bordes */
       body {
         margin: 0;
         padding: 0;
@@ -31,7 +30,6 @@
         background-color: #f6f8f9;
       }
       
-      /* Estilo para que el botón del perfil cambie de color al pasar el ratón */
       .profile-nav-link:hover {
         background: #3a424e !important;
       }
@@ -39,7 +37,7 @@
   </head>
 
   <body>
-    <%# --- BARRA DE NAVEGACIÓN SUPERIOR (Se verá en toda la app) --- %>
+    <%# barra nav app %>
     <nav style="background: #20242a; padding: 0 30px; display: flex; justify-content: space-between; align-items: center; height: 60px;">
     
     <div style="display: flex; align-items: center; gap: 30px;">
@@ -50,12 +48,12 @@
     <div style="display: flex; align-items: center; gap: 20px;">
       <% if user_signed_in? %>
         
-        <%# 1. Enlace a Ajustes %>
+        <%# settings btn %>
         <%= link_to statuses_path, style: "color: #8a9ab0; text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold;" do %>
           <span style="font-size: 16px;">⚙️</span> SETTINGS
         <% end %>
 
-        <%# 2. NUEVO: Enlace al Perfil (con Avatar) %>
+        <%# perfil link %>
         <%= link_to profile_path(current_user), class: "profile-nav-link", style: "display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; background: #2c323b; padding: 4px 15px 4px 4px; border-radius: 20px; transition: background 0.2s; margin-left: 10px;" do %>
           <%= user_avatar(current_user, size: 28) %>
           <span style="font-size: 13px; font-weight: 500;">
@@ -63,12 +61,12 @@
           </span>
         <% end %>
 
-        <%# 3. Botón de Logout (mantenemos tu estilo rojo) %>
+        <%# logout btn %>
         <%= button_to "LOGOUT", destroy_user_session_path, method: :delete, 
             style: "background: none; border: 1px solid #ff6666; color: #ff6666; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 10px;" %>
             
       <% else %>
-        <%# Si no está logueado solo se ve el botón de Sign in with GitHub %>
+        <%# si no log in mostrar sign in with GitHub %>
         <%= button_to user_github_omniauth_authorize_path, data: { turbo: false }, 
             style: "background: #444; border: none; color: #fff; padding: 8px 15px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;" do %>
           Sign in with GitHub
@@ -78,7 +76,7 @@
 
   </nav>
 
-    <%# --- ZONA DE AVISOS Y ERRORES --- %>
+    <%# zona avisos i errors %>
     <% if notice %>
       <div style="background-color: #2ecc71; color: white; padding: 12px 30px; text-align: center; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <%= notice %>
@@ -90,7 +88,7 @@
       </div>
     <% end %>
 
-    <%# Aquí es donde Rails inyecta el contenido de cada pantalla %>
+    <%# contenido principal %>
     <%= yield %>
     
   </body>

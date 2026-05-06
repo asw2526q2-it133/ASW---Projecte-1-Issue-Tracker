@@ -82,3 +82,7 @@ group :test do
   gem "selenium-webdriver"
 end
 gem "aws-sdk-s3", "~> 1.219"
+
+gem "fiddle"
+
+gem "rack-cors"
