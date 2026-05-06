@@ -30,8 +30,8 @@
   </div>
 
   <div>
-    <strong>User:</strong>
-    <%= issue.user.name %>
+    <strong>Assignee:</strong>
+    <%= issue.assignee&.name || 'Unassigned' %>
   </div>
 
 </div>
