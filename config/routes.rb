@@ -53,3 +53,5 @@ namespace :api do
       end
     end
   end
+  root "issues#index"
+end
