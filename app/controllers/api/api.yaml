@@ -122,13 +122,56 @@ security:
 paths:
   /issues:
     get:
-      summary: Llista totes les issues
-      description: Retorna un array amb totes les issues del sistema en format JSON.
+      summary: Llistar issues per nom
+      description: |
+        Retorna un llistat d'issues amb les següents funcionalitats:
+        - **Filtratge**: Per nom de tipus, estat, prioritat i severitat (ex: 'Bug', 'Open').
+        - **Cerca**: Per paraula clau en el 'subject' i 'description' (paràmetre 'q').
+        - **Ordenació**: Per nom de les relacions o dates.
       tags:
         - Issues
+      parameters:
+        - name: type
+          in: query
+          description: "Filtrar pel NOM del tipus (ex: Bug, Feature)"
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: "Filtrar pel NOM de l'estat (ex: New, Open, Closed)"
+          schema:
+            type: string
+        - name: priority
+          in: query
+          description: "Filtrar pel NOM de la prioritat (ex: Low, Normal, High)"
+          schema:
+            type: string
+        - name: severity
+          in: query
+          description: "Filtrar pel NOM de la severitat (ex: Wishlist, Minor, Critical)"
+          schema:
+            type: string
+        - name: q
+          in: query
+          description: Text a cercar en el Subjecte o la Descripció
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Camp per ordenar els resultats
+          schema:
+            type: string
+            enum: [type, status, priority, severity, issue_no, modified, due_date]
+        - name: direction
+          in: query
+          description: Direcció de l'ordenació
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
       responses:
         '200':
-          description: Operació exitosa.
+          description: Llistat d'issues obtingut correctament.
           content:
             application/json:
               schema:
@@ -136,7 +179,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Issue'
         '401':
-          description: No autoritzat. Cal una API Key.
+          description: No autoritzat. L'API Key és absent o incorrecta.
+  
           
     post:
       summary: Crea una nova issue
