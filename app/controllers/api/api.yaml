@@ -140,7 +140,7 @@ paths:
           
     post:
       summary: Crea una nova issue
-      description: Afegeix una nova incidència al sistema. Fa servir multipart/form-data per permetre pujar fitxers des de l'editor.
+      description: Afegeix una nova incidència al sistema. Fa servir multipart/form-data per permetre pujar fitxers al crear.
       tags:
         - Issues
       requestBody:
@@ -191,7 +191,7 @@ paths:
   /issues/{id}:
     get:
       summary: Obté una issue concreta
-      description: Retorna les dades d'una incidència concreta incloent els seus comentaris i activitats (Tasques de la US90).
+      description: Retorna les dades d'una incidència concreta incloent els seus comentaris i activitats.
       tags:
         - Issues
       parameters:
@@ -213,9 +213,58 @@ paths:
           description: No autoritzat. Api-Key invàlida o absent.
         '404':
           description: Error. La issue sol·licitada no existeix.
+
+    patch:
+      summary: Actualitza dades i comentaris
+      description: Actualitza els camps generals, la data límit (due_date) i els comentaris.
+      tags:
+        - Issues
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                issue:
+                  type: object
+                  properties:
+                    subject:
+                      type: string
+                      example: "Nou títol corregit"
+                    description:
+                      type: string
+                    due_date:
+                      type: string
+                      format: date
+                      example: "2024-12-31"
+                    status_id:
+                      type: integer
+                    comments_attributes:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          body:
+                            type: string
+                            example: "Afegint un comentari des de l'API"
+      responses:
+        '200':
+          description: Issue actualitzada.
+        '403':
+          description: No tens permís per modificar-la.
+        '422':
+          description: Error de validació.
+
     delete:
       summary: Elimina una issue
-      description: Esborra una incidència del sistema. Només ho pot fer l'usuari creador de la issue.
+      description: Esborra una incidència sencera del sistema.
       tags:
         - Issues
       parameters:
@@ -226,13 +275,113 @@ paths:
             type: integer
       responses:
         '204':
-          description: Issue eliminada correctament (No retorna contingut).
-        '401':
-          description: No autoritzat. Cal una API Key.
+          description: Issue eliminada correctament.
         '403':
-          description: Prohibit. No tens permís per eliminar aquesta issue (no ets el creador).
+          description: No tens permís.
         '404':
           description: La issue no existeix.
+
+  /issues/{id}/watchers:
+    post:
+      summary: Afegeix un watcher
+      description: Afegeix un usuari com a observador de la issue. Genera activitat automàtica.
+      tags:
+        - Watchers & Attachments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                watcher_id:
+                  type: integer
+                  example: 2
+      responses:
+        '200':
+          description: Watcher afegit correctament.
+        '404':
+          description: Usuari no trobat.
+
+  /issues/{id}/watchers/{watcher_id}:
+    delete:
+      summary: Elimina un watcher
+      description: Treu un usuari de la llista d'observadors. Genera activitat automàtica.
+      tags:
+        - Watchers & Attachments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: watcher_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Watcher eliminat.
+        '404':
+          description: Usuari no trobat.
+
+  /issues/{id}/attachments:
+    post:
+      summary: Afegeix un fitxer adjunt
+      description: Puja un fitxer nou a la issue. Genera activitat automàtica.
+      tags:
+        - Watchers & Attachments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                attachment:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Fitxer adjuntat.
+        '422':
+          description: Cap fitxer proporcionat.
+
+  /issues/{id}/attachments/{attachment_id}:
+    delete:
+      summary: Elimina un fitxer adjunt
+      description: Esborra un fitxer concret usant el seu ID. Genera activitat automàtica.
+      tags:
+        - Watchers & Attachments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: attachment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Fitxer eliminat correctament.
+        '404':
+          description: Fitxer no trobat.
   #----------------------------------------------------------
   /issue_types:
     get:
