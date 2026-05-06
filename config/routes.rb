@@ -25,6 +25,7 @@ Rails.application.routes.draw do
     resources :issues
     resources :issue_types
     resources :tags
+    resources :severities
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
