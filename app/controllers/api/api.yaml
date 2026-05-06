@@ -17,7 +17,7 @@ components:
       name: X-Api-Key
 
   schemas:
-    # --- NOU: Esquemes per a Comentaris i Activitats (US90) ---
+    # Esquemes per a Comentaris i Activitats
     Comment:
       type: object
       properties:
@@ -46,7 +46,6 @@ components:
         created_at:
           type: string
           format: date-time
-    # ---------------------------------------------------------
 
     Issue:
       type: object
@@ -69,7 +68,7 @@ components:
         created_at:
           type: string
           format: date-time
-        # --- NOU: Afegim les llistes a la Issue (US90) ---
+        # Afegim les llistes a la Issue
         comments:
           type: array
           items:
@@ -78,7 +77,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Activity'
-    # -------------------------------------------------
+   
     IssueType:
       type: object
       properties:
@@ -278,6 +277,48 @@ paths:
           description: No autoritzat. Api-Key invàlida o absent.
         '422':
           description: Error de validació (ex. falta el subject).
+
+  /issues/bulk:
+    post:
+      summary: Creació massiva d'issues (Bulk Insert)
+      description: Permet crear múltiples issues de cop enviant un text amb salts de línia. Requereix API Key.
+      tags:
+        - Issues
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bulk_data:
+                  type: string
+                  description: Títols de les issues separats per salts de línia (\n)
+                  example: "Primera issue des de l'API\nSegona issue des de l'API\nTercera issue des de l'API"
+      responses:
+        '201':
+          description: Issues creades correctament.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "S'han creat 3 issues correctament"
+                  issues:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        subject:
+                          type: string
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '422':
+          description: Error de validació (no s'han enviat dades).
 
   /issues/{id}:
     get:

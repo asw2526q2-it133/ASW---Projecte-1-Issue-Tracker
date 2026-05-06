@@ -4,23 +4,23 @@ class Api::IssuesController < Api::ApplicationController
 
 # GET /api/issues
   def index
-    # 1. Iniciem amb l'scope base i fem joins per poder filtrar/ordenar per noms
+    # Iniciem amb l'scope base i fem joins per poder filtrar/ordenar per noms
     # Fem 'left_outer_joins' per no perdre issues que puguin tenir algun camp buit
     @issues = Issue.left_outer_joins(:issue_type, :status, :priority, :severity)
 
-    # 2. FILTRATGE PER NOM (Filtres "include")
+    # FILTRATGE PER NOM (Filtres "include")
     @issues = @issues.where(issue_types: { name: params[:type] }) if params[:type].present?
     @issues = @issues.where(statuses: { name: params[:status] }) if params[:status].present?
     @issues = @issues.where(priorities: { name: params[:priority] }) if params[:priority].present?
     @issues = @issues.where(severities: { name: params[:severity] }) if params[:severity].present?
 
-    # 3. CERCA (Subject i Description)
+    # CERCA (Subject i Description)
     if params[:q].present?
       search_term = "%#{params[:q]}%"
       @issues = @issues.where("issues.subject LIKE ? OR issues.description LIKE ?", search_term, search_term)
     end
 
-    # 4. ORDENACIÓ PER NOM O DATA
+    # ORDENACIÓ PER NOM O DATA
     # Ara l'ordenació de tipus, estat, etc., es fa pel camp 'name' de la taula relacionada
     sort_whitelist = {
       "type"     => "issue_types.name",
@@ -37,7 +37,7 @@ class Api::IssuesController < Api::ApplicationController
 
     @issues = @issues.order("#{sort_column} #{sort_direction}")
 
-    # 5. SERIALITZACIÓ I RESPOSTA
+    # SERIALITZACIÓ I RESPOSTA
     render json: @issues.as_json(
       include: {
         user: { only: [:id, :name, :email] },
@@ -102,6 +102,43 @@ class Api::IssuesController < Api::ApplicationController
     else
       render json: { errors: @issue.errors.full_messages }, status: :unprocessable_entity
     end
+  end
+
+  def bulk
+    # Acceptem string amb salts de línia o un array directe
+    if params[:bulk_data].present?
+      titles = params[:bulk_data].split("\n").map(&:strip).reject(&:empty?)
+    elsif params[:subjects].is_a?(Array)
+      titles = params[:subjects].map(&:strip).reject(&:empty?)
+    else
+      return render json: { error: "Cal proporcionar 'bulk_data' (string amb salts de línia) o 'subjects' (array de strings)" }, status: :unprocessable_entity
+    end
+
+    if titles.empty?
+      return render json: { error: "No s'han proporcionat títols vàlids" }, status: :unprocessable_entity
+    end
+
+    # dades per a cada issue
+    issues_to_create = titles.map do |title|
+      {
+        subject: title,
+        status_id: Status.first&.id,
+        priority_id: Priority.first&.id,
+        severity_id: Severity.first&.id,
+        issue_type_id: IssueType.first&.id,
+        user_id: current_user.id,
+        created_at: Time.current,
+        updated_at: Time.current
+      }
+    end
+
+    # Creem totes les issues de cop
+    created_issues = Issue.create(issues_to_create)
+
+    render json: { 
+      message: "S'han creat #{created_issues.size} issues correctament", 
+      issues: created_issues.as_json(only: [:id, :subject]) 
+    }, status: :created
   end
 
   # PUT/PATCH /api/issues/:id

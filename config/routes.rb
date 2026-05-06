@@ -22,7 +22,12 @@ Rails.application.routes.draw do
 
   # Rutes de l'API (Editat per la tasca US90)
   namespace :api do
-    resources :issues
+    resources :issues do
+      collection do
+        post :bulk
+      end
+      resources :comments, only: [:index, :create, :update, :destroy]
+    end
     resources :issue_types
     resources :severities
     resources :statuses
