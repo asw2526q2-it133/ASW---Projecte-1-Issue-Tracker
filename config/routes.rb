@@ -18,14 +18,14 @@ Rails.application.routes.draw do
     end
   end
   resources :users
-  resources :profiles, only: [ :show, :edit, :update ]
+  resources :profiles, only: [ :show, :edit, :update, :destroy ]
 
   # Rutes de l'API (Editat per la tasca US90)
   namespace :api do
     resources :issues
     resources :issue_types
     resources :severities
-    resources :users, only: [:show, :update] do
+    resources :users, only: [ :show, :update ] do
       member do
         get :assigned_issues
         get :watched_issues

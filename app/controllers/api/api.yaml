@@ -213,6 +213,26 @@ paths:
           description: No autoritzat. Api-Key invàlida o absent.
         '404':
           description: Error. La issue sol·licitada no existeix.
+    delete:
+      summary: Elimina una issue
+      description: Esborra una incidència del sistema. Només ho pot fer l'usuari creador de la issue.
+      tags:
+        - Issues
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Issue eliminada correctament (No retorna contingut).
+        '401':
+          description: No autoritzat. Cal una API Key.
+        '403':
+          description: Prohibit. No tens permís per eliminar aquesta issue (no ets el creador).
+        '404':
+          description: La issue no existeix.
   #----------------------------------------------------------
   /issue_types:
     get:
