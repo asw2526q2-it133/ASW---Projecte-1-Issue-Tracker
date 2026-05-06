@@ -7,7 +7,8 @@ info:
 servers:
   - url: http://localhost:10000/api
     description: Servidor Local
-  # Afegeix aquí el de Render quan el tinguis, ex: url: https://la-teva-app.onrender.com/api
+  - url: https://asw-projecte-1-issue-tracker-1278.onrender.com/api
+    description: Servidor de Render
 
 components:
   securitySchemes:
