@@ -1,7 +1,7 @@
 class Api::IssuesController < Api::ApplicationController
   # MODIFICAT: Afegits els nous mètodes al set_issue
   before_action :set_issue, only: [ :show, :update, :destroy, :add_watcher, :remove_watcher, :add_attachment, :remove_attachment ]
-  # before_action :authorize_issue_creator!, only: [ :update, :destroy ]
+  before_action :authorize_issue_creator!, only: [ :update, :destroy ]
 
   # GET /api/issues
   def index
