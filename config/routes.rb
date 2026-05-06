@@ -20,31 +20,24 @@ Rails.application.routes.draw do
   resources :users
   resources :profiles, only: [ :show, :edit, :update, :destroy ]
 
-namespace :api do
+  # --- RUTES DE L'API (Tasca US90 i US92 amb rutes separades) ---
+  namespace :api do
     resources :issues do
-      # Rutes de col·lecció (afecten a totes les issues)
-      collection do
-        post :bulk
-      end
-      
-      # Rutes de membre (afecten a una issue concreta, ex: /issues/1/watchers)
       member do
+        # Rutes extres per a la issue concreta
         post :watchers, to: "issues#add_watcher"
         delete "watchers/:watcher_id", to: "issues#remove_watcher"
         post :attachments, to: "issues#add_attachment"
         delete "attachments/:attachment_id", to: "issues#remove_attachment"
       end
-
-      # Rutes niades per als comentaris
-      resources :comments, only: [:index, :create, :update, :destroy]
     end
 
     resources :issue_types
     resources :severities
+
     resources :statuses
     resources :priorities
     resources :tags
-    
     resources :users, only: [ :show, :update ] do
       member do
         get :assigned_issues
@@ -53,3 +46,7 @@ namespace :api do
       end
     end
   end
+
+  get "up" => "rails/health#show", as: :rails_health_check
+  root "issues#index"
+end
