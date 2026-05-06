@@ -97,6 +97,25 @@ components:
         updated_at:
           type: string
           format: date-time
+    #-------------------------------------------------
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Frontend"
+        color:
+          type: string
+          example: "#3498db"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
 security:
   - ApiKeyAuth: []
 
@@ -345,3 +364,153 @@ paths:
           description: Tipus o replacement_id no trobat.
         '422':
           description: Error. Falta el replacement_id, s'està intentant esborrar l'últim registre, etc.
+  /tags:
+    get:
+      summary: Llista tots els tags
+      description: Retorna un array amb tots els tags disponibles al sistema.
+      tags:
+        - Tags
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '401':
+          description: No autoritzat. Cal una API Key.
+    post:
+      summary: Crea un nou tag
+      description: Afegeix un nou tag al sistema.
+      tags:
+        - Tags
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tag:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Nom del tag (Obligatori i únic)
+                      example: "Backend"
+                    color:
+                      type: string
+                      description: Color en format HEX
+                      example: "#000000"
+      responses:
+        '201':
+          description: Tag creat correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '422':
+          description: Error de validació.
+
+  /tags/{id}:
+    get:
+      summary: Obté un tag concret
+      description: Retorna les dades d'un tag segons el seu ID.
+      tags:
+        - Tags
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric del tag.
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Operació exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Tag no trobat.
+
+    patch:
+      summary: Actualitza un tag
+      description: Modifica el nom o el color d'un tag.
+      tags:
+        - Tags
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric del tag.
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tag:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "Refactorització"
+                    color:
+                      type: string
+                      example: "#9b59b6"
+      responses:
+        '200':
+          description: Tag actualitzat correctament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '401':
+          description: No autoritzat.
+        '404':
+          description: Tag no trobat.
+        '422':
+          description: Error de validació.
+
+    delete:
+      summary: Esborra un tag
+      description: Elimina un tag del sistema. Si està en ús, cal enviar el paràmetre `replacement_id`.
+      tags:
+        - Tags
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID numèric del tag que vols esborrar.
+          schema:
+            type: integer
+            example: 1
+        - name: replacement_id
+          in: query
+          required: false
+          description: L'ID del tag que heretarà les issues.
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '204':
+          description: Tag eliminat correctament.
+        '401':
+          description: No autoritzat.
+        '404':
+          description: Tag o replacement_id no trobat.
+        '422':
+          description: Error. Falta el replacement_id o s'està intentant esborrar l'últim registre.
