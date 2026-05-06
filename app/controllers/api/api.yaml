@@ -514,3 +514,111 @@ paths:
           description: Severitat o replacement_id no trobat.
         '422':
           description: Error. Falta el replacement_id o s'està intentant esborrar l'últim registre.
+
+
+  /users/{id}:
+      get:
+        summary: Obté el perfil d'un usuari
+        description: Retorna les dades públiques d'un usuari, incloent-hi la URL del seu avatar si en té.
+        tags:
+          - Users
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: ID de l'usuari
+            schema:
+              type: integer
+        responses:
+          '200':
+            description: Operació exitosa.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: "roger"
+                    full_name:
+                      type: string
+                      example: "Roger Guinovart"
+                    email:
+                      type: string
+                      example: "roger@example.com"
+                    bio:
+                      type: string
+                      example: "Desenvolupador Full-Stack"
+                    avatar_url:
+                      type: string
+                      nullable: true
+                      example: "http://localhost:10000/rails/active_storage/blobs/redirect/..."
+          '400':
+            description: Paràmetre invàlid. L'ID ha de ser un enter positiu.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: "L'ID proporcionat no és vàlid."
+          '404':
+            description: Usuari no trobat.
+
+
+  /users/{id}/assigned_issues:
+      get:
+        summary: Llista les issues assignades obertes
+        tags: [Users]
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema:
+              type: integer
+        responses:
+          '200':
+            description: Llista d'issues assignades
+          '404':
+            description: Usuari no trobat
+
+  /users/{id}/watched_issues:
+    get:
+      summary: Llista les issues observades
+      description: Requereix API Key. Només el propi usuari pot veure aquesta llista.
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Llista d'issues observades
+        '401':
+          description: No autoritzat (Falta API Key)
+        '403':
+          description: Prohibit (No ets el propietari del perfil)
+        '404':
+          description: Usuari no trobat
+
+  /users/{id}/comments:
+    get:
+      summary: Llista els comentaris de l'usuari
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Llista de comentaris
+        '404':
+          description: Usuari no trobat

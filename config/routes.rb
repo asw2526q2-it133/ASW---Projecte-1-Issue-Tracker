@@ -25,6 +25,13 @@ Rails.application.routes.draw do
     resources :issues
     resources :issue_types
     resources :severities
+    resources :users, only: [:show, :update] do
+      member do
+        get :assigned_issues
+        get :watched_issues
+        get :comments
+      end
+    end
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
