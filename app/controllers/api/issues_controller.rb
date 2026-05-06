@@ -86,17 +86,51 @@ class Api::IssuesController < Api::ApplicationController
     render json: issue_json, status: :ok
   end
 
-  # POST /api/issues
-  def create
-    @issue = Issue.new(issue_params)
-    @issue.user = current_user
+# POST /api/issues
+def create
+  Issue.transaction do
+    begin
 
-    if @issue.save
-      render json: @issue, status: :created
-    else
-      render json: { errors: @issue.errors.full_messages }, status: :unprocessable_entity
+      status    = Status.find_by!(name: params[:status])
+      issue_type = IssueType.find_by!(name: params[:type])
+      priority  = Priority.find_by!(name: params[:priority])
+      severity  = Severity.find_by!(name: params[:severity])
+
+      assignee = nil
+      if params[:assignee].present?
+        assignee = User.find_by(name: params[:assignee]) || User.find_by(email: params[:assignee])
+      end
+
+      @issue = Issue.new(
+        subject:     params[:subject],
+        description: params[:description],
+        due_date:    params[:due_date],
+        user:        current_user,
+        status:      status,
+        issue_type:  issue_type,
+        priority:    priority,
+        severity:    severity,
+        assignee:    assignee
+      )
+
+      if params[:tags].present?
+        # find_or_create_by crea el tag si no existeix encara
+        @issue.tags = Array(params[:tags]).map { |name| Tag.find_or_create_by(name: name) }
+      end
+
+      if @issue.save
+        render json: @issue.as_json(include: [:user, :status, :issue_type, :priority, :severity, :assignee, :tags]), status: :created
+      else
+        render json: { errors: @issue.errors.full_messages }, status: :unprocessable_entity
+      end
+
+    rescue ActiveRecord::RecordNotFound => e
+      render json: { error: "Atribut no trobat: #{e.message}" }, status: :unprocessable_entity
     end
   end
+rescue StandardError => e
+  render json: { error: "Error intern: #{e.message}" }, status: :internal_server_error
+end
 
   def bulk
     # Acceptem string amb salts de línia o un array directe
