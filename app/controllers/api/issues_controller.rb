@@ -82,8 +82,8 @@ class Api::IssuesController < Api::ApplicationController
 
     # 3. Guardem la issue i els comentaris a la base de dades
     if @issue.save
-      # CORREGIT: Canviat description per action
-      @issue.activities.create(action: "Issue actualitzada per #{current_user.name}")
+      # AFEGIT: user: current_user
+      @issue.activities.create!(action: "Issue actualitzada per #{current_user.name}", user: current_user)
 
       render json: @issue, status: :ok
     else
@@ -102,8 +102,8 @@ class Api::IssuesController < Api::ApplicationController
     user = User.find(params[:watcher_id])
     unless @issue.watchers.include?(user)
       @issue.watchers << user
-      # CORREGIT: Canviat description per action
-      @issue.activities.create(action: "Usuari #{user.name} afegit com a watcher per #{current_user.name}")
+      # AFEGIT: user: current_user
+      @issue.activities.create!(action: "Usuari #{user.name} afegit com a watcher per #{current_user.name}", user: current_user)
     end
     render json: { message: "Watcher afegit correctament" }, status: :ok
   rescue ActiveRecord::RecordNotFound
@@ -114,8 +114,8 @@ class Api::IssuesController < Api::ApplicationController
   def remove_watcher
     user = User.find(params[:watcher_id])
     if @issue.watchers.delete(user)
-      # Registrem l'activitat fent servir 'action'
-      @issue.activities.create(action: "Usuari #{user.name} eliminat com a watcher per #{current_user.name}")
+      # AFEGIT: user: current_user
+      @issue.activities.create!(action: "Usuari #{user.name} eliminat com a watcher per #{current_user.name}", user: current_user)
       head :no_content
     else
       render json: { error: "L'usuari no és watcher d'aquesta issue" }, status: :unprocessable_entity
@@ -128,8 +128,8 @@ class Api::IssuesController < Api::ApplicationController
   def add_attachment
     if params[:attachment].present?
       @issue.attachments.attach(params[:attachment])
-      # CORREGIT: Canviat description per action
-      @issue.activities.create(action: "Fitxer adjunt afegit per #{current_user.name}")
+      # AFEGIT: user: current_user
+      @issue.activities.create!(action: "Fitxer adjunt afegit per #{current_user.name}", user: current_user)
       render json: { message: "Fitxer adjuntat correctament" }, status: :ok
     else
       render json: { error: "Cap fitxer proporcionat" }, status: :unprocessable_entity
@@ -140,8 +140,8 @@ class Api::IssuesController < Api::ApplicationController
   def remove_attachment
     attachment = @issue.attachments.find(params[:attachment_id])
     attachment.purge
-    # CORREGIT: Canviat description per action
-    @issue.activities.create(action: "Fitxer adjunt eliminat per #{current_user.name}")
+    # AFEGIT: user: current_user
+    @issue.activities.create!(action: "Fitxer adjunt eliminat per #{current_user.name}", user: current_user)
     head :no_content
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Fitxer no trobat" }, status: :not_found
