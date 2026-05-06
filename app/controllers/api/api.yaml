@@ -307,7 +307,7 @@ paths:
 
     patch:
       summary: Actualitza dades i comentaris
-      description: Actualitza els camps generals, la data límit (due_date) i els comentaris.
+      description: Actualitza els camps generals, la data límit i els comentaris.
       tags:
         - Issues
       parameters:
@@ -328,13 +328,11 @@ paths:
                   properties:
                     subject:
                       type: string
-                      example: "Nou títol corregit"
                     description:
                       type: string
                     due_date:
                       type: string
                       format: date
-                      example: "2024-12-31"
                     status_id:
                       type: integer
                     comments_attributes:
@@ -344,7 +342,14 @@ paths:
                         properties:
                           content:
                             type: string
-                            example: "Afegint un comentari des de l'API"
+            example:
+              issue:
+                subject: "Nou títol corregit"
+                description: "Nova descripció de prova"
+                due_date: "2026-12-31"
+                status_id: 1
+                comments_attributes:
+                  - content: "Afegint un comentari des de l'API"
       responses:
         '200':
           description: Issue actualitzada.
