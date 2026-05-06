@@ -569,6 +569,44 @@ paths:
           '404':
             description: Usuari no trobat.
 
+      patch:
+        summary: Actualitza el perfil de l'usuari
+        description: Permet modificar la biografia i la foto de perfil. Requereix API Key i només el propi usuari pot editar el seu perfil.
+        tags:
+          - Users
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: ID de l'usuari a editar
+            schema:
+              type: integer
+        requestBody:
+          required: true
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  'user[bio]':
+                    type: string
+                    description: Nova biografia de l'usuari
+                  'user[avatar]':
+                    type: string
+                    format: binary
+                    description: Nova foto de perfil (JPG, PNG, WEBP)
+        responses:
+          '200':
+            description: Perfil actualitzat correctament.
+          '401':
+            description: No autoritzat (Falta API Key o és invàlida).
+          '403':
+            description: Prohibit (Estàs intentant editar el perfil d'un altre usuari).
+          '404':
+            description: Usuari no trobat.
+          '422':
+            description: Error de validació (ex. imatge massa gran o format incorrecte).
+
 
   /users/{id}/assigned_issues:
       get:
