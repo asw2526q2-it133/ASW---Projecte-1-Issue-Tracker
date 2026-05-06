@@ -25,6 +25,9 @@ Rails.application.routes.draw do
     resources :issues
     resources :issue_types
     resources :severities
+    resources :statuses
+    resources :priorities
+    resources :tags
     resources :users, only: [ :show, :update ] do
       member do
         get :assigned_issues

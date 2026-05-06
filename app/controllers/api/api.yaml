@@ -116,6 +116,53 @@ components:
         updated_at:
           type: string
           format: date-time
+    #----------------------------------------------------------
+    Status:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: "Open" }
+        color: { type: string, example: "#00ff00" }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    #----------------------------------------------------------
+    Priority:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "High"
+        color:
+          type: string
+          example: "#ff0000"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    #----------------------------------------------------------
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: "High Priority"
+        color:
+          type: string
+          example: "#f44336"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
 security:
   - ApiKeyAuth: []
 
@@ -428,6 +475,231 @@ paths:
           description: Tipus o replacement_id no trobat.
         '422':
           description: Error. Falta el replacement_id, s'està intentant esborrar l'últim registre, etc.
+
+  /statuses:
+    get:
+      summary: Llistar tots els estats
+      tags:
+        - Statuses
+      responses:
+        '200':
+          description: Llista obtinguda correctament
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+    post:
+      summary: Crear un nou estat
+      tags:
+        - Statuses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                status:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "In Progress"
+                    color:
+                      type: string
+                      example: "#FFA500"
+      responses:
+        '201':
+          description: Estat creat correctament
+        '422':
+          description: Error de validació
+
+  /statuses/{id}:
+    get:
+      summary: Obtenir un estat per ID
+      tags:
+        - Statuses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detall de l'estat
+        '404':
+          description: Estat no trobat
+
+    patch:
+      summary: Actualitzar un estat
+      tags:
+        - Statuses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    color:
+                      type: string
+      responses:
+        '200':
+          description: Estat actualitzat
+        '422':
+          description: Error de validació
+
+    delete:
+      summary: Esborrar un estat
+      description: |
+        Si l'estat s'està utilitzant en alguna issue, cal proporcionar un `replacement_id` 
+        per reassignar-les abans d'esborrar.
+      tags:
+        - Statuses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: replacement_id
+          in: query
+          description: ID de l'estat que substituirà l'actual en les issues existents.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Estat esborrat (sense contingut)
+        '404':
+          description: Estat o replacement_id no trobat
+        '422':
+          description: Error de validació o falta el replacement_id
+  /priorities:
+    get:
+      summary: Llistar totes les prioritats
+      tags:
+        - Priorities
+      responses:
+        '200':
+          description: Llista de prioritats obtinguda correctament
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Priority'
+    post:
+      summary: Crear una nova prioritat
+      tags:
+        - Priorities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                priority:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "Urgent"
+                    color:
+                      type: string
+                      example: "#cc0000"
+      responses:
+        '201':
+          description: Prioritat creada
+        '422':
+          description: Error de validació
+
+  /priorities/{id}:
+    get:
+      summary: Obtenir una prioritat per ID
+      tags:
+        - Priorities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detall de la prioritat
+        '404':
+          description: Prioritat no trobada
+
+    patch:
+      summary: Actualitzar una prioritat
+      tags:
+        - Priorities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priority:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    color:
+                      type: string
+      responses:
+        '200':
+          description: Prioritat actualitzada
+
+    delete:
+      summary: Esborrar una prioritat
+      description: |
+        Si la prioritat s'utilitza en alguna issue, cal un `replacement_id` per reassignar-les.
+      tags:
+        - Priorities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: replacement_id
+          in: query
+          description: ID de la prioritat que substituirà la que s'esborra.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Prioritat esborrada
+        '422':
+          description: Error (falta replacement_id o ID no vàlid)
+
   /severities:
     get:
       summary: Llista totes les severitats
@@ -579,6 +851,115 @@ paths:
         '422':
           description: Error. Falta el replacement_id o s'està intentant esborrar l'últim registre.
 
+  /tags:
+    get:
+      summary: Llistar tots els tags
+      description: Retorna un llistat complet de totes les etiquetes disponibles.
+      tags:
+        - Tags
+      responses:
+        '200':
+          description: Llista obtinguda correctament.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+    post:
+      summary: Crear un nou tag
+      tags:
+        - Tags
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tag
+              properties:
+                tag:
+                  type: object
+                  required:
+                    - name
+                  properties:
+                    name:
+                      type: string
+                      example: "Bug Fix"
+                    color:
+                      type: string
+                      example: "#e91e63"
+      responses:
+        '201':
+          description: Tag creat correctament.
+        '422':
+          description: Error de validació (nom buit o duplicat).
+
+  /tags/{id}:
+    get:
+      summary: Obtenir un tag per ID
+      tags:
+        - Tags
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detall del tag.
+        '404':
+          description: Tag no trobat.
+
+    patch:
+      summary: Actualitzar un tag
+      tags:
+        - Tags
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tag:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    color:
+                      type: string
+      responses:
+        '200':
+          description: Tag actualitzat.
+        '404':
+          description: Tag no trobat.
+        '422':
+          description: Error de validació.
+
+    delete:
+      summary: Esborrar un tag
+      description: Elimina el tag i les seves relacions amb les issues (no requereix replacement_id).
+      tags:
+        - Tags
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tag eliminat correctament (sense contingut).
+        '404':
+          description: Tag no trobat.
 
   /users/{id}:
       get:
