@@ -226,57 +226,90 @@ paths:
                   $ref: '#/components/schemas/Issue'
         '401':
           description: No autoritzat. L'API Key és absent o incorrecta.
-  
-          
+
     post:
-      summary: Crea una nova issue
-      description: Afegeix una nova incidència al sistema. Fa servir multipart/form-data per permetre pujar fitxers al crear.
+      summary: Crear una nova issue
+      description: |
+        Crea una issue utilitzant els noms dels atributs (Status, Type, Priority, Severity). 
+        Si s'inclouen tags que no existeixen, es crearan automàticament.
       tags:
         - Issues
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
+              required:
+                - subject
+                - status
+                - type
+                - priority
+                - severity
               properties:
-                'issue[subject]':
+                subject:
                   type: string
-                  description: Títol de la issue (Obligatori)
-                  example: "S'ha trencat el botó de login"
-                'issue[description]':
+                  description: Títol de la issue.
+                  example: "Error en la validació del formulari"
+                description:
                   type: string
-                  description: Descripció detallada
-                  example: "Quan intento fer login, la pàgina dóna error 500."
-                'issue[issue_type_id]':
-                  type: integer
-                  example: 1
-                'issue[severity_id]':
-                  type: integer
-                  example: 1
-                'issue[priority_id]':
-                  type: integer
-                  example: 1
-                'issue[status_id]':
-                  type: integer
-                  example: 1
-                'issue[attachments][]':
+                  description: Descripció detallada del problema.
+                  example: "Quan l'usuari deixa el camp buit, l'app peta."
+                status:
+                  type: string
+                  description: Nom de l'estat.
+                  example: "New"
+                type:
+                  type: string
+                  description: Nom del tipus d'issue.
+                  example: "Bug"
+                priority:
+                  type: string
+                  description: Nom de la prioritat.
+                  example: "High"
+                severity:
+                  type: string
+                  description: Nom de la severitat.
+                  example: "Critical"
+                due_date:
+                  type: string
+                  format: date
+                  description: Data límit per resoldre la issue.
+                  example: "2026-05-20"
+                assignee:
+                  type: string
+                  description: Nom o Email de l'usuari a qui s'assigna la issue.
+                  example: "Joan"
+                tags:
                   type: array
+                  description: Llista de noms de tags.
                   items:
                     type: string
-                    format: binary
-                  description: "Pots seleccionar i pujar diversos fitxers aquí"
+                  example: ["frontend", "security"]
       responses:
         '201':
-          description: Issue creada correctament.
+          description: Issue creada amb èxit.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Issue'
-        '401':
-          description: No autoritzat. Api-Key invàlida o absent.
         '422':
-          description: Error de validació (ex. falta el subject).
+          description: Atribut no trobat (nom incorrecte) o error de validació.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: string
+        '500':
+          description: Error intern del servidor.
 
   /issues/bulk:
     post:
