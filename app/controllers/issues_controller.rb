@@ -76,11 +76,17 @@ class IssuesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /issues/1 or /issues/1.json
+# PATCH/PUT /issues/1 or /issues/1.json
   def update
+    # "foto" dels IDs abans d'actualitzar
+    old_tag_ids = @issue.tag_ids.sort
+    old_watcher_ids = @issue.watcher_ids.sort
+    old_attachment_ids = @issue.attachments.pluck(:id).sort
+
     respond_to do |format|
       if @issue.update(issue_params)
 
+        # Gestió d'esborrat d'adjunts
         if params[:issue] && params[:issue][:remove_attachments].present?
           params[:issue][:remove_attachments].each do |attachment_id|
             attachment = @issue.attachments.find_by(id: attachment_id)
@@ -88,14 +94,47 @@ class IssuesController < ApplicationController
           end
         end
 
-        cambios = @issue.saved_changes.except(:updated_at).keys.map(&:humanize).join(", ")
-        desc_accion = cambios.present? ? "updated #{cambios}" : "updated the issue"
+        # IDs després d'actualitzar
+        # Fem .reload als attachments per assegurar-nos que detecta els que acabem d'esborrar o afegir
+        new_tag_ids = @issue.tag_ids.sort
+        new_watcher_ids = @issue.watcher_ids.sort
+        new_attachment_ids = @issue.attachments.reload.pluck(:id).sort
 
-        Activity.create(
-          issue: @issue,
-          user: current_user,
-          action: desc_accion
-        )
+        # REGISTRE D'ACTIVITATS
+        changed_fields = @issue.saved_changes.except(:updated_at).keys
+        
+        # canvis als tags, watchers i attachments si han canviat
+        changed_fields << 'tags' if old_tag_ids != new_tag_ids
+        changed_fields << 'watchers' if old_watcher_ids != new_watcher_ids
+        changed_fields << 'attachments' if old_attachment_ids != new_attachment_ids
+        
+        if changed_fields.any?
+          humanized_changes = changed_fields.map do |field|
+            case field
+            when 'status_id' then 'Status'
+            when 'priority_id' then 'Priority'
+            when 'severity_id' then 'Severity'
+            when 'issue_type_id' then 'Type'
+            when 'assignee_id' then 'Assignee'
+            when 'subject' then 'Subject'
+            when 'description' then 'Description'
+            when 'due_date' then 'Due Date'
+            when 'tags' then 'Tags'
+            when 'watchers' then 'Watchers'
+            when 'attachments' then 'Attachments'
+            else field.humanize
+            end
+          end
+
+          action_text = "updated #{humanized_changes.to_sentence}"
+
+          Activity.create(
+            issue: @issue,
+            user: current_user,
+            action: action_text,
+            changes_log: nil
+          )
+        end
 
         format.html { redirect_to @issue, notice: "Issue was successfully updated.", status: :see_other }
         format.json { render :show, status: :ok, location: @issue }
