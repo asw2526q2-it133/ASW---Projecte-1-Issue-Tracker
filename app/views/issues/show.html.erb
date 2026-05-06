@@ -169,7 +169,7 @@
     <div class="sidebar-item" style="margin-bottom: 20px;">
       <label style="font-size: 11px; color: #8a9ab0; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">ASSIGNED TO</label>
       <div class="user-info" style="display: flex; align-items: center; font-size: 14px; color: #3c4b5f;">
-        <% if @issue.user %>
+        <% if @issue.assignee %>
           <div class="avatar" style="width: 24px; height: 24px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; margin-right: 8px;"><%= @issue.user.name.first.upcase %></div>
           
           <%= link_to @issue.user.name, profile_path(@issue.user), style: "color: #3c4b5f; text-decoration: none;" %>

@@ -92,7 +92,7 @@
         <div style="width: 120px; text-align: center;"><%= sortable "status_id", "STATUS" %></div>
         <div style="width: 120px; text-align: center;"><%= sortable "updated_at", "MODIFIED" %></div>
         <div style="width: 100px; text-align: center;"><%= sortable "due_date", "DUE DATE" %></div>
-        <div style="width: 80px; text-align: center;">ASSIGN</div>
+        <div style="width: 80px; text-align: center;">ASSIGNEE</div>
       </div>
 
       <div class="table-body" style="flex: 1; overflow-y: auto;">
@@ -131,7 +131,7 @@
 
               <div style="width: 80px; display: flex; justify-content: center;">
                 <div style="width: 30px; height: 30px; background: #cfd8dc; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
-                  <%= issue.user&.name&.first&.upcase || "?" %>
+                  <%= issue.assignee&.name&.first&.upcase || "?" %>
                 </div>
               </div>
             </div>
