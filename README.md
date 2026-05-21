@@ -7,6 +7,7 @@
 
 https://tree.taiga.io/project/arnau1741-asw2526q2-it133/timeline
 asw-projecte-1-issue-tracker-1278.onrender.com
+https://asw-taiga-it133-frontend.onrender.com/issues
 
 
 This README would normally document whatever steps are necessary to get the
