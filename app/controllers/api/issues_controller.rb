@@ -38,7 +38,6 @@ class Api::IssuesController < Api::ApplicationController
 
     # SERIALITZACIÓ I RESPOSTA
     issues_json = @issues.as_json(
-      except: [ :created_at, :updated_at ],
       include: {
         user: { only: [ :id, :name, :email ] },
         assignee: { only: [ :id, :name, :email ] },
