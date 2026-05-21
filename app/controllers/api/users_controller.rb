@@ -11,27 +11,9 @@ class Api::UsersController < Api::ApplicationController
     render json: { error: 'Usuari no trobat' }, status: :not_found
   end
 
-  def assigned_issues
+def assigned_issues
     @user = User.find(params[:id])
     render json: @user.assigned_issues.open_assigned.as_json(
-    only: [:id, :subject, :updated_at],
-    include: {
-      status:     { only: [:id, :name, :color] },
-      issue_type: { only: [:id, :name, :color] },
-      severity:   { only: [:id, :name, :color] },
-      priority:   { only: [:id, :name, :color] }
-    }
-  ), status: :ok
-
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Usuari no trobat' }, status: :not_found
-  end
-
-  def watched_issues
-    @user = User.find(params[:id])
-    
-    # Validació: Només el propi usuari pot veure les seves watched issues
-    if current_user == @user
       only: [:id, :subject, :updated_at],
       include: {
         status:     { only: [:id, :name, :color] },
@@ -39,9 +21,24 @@ class Api::UsersController < Api::ApplicationController
         severity:   { only: [:id, :name, :color] },
         priority:   { only: [:id, :name, :color] }
       }
-    else
-      render json: { error: 'No tens permís per veure les issues observades d\'aquest usuari' }, status: :forbidden
-    end
+    ), status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Usuari no trobat' }, status: :not_found
+  end
+
+  def watched_issues
+    @user = User.find(params[:id])
+    
+    # He borrado la validación. Ahora cualquier usuario autenticado puede ver esta lista.
+    render json: @user.watched_issues.as_json(
+      only: [:id, :subject, :updated_at],
+      include: {
+        status:     { only: [:id, :name, :color] },
+        issue_type: { only: [:id, :name, :color] },
+        severity:   { only: [:id, :name, :color] },
+        priority:   { only: [:id, :name, :color] }
+      }
+    ), status: :ok
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Usuari no trobat' }, status: :not_found
   end
