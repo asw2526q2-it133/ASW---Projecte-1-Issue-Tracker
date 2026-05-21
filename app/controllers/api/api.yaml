@@ -18,6 +18,34 @@ components:
       name: X-Api-Key
 
   schemas:
+    TagMetadata:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        color:
+          type: string
+
+    IssueProfileResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        subject:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/TagMetadata'
+        issue_type:
+          $ref: '#/components/schemas/TagMetadata'
+        severity:
+          $ref: '#/components/schemas/TagMetadata'
+        priority:
+          $ref: '#/components/schemas/TagMetadata'
     # Esquemes per a Comentaris i Activitats
     Comment:
       type: object
@@ -1404,20 +1432,27 @@ paths:
 
 
   /users/{id}/assigned_issues:
-      get:
-        summary: Llista les issues assignades obertes
-        tags: [Users]
-        parameters:
-          - name: id
-            in: path
-            required: true
-            schema:
-              type: integer
-        responses:
-          '200':
-            description: Llista d'issues assignades
-          '404':
-            description: Usuari no trobat
+    get:
+      summary: Llista les issues assignades obertes
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Llista d'issues assignades
+          # 👇 AÑADE ESTO PARA DEFINIR LO QUE DEVUELVE TU RAILS
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IssueProfileResponse'
+        '404':
+          description: Usuari no trobat
 
   /users/{id}/watched_issues:
     get:
@@ -1433,6 +1468,13 @@ paths:
       responses:
         '200':
           description: Llista d'issues observades
+          # 👇 AÑADE ESTO TAMBIÉN AQUÍ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IssueProfileResponse'
         '401':
           description: No autoritzat (Falta API Key)
         '403':
