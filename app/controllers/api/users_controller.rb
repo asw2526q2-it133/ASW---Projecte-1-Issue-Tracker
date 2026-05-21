@@ -53,6 +53,11 @@ class Api::UsersController < Api::ApplicationController
     render json: { error: 'Usuari no trobat' }, status: :not_found
   end
 
+  def index
+    @users = User.all
+    render json: @users.as_json(only: [:id, :name, :email]), status: :ok
+  end
+
   private
 
   def user_params

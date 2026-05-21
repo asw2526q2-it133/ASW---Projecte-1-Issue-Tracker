@@ -45,7 +45,7 @@ namespace :api do
     resources :priorities
     resources :tags
 
-    resources :users, only: [ :show, :update ] do
+    resources :users, only: [ :index, :show, :update ] do
       member do
         get :assigned_issues
         get :watched_issues
