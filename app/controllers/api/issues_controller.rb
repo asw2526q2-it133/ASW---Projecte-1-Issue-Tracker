@@ -67,7 +67,11 @@ class Api::IssuesController < Api::ApplicationController
             user: { only: [ :id, :name ] }
           }
         },
-        activities: {}
+        activities: {
+          include: {
+            user: { only: [ :id, :name ] }
+          }
+        }
       }
     )
 
