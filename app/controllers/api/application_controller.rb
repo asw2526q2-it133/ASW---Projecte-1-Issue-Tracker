@@ -4,12 +4,12 @@ class Api::ApplicationController < ActionController::API
   private
 
   def authenticate_api_key!
-    api_key = request.headers["X-Api-Key"] # Extraiem la Api-Key del header
+    api_key = request.headers["X-Api-Key"]
 
-    @current_user = User.find_by(api_key: api_key) # Busquem l'usuari que tingui aquesta clau
+    @current_user = User.find_by(api_key: api_key)
 
     unless @current_user
-      render json: { error: "No autorizat. Api-Key invàlida o ausent" }, status: :unauthorized
+      render json: { error: "No autoritzat. Api-Key invàlida o absent" }, status: :unauthorized
     end
   end
 

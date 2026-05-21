@@ -26,7 +26,7 @@ namespace :api do
       collection do
         post :bulk
       end
-      
+
       # Rutes de membre (afecten a una issue concreta, ex: /issues/1/watchers)
       member do
         post :watchers, to: "issues#add_watcher"
@@ -36,7 +36,7 @@ namespace :api do
       end
 
       # Rutes niades per als comentaris
-      resources :comments, only: [:index, :create, :update, :destroy]
+      resources :comments, only: [ :create, :update, :destroy ]
     end
 
     resources :issue_types
@@ -44,7 +44,7 @@ namespace :api do
     resources :statuses
     resources :priorities
     resources :tags
-    
+
     resources :users, only: [ :show, :update ] do
       member do
         get :assigned_issues

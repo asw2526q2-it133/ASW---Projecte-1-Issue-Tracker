@@ -381,8 +381,8 @@ paths:
           description: Error. La issue sol·licitada no existeix.
 
     patch:
-      summary: Actualitza dades i comentaris
-      description: Actualitza els camps generals, la data límit i els comentaris.
+      summary: Actualitza dades generals de la issue
+      description: Actualitza els camps generals com l'estat, prioritat o data límit. (La gestió de comentaris es fa ara a les seves pròpies rutes).
       tags:
         - Issues
       parameters:
@@ -410,21 +410,12 @@ paths:
                       format: date
                     status_id:
                       type: integer
-                    comments_attributes:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          content:
-                            type: string
             example:
               issue:
                 subject: "Nou títol corregit"
                 description: "Nova descripció de prova"
                 due_date: "2026-12-31"
                 status_id: 1
-                comments_attributes:
-                  - content: "Afegint un comentari des de l'API"
       responses:
         '200':
           description: Issue actualitzada.
@@ -451,6 +442,136 @@ paths:
           description: No tens permís.
         '404':
           description: La issue no existeix.
+
+  # ---------------------------------------------------------
+  # NOU: GESTIÓ DE COMENTARIS
+  # ---------------------------------------------------------
+  /issues/{id}/comments:
+    post:
+      summary: Afegir un comentari
+      description: Crea un nou comentari a la incidència. Requereix API Key.
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID de la incidència.
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: object
+                  required:
+                    - content
+                  properties:
+                    content:
+                      type: string
+                      example: "He provat la solució i ja funciona correctament."
+      responses:
+        '201':
+          description: Comentari creat amb èxit.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '404':
+          description: Error. La issue sol·licitada no existeix.
+        '422':
+          description: Error de validació (ex contingut buit).
+
+  /issues/{id}/comments/{comment_id}:
+    patch:
+      summary: Actualitzar un comentari
+      description: Modifica el contingut d'un comentari existent. Només ho pot fer l'autor.
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID de la incidència.
+          schema:
+            type: integer
+            example: 1
+        - name: comment_id
+          in: path
+          required: true
+          description: L'ID del comentari a actualitzar.
+          schema:
+            type: integer
+            example: 5
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: object
+                  required:
+                    - content
+                  properties:
+                    content:
+                      type: string
+                      example: "Text del comentari editat."
+      responses:
+        '200':
+          description: Comentari actualitzat amb èxit.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '403':
+          description: No tens permís per editar aquest comentari (no ets l'autor).
+        '404':
+          description: La issue o el comentari no existeixen.
+        '422':
+          description: Error de validació.
+
+    delete:
+      summary: Eliminar un comentari
+      description: Esborra un comentari del sistema. Només ho pot fer l'autor.
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID de la incidència.
+          schema:
+            type: integer
+            example: 1
+        - name: comment_id
+          in: path
+          required: true
+          description: L'ID del comentari a esborrar.
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '204':
+          description: Comentari eliminat correctament.
+        '401':
+          description: No autoritzat. Api-Key invàlida o absent.
+        '403':
+          description: No tens permís per eliminar aquest comentari (no ets l'autor).
+        '404':
+          description: La issue o el comentari no existeixen.
+
+  # ---------------------------------------------------------
 
   /issues/{id}/watchers:
     post:
